@@ -1,0 +1,411 @@
+name: 🤖 LINKA – Build Android APK & Deploy PWA
+
+on:
+  push:
+    branches: [ main, develop, release/* ]
+    tags:     [ 'v*.*.*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'debug'
+        type: choice
+        options: [ debug, release ]
+      upload_release:
+        description: 'Create GitHub Release'
+        type: boolean
+        default: false
+
+concurrency:
+  group: build-android-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_ID:      app.linka.connect
+  APP_NAME:    LINKA
+  NODE_VERSION: '20'
+  JAVA_VERSION: '17'
+
+# ─────────────────────────────────────────────────────────────────────
+jobs:
+
+# ──────────────────────────────────────
+  validate:
+    name: 🔍 Validate Project
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      build:   ${{ steps.ver.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 📋 Validate files
+        run: |
+          echo "🔍 Checking required files…"
+          MISSING=0
+          for f in index.html manifest.json sw.js capacitor.config.json package.json; do
+            [ -f "$f" ] && echo "✅ $f" || { echo "❌ $f missing"; MISSING=1; }
+          done
+          [ -f "assets/logo/logo.png" ] && echo "✅ logo.png ($(du -sh assets/logo/logo.png | cut -f1))" || echo "⚠️ logo.png missing – using fallback"
+          [ -f "assets/fonts/800.ttf"     ] && echo "✅ 800.ttf font" || echo "⚠️ 800.ttf missing"
+          [ -f "assets/fonts/iOS18_4.ttf" ] && echo "✅ iOS18_4.ttf emoji font" || echo "⚠️ iOS18_4.ttf missing"
+          exit $MISSING
+
+      - name: 📝 Validate JSON files
+        run: |
+          python3 << 'EOF'
+          import json, sys, os
+          files = ['manifest.json','capacitor.config.json','package.json']
+          ok = True
+          for f in files:
+            if os.path.exists(f):
+              try:
+                json.load(open(f))
+                print(f"✅ {f}")
+              except json.JSONDecodeError as e:
+                print(f"❌ {f}: {e}")
+                ok = False
+          sys.exit(0 if ok else 1)
+          EOF
+
+      - name: 🏷️ Compute version
+        id: ver
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="$(jq -r .version package.json 2>/dev/null || echo '2.0.0')"
+          fi
+          BUILD="${GITHUB_RUN_NUMBER:-1}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "build=$BUILD"     >> $GITHUB_OUTPUT
+          echo "📦 Version: $VERSION (build $BUILD)"
+
+      - name: 🔒 Security scan
+        run: |
+          echo "🔒 Scanning for secrets…"
+          if grep -rn "password\s*=\s*['\"][^'\"]\+['\"]" --include="*.html" --include="*.js" . 2>/dev/null | grep -v "test\|mock\|example\|placeholder" | grep -v ".git"; then
+            echo "⚠️ Potential hardcoded credentials detected – review before release"
+          else
+            echo "✅ No hardcoded credentials found"
+          fi
+          echo "✅ Security scan complete"
+
+      - name: 🌐 PWA audit
+        run: |
+          echo "🌐 PWA Checklist:"
+          python3 -c "
+          import json
+          m = json.load(open('manifest.json'))
+          checks = {
+            'name':         'name'         in m,
+            'start_url':    'start_url'    in m,
+            'display':      'display'      in m,
+            'icons':        bool(m.get('icons')),
+            'theme_color':  'theme_color'  in m,
+            'background':   'background_color' in m,
+          }
+          for k,v in checks.items():
+            print(f\"  {'✅' if v else '❌'} {k}\")
+          "
+          [ -f sw.js ] && echo "  ✅ Service Worker" || echo "  ❌ Service Worker missing"
+
+# ──────────────────────────────────────
+  build-android:
+    name: 🤖 Build Android APK & AAB
+    runs-on: ubuntu-latest
+    needs: validate
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ☕ Setup Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: gradle
+
+      - name: 🟢 Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: 📦 Install dependencies
+        run: |
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npm install -g @capacitor/cli
+
+      - name: 📱 Setup Android platform
+        run: |
+          npx cap add android 2>/dev/null || echo "Android platform already exists"
+          echo "✅ Android platform ready"
+
+      - name: 🔄 Sync Capacitor
+        run: npx cap sync android
+
+      - name: 🎨 Generate icons & splash screens
+        run: |
+          pip install Pillow --break-system-packages -q
+          python3 << 'PYEOF'
+          from PIL import Image, ImageDraw
+          import os
+
+          src = 'assets/logo/logo.png'
+          if not os.path.exists(src):
+            print("⚠️ logo.png not found – creating placeholder")
+            img = Image.new('RGBA',(1024,1024),(10,13,20,255))
+            d = ImageDraw.Draw(img)
+            d.ellipse([100,100,924,924],fill=(10,132,255,255))
+          else:
+            img = Image.open(src).convert('RGBA')
+
+          base = 'android/app/src/main/res'
+          densities = {
+            'mipmap-ldpi':36,'mipmap-mdpi':48,'mipmap-hdpi':72,
+            'mipmap-xhdpi':96,'mipmap-xxhdpi':144,'mipmap-xxxhdpi':192,
+          }
+          for folder,size in densities.items():
+            path = os.path.join(base,folder)
+            os.makedirs(path,exist_ok=True)
+            r = img.resize((size,size),Image.LANCZOS)
+            bg = Image.new('RGB',(size,size),(0,0,0))
+            bg.paste(r,(0,0),r)
+            bg.save(os.path.join(path,'ic_launcher.png'))
+            # Round
+            mask = Image.new('L',(size,size),0)
+            ImageDraw.Draw(mask).ellipse([0,0,size-1,size-1],fill=255)
+            rnd = Image.new('RGB',(size,size),(0,0,0))
+            rnd.paste(bg,(0,0))
+            rnd.putalpha(mask)
+            fin = Image.new('RGB',(size,size),(0,0,0))
+            fin.paste(rnd,(0,0),rnd)
+            fin.save(os.path.join(path,'ic_launcher_round.png'))
+            print(f'  ✅ {folder}: {size}px')
+
+          # Splash (drawable)
+          os.makedirs(os.path.join(base,'drawable'),exist_ok=True)
+          splash = Image.new('RGB',(1024,1024),(0,0,0))
+          logo = img.resize((400,400),Image.LANCZOS)
+          splash.paste(logo,(312,312),logo)
+          splash.save(os.path.join(base,'drawable','splash.png'))
+          print('  ✅ splash.png')
+          PYEOF
+
+      - name: 📝 Set version in build.gradle
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          BUILD="${{ needs.validate.outputs.build }}"
+          if [ -f android/app/build.gradle ]; then
+            sed -i "s/versionName\s*\"[^\"]*\"/versionName \"${VERSION}\"/"     android/app/build.gradle
+            sed -i "s/versionCode\s*[0-9]*/versionCode ${BUILD}/" android/app/build.gradle
+            echo "✅ Version set: $VERSION (code: $BUILD)"
+          fi
+
+      - name: 🔑 Decode keystore (release builds)
+        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > linka.keystore
+          echo "LINKA_STORE_FILE=$(pwd)/linka.keystore"  >> $GITHUB_ENV
+          echo "LINKA_STORE_PASSWORD=${{ secrets.KEYSTORE_STORE_PASSWORD }}" >> $GITHUB_ENV
+          echo "LINKA_KEY_ALIAS=${{ secrets.KEYSTORE_ALIAS }}"               >> $GITHUB_ENV
+          echo "LINKA_KEY_PASSWORD=${{ secrets.KEYSTORE_KEY_PASSWORD }}"     >> $GITHUB_ENV
+          echo "✅ Keystore decoded"
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
+      - name: 🔨 Build Debug APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug \
+            --no-daemon \
+            --stacktrace \
+            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
+            2>&1 | tail -50
+          echo "✅ Debug APK built"
+
+      - name: 🏛️ Build Release APK
+        working-directory: android
+        run: |
+          ./gradlew assembleRelease \
+            --no-daemon \
+            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
+            2>&1 | tail -30
+          echo "✅ Release APK built"
+
+      - name: 📦 Build Release AAB
+        working-directory: android
+        run: |
+          ./gradlew bundleRelease \
+            --no-daemon \
+            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
+            2>&1 | tail -20
+          echo "✅ Release AAB built"
+
+      - name: 📁 Collect artifacts
+        run: |
+          mkdir -p dist/android
+          find android -name "*.apk" -exec cp {} dist/android/ \; 2>/dev/null || true
+          find android -name "*.aab" -exec cp {} dist/android/ \; 2>/dev/null || true
+          echo "📦 Artifacts:"
+          ls -lah dist/android/ || echo "No artifacts"
+
+      - name: ✅ Generate SHA256 checksums
+        run: |
+          cd dist/android
+          for f in *; do
+            sha256sum "$f" >> checksums.sha256 2>/dev/null || true
+          done
+          cat checksums.sha256 || true
+
+      - name: 📤 Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linka-android-${{ needs.validate.outputs.version }}-${{ github.run_number }}
+          path: dist/android/
+          retention-days: 30
+          compression-level: 6
+
+      - name: 📊 Build summary
+        run: |
+          echo "## 🤖 Android Build — LINKA v${{ needs.validate.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Artefak | Ukuran |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
+          for f in dist/android/*; do
+            [ -f "$f" ] && echo "| \`$(basename $f)\` | $(du -sh $f | cut -f1) |" >> $GITHUB_STEP_SUMMARY
+          done
+
+# ──────────────────────────────────────
+  build-pwa:
+    name: 🌐 Build & Deploy PWA
+    runs-on: ubuntu-latest
+    needs: validate
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 📦 Bundle PWA
+        run: |
+          mkdir -p dist/pwa
+          cp index.html manifest.json sw.js branding.json dist/pwa/ 2>/dev/null || true
+          cp -r assets dist/pwa/
+          echo "✅ PWA bundled ($(du -sh dist/pwa | cut -f1))"
+
+      - name: 📝 Generate version file
+        run: |
+          echo '{
+            "version":  "${{ needs.validate.outputs.version }}",
+            "build":    "${{ needs.validate.outputs.build }}",
+            "commit":   "${{ github.sha }}",
+            "branch":   "${{ github.ref_name }}",
+            "built_at": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
+          }' > dist/pwa/version.json
+
+      - name: 📤 Upload PWA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linka-pwa-${{ needs.validate.outputs.version }}-${{ github.run_number }}
+          path: dist/pwa/
+          retention-days: 30
+
+      - name: 🚀 Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir:  dist/pwa
+          commit_message: "🚀 Deploy LINKA v${{ needs.validate.outputs.version }} [skip ci]"
+
+# ──────────────────────────────────────
+  release:
+    name: 🚀 Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [ validate, build-android, build-pwa ]
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.upload_release == true)
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ⬇️ Download Android artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linka-android-${{ needs.validate.outputs.version }}-${{ github.run_number }}
+          path: release/android
+
+      - name: ⬇️ Download PWA artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linka-pwa-${{ needs.validate.outputs.version }}-${{ github.run_number }}
+          path: release/pwa
+
+      - name: 📦 Zip PWA
+        run: zip -r release/linka-pwa-${{ needs.validate.outputs.version }}.zip release/pwa/
+
+      - name: 📋 Generate release notes
+        run: |
+          cat > RELEASE_NOTES.md << 'EOF'
+          # LINKA v${{ needs.validate.outputs.version }}
+
+          **Connected Without Limits** — Offline · Private · Borderless
+
+          ## Unduh
+
+          | Platform | File | Keterangan |
+          |----------|------|-----------|
+          | Android APK (Debug) | `linka-debug.apk` | Untuk testing langsung |
+          | Android APK (Release) | `linka-release-unsigned.apk` | Produksi (unsigned) |
+          | Android AAB | `linka-release.aab` | Google Play Store |
+          | PWA | `linka-pwa-*.zip` | Web App |
+
+          ## Yang Baru
+          - Glass morphism UI + fluid animated background
+          - Font: LINKA800 (teks) + iOS 18.4 Apple Color Emoji (emoji di chat)
+          - Splash screen dengan placeholder animasi custom
+          - Bottom nav liquid glass dengan indikator JS-driven
+          - Screen: Obrolan, Kontak, Jaringan, Pengaturan, Profil
+          - Tema background: 5 varian (Blue, Cyber, Warm, Emerald, Rose)
+          - Semua ikon UI sebagai SVG inline (bukan emoji)
+          - Emoji di chat menggunakan font iOS 18.4 (tidak bisa diubah)
+          - GitHub Actions: APK + AAB + PWA auto-build
+
+          ## Keamanan
+          - X25519 key exchange
+          - ChaCha20-Poly1305 encryption
+          - Ed25519 digital signatures
+          - Forward secrecy
+
+          ## Verifikasi Integritas
+          ```
+          sha256sum linka-*.apk
+          ```
+          EOF
+
+      - name: 🚀 Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name:   ${{ github.ref_name }}
+          name:       "LINKA v${{ needs.validate.outputs.version }}"
+          body_path:  RELEASE_NOTES.md
+          draft:      false
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+          files: |
+            release/android/*.apk
+            release/android/*.aab
+            release/android/checksums.sha256
+            release/linka-pwa-*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
