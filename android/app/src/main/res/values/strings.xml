@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LINKA</string>
+    <string name="title_activity_main">LINKA</string>
+    <string name="package_name">app.linka.connect</string>
+    <string name="custom_url_scheme">linka</string>
+    <string name="app_tagline">Connected Without Limits</string>
+    <string name="channel_id">linka_messages</string>
+    <string name="channel_name">Pesan LINKA</string>
+    <string name="channel_description">Notifikasi pesan dari LINKA</string>
+</resources>
