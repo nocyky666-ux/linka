@@ -1,0 +1,113 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace    "app.linka.connect"
+    compileSdk   34
+
+    defaultConfig {
+        applicationId "app.linka.connect"
+        minSdk          24
+        targetSdk       34
+        versionCode 1
+        versionName "2.0.0"
+        multiDexEnabled true
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        aaptOptions {
+            ignoreAssetsPattern '!.svn:!.git:!.DS_Store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+
+        vectorDrawables.useSupportLibrary = true
+
+        // Proguard
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+
+    signingConfigs {
+        debug {
+            storeFile     file("${rootDir}/debug.keystore")
+            storePassword "android"
+            keyAlias      "androiddebugkey"
+            keyPassword   "android"
+        }
+        release {
+            if (project.hasProperty('LINKA_STORE_FILE')) {
+                storeFile     file(LINKA_STORE_FILE)
+                storePassword project.property('LINKA_STORE_PASSWORD') ?: ''
+                keyAlias      project.property('LINKA_KEY_ALIAS') ?: 'linka'
+                keyPassword   project.property('LINKA_KEY_PASSWORD') ?: ''
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix  ".debug"
+            versionNameSuffix    "-debug"
+            debuggable           true
+            minifyEnabled        false
+            signingConfig        signingConfigs.debug
+        }
+        release {
+            minifyEnabled        true
+            shrinkResources      true
+            debuggable           false
+            signingConfig        project.hasProperty('LINKA_STORE_FILE') ? signingConfigs.release : signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled true
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+
+    packagingOptions {
+        jniLibs { useLegacyPackaging true }
+        resources {
+            excludes += ['/META-INF/{AL2.0,LGPL2.1}', 'META-INF/NOTICE.md', 'META-INF/LICENSE.md']
+        }
+    }
+
+    bundle {
+        language   { enableSplit = false }
+        density    { enableSplit = true  }
+        abi        { enableSplit = true  }
+    }
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // AndroidX
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "androidx.core:core-ktx:1.12.0"
+    implementation "androidx.core:core-splashscreen:1.0.1"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:1.2.0"
+    implementation "androidx.multidex:multidex:2.0.1"
+    implementation "androidx.biometric:biometric:1.2.0-alpha05"
+
+    // Desugaring for Java 8+ APIs on older Android
+    coreLibraryDesugaring "com.android.tools.build:desugaring:2.0.4"
+
+    // Capacitor
+    implementation project(':capacitor-android')
+
+    // Firebase (optional – for future push)
+    // implementation platform("com.google.firebase:firebase-bom:32.7.0")
+    // implementation "com.google.firebase:firebase-messaging"
+}
+
+apply from: 'capacitor.build.gradle'
