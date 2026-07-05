@@ -146,6 +146,14 @@ jobs:
           npx cap add android 2>/dev/null || echo "Android platform already exists"
           echo "✅ Android platform ready"
 
+      - name: 📄 Prepare webDir
+        run: |
+          mkdir -p www
+          cp index.html manifest.json sw.js www/
+          [ -f branding.json ] && cp branding.json www/ || true
+          cp -r assets www/
+          echo "✅ www/ ready ($(du -sh www | cut -f1))"
+
       - name: 🔄 Sync Capacitor
         run: npx cap sync android
 
