@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: 🔍 Validate project structure
         run: |
@@ -26,17 +26,20 @@ jobs:
           $OK || exit 1
 
       - name: 📋 Validate JSON
-        run: python3 -c "
-          import json,os,sys
-          ok=True
-          for f in ['manifest.json','capacitor.config.json','package.json']:
+        run: |
+          python3 << 'EOF'
+          import json, os, sys
+          ok = True
+          for f in ['manifest.json', 'capacitor.config.json', 'package.json']:
             if os.path.exists(f):
               try:
-                json.load(open(f)); print(f'✅ {f}')
+                json.load(open(f))
+                print(f"✅ {f}")
               except Exception as e:
-                print(f'❌ {f}: {e}'); ok=False
+                print(f"❌ {f}: {e}")
+                ok = False
           sys.exit(0 if ok else 1)
-          "
+          EOF
 
       - name: 🔒 Security check
         run: |
