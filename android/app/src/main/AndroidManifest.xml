@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="app.linka.connect">
 
     <!-- ── Internet & Network ── -->
@@ -72,8 +73,7 @@
     <uses-feature android:name="android.hardware.nfc"             android:required="false"/>
     <uses-feature android:name="android.hardware.fingerprint"     android:required="false"/>
 
-    <uses-sdk xmlns:tools="http://schemas.android.com/tools"
-        tools:overrideLibrary="com.getcapacitor"/>
+    <uses-sdk tools:overrideLibrary="com.getcapacitor"/>
 
     <application
         android:allowBackup="true"
