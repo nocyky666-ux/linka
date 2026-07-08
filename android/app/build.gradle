@@ -100,7 +100,7 @@ dependencies {
     implementation "androidx.biometric:biometric:1.2.0-alpha05"
 
     // Desugaring for Java 8+ APIs on older Android
-    coreLibraryDesugaring "com.android.tools.build:desugaring:2.0.4"
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.0.4"
 
     // Capacitor
     implementation project(':capacitor-android')
