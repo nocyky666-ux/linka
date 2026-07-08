@@ -263,47 +263,54 @@ jobs:
       - name: 🔨 Build Debug APK
         working-directory: android
         run: |
+          set -o pipefail
           chmod +x gradlew
           ./gradlew assembleDebug \
             --no-daemon \
             --stacktrace \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
-            2>&1 | tail -50
+            2>&1 | tail -100
           echo "✅ Debug APK built"
 
       - name: 🏛️ Build Release APK
         working-directory: android
         run: |
+          set -o pipefail
           ./gradlew assembleRelease \
             --no-daemon \
+            --stacktrace \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
-            2>&1 | tail -30
+            2>&1 | tail -100
           echo "✅ Release APK built"
 
       - name: 📦 Build Release AAB
         working-directory: android
         run: |
+          set -o pipefail
           ./gradlew bundleRelease \
             --no-daemon \
+            --stacktrace \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
-            2>&1 | tail -20
+            2>&1 | tail -100
           echo "✅ Release AAB built"
 
       - name: 📁 Collect artifacts
         run: |
           mkdir -p dist/android
-          find android -name "*.apk" -exec cp {} dist/android/ \; 2>/dev/null || true
-          find android -name "*.aab" -exec cp {} dist/android/ \; 2>/dev/null || true
+          find android -name "*.apk" -exec cp {} dist/android/ \;
+          find android -name "*.aab" -exec cp {} dist/android/ \;
           echo "📦 Artifacts:"
-          ls -lah dist/android/ || echo "No artifacts"
+          ls -lah dist/android/
+          if [ -z "$(ls -A dist/android/ 2>/dev/null)" ]; then
+            echo "::error::No APK/AAB was produced — a Gradle build step above must have failed."
+            exit 1
+          fi
 
       - name: ✅ Generate SHA256 checksums
         run: |
           cd dist/android
-          for f in *; do
-            sha256sum "$f" >> checksums.sha256 2>/dev/null || true
-          done
-          cat checksums.sha256 || true
+          sha256sum * > checksums.sha256
+          cat checksums.sha256
 
       - name: 📤 Upload Android artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
