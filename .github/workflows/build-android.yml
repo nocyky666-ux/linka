@@ -146,6 +146,33 @@ jobs:
           npx cap add android 2>/dev/null || echo "Android platform already exists"
           echo "✅ Android platform ready"
 
+      - name: 🧰 Ensure Gradle wrapper
+        run: |
+          if [ ! -f android/gradlew ]; then
+            echo "gradlew missing – restoring from @capacitor/cli's bundled template"
+            TEMPLATE_DIR=$(node -e "console.log(require('path').dirname(require.resolve('@capacitor/cli/package.json')))")
+            mkdir -p /tmp/android-template
+            tar -xzf "$TEMPLATE_DIR/assets/android-template.tar.gz" -C /tmp/android-template
+            cp /tmp/android-template/gradlew android/gradlew
+            cp /tmp/android-template/gradlew.bat android/gradlew.bat
+            mkdir -p android/gradle/wrapper
+            cp /tmp/android-template/gradle/wrapper/gradle-wrapper.jar android/gradle/wrapper/gradle-wrapper.jar
+            cp /tmp/android-template/gradle/wrapper/gradle-wrapper.properties android/gradle/wrapper/gradle-wrapper.properties
+            # The bundled template ships an older Gradle than our AGP (8.2.2) needs (min 8.2) — pin a compatible one
+            sed -i 's#distributionUrl=.*#distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2.1-bin.zip#' android/gradle/wrapper/gradle-wrapper.properties
+            chmod +x android/gradlew
+            echo "✅ Gradle wrapper restored (Gradle 8.2.1, matching AGP 8.2.2)"
+          else
+            echo "✅ gradlew already present"
+          fi
+
+          if ! grep -q "capacitor.settings.gradle" android/settings.gradle; then
+            printf '\napply from: "capacitor.settings.gradle"\n' >> android/settings.gradle
+            echo "✅ Wired capacitor.settings.gradle into settings.gradle (plugin modules)"
+          else
+            echo "✅ settings.gradle already wires capacitor.settings.gradle"
+          fi
+
       - name: 📄 Prepare webDir
         run: |
           mkdir -p www
