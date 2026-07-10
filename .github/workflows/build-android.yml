@@ -260,6 +260,23 @@ jobs:
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
           KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
 
+      - name: 🔐 Ensure debug keystore
+        working-directory: android
+        run: |
+          if [ ! -f debug.keystore ]; then
+            echo "debug.keystore missing – generating standard Android debug keystore"
+            keytool -genkeypair -v \
+              -keystore debug.keystore \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+            echo "✅ debug.keystore generated"
+          else
+            echo "✅ debug.keystore already present"
+          fi
+
       - name: 🔨 Build Debug APK
         working-directory: android
         run: |
@@ -269,7 +286,7 @@ jobs:
             --no-daemon \
             --stacktrace \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
-            2>&1 | tail -100
+            2>&1
           echo "✅ Debug APK built"
 
       - name: 🏛️ Build Release APK
@@ -280,7 +297,7 @@ jobs:
             --no-daemon \
             --stacktrace \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
-            2>&1 | tail -100
+            2>&1
           echo "✅ Release APK built"
 
       - name: 📦 Build Release AAB
@@ -291,7 +308,7 @@ jobs:
             --no-daemon \
             --stacktrace \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
-            2>&1 | tail -100
+            2>&1
           echo "✅ Release AAB built"
 
       - name: 📁 Collect artifacts
