@@ -1,0 +1,31 @@
+// Top-level build file for LINKA Android project
+buildscript {
+    ext {
+        kotlin_version    = '1.9.22'
+        agp_version       = '8.2.2'
+        minSdkVersion     = 24
+        compileSdkVersion = 34
+        targetSdkVersion  = 34
+    }
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:$agp_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        // classpath 'com.google.gms:google-services:4.4.0'  // uncomment for Firebase
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
