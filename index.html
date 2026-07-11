@@ -1,0 +1,2328 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="LINKA"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" href="assets/logo/logo.png"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0"/>
+<title>LINKA – Connected Without Limits</title>
+<style>
+/* ══════════════════════════════════════
+   CUSTOM FONTS
+══════════════════════════════════════ */
+@font-face {
+  font-family: 'LINKA800';
+  src: url('assets/fonts/800.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'AppleEmoji';
+  src: url('assets/fonts/iOS18_4.ttf') format('truetype');
+  font-display: block;
+}
+
+/* ══════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════ */
+:root {
+  /* iOS Colors */
+  --ios-blue:    #58ACFD;
+  --ios-green:   #30D158;
+  --ios-red:     #FF453A;
+  --ios-orange:  #FF9F0A;
+  --ios-purple:  #BF5AF2;
+  --ios-teal:    #5AC8FA;
+  --ios-pink:    #FF375F;
+  --ios-gray:    #8E8E93;
+
+  /* Glass */
+  --glass-dark:    rgba(28, 28, 32, 0.55);
+  --glass-medium:  rgba(44, 44, 50, 0.45);
+  --glass-light:   rgba(255,255,255,0.08);
+  --glass-border:  rgba(255,255,255,0.12);
+  --glass-blur:    blur(40px) saturate(180%);
+  --glass-shadow:  0 12px 40px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2);
+
+  /* Text */
+  --text-primary:   #FFFFFF;
+  --text-secondary: rgba(235,235,245,0.6);
+  --text-tertiary:  rgba(235,235,245,0.3);
+
+  /* Animations */
+  --spring:  cubic-bezier(0.25, 1, 0.3, 1);
+  --bouncy:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --smooth:  cubic-bezier(0.22, 1, 0.36, 1);
+  --snap:    cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Theme blobs (default: logo blue) */
+  --blob-1: #58ACFD;
+  --blob-2: #3B8FE8;
+  --blob-3: #7EC8FF;
+  --blob-4: #0D0D1A;
+
+  /* Spacing */
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* ── THEME VARIANTS ─────────────────────────── */
+body.theme-cyber   { --blob-1:#00F0FF; --blob-2:#FF00E4; --blob-3:#7000FF; --ios-blue:#00F0FF; }
+body.theme-warm    { --blob-1:#FF6B35; --blob-2:#FF9F0A; --blob-3:#E63946; --ios-blue:#FF9F0A; }
+body.theme-emerald { --blob-1:#34E863; --blob-2:#00D2FF; --blob-3:#007A55; --ios-blue:#30D158; }
+body.theme-rose    { --blob-1:#FF375F; --blob-2:#FF6B35; --blob-3:#BF5AF2; --ios-blue:#FF375F; }
+
+/* ══════════════════════════════════════
+   RESET
+══════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
+html { height:100%; overflow:hidden; }
+body {
+  height:100%; width:100%; overflow:hidden;
+  background:#000;
+  font-family: 'LINKA800', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  color: var(--text-primary);
+}
+/* Emoji font applied via unicode-range + class */
+.emoji-text, .msg-bubble span.emoji {
+  font-family: 'AppleEmoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif !important;
+}
+::-webkit-scrollbar { display:none; }
+* { scrollbar-width:none; }
+input, textarea { -webkit-user-select:text; user-select:text; }
+
+/* ══════════════════════════════════════
+   FLUID GLASS BACKGROUND
+══════════════════════════════════════ */
+.ambient-bg {
+  position:fixed; inset:0; z-index:0; overflow:hidden;
+  background:radial-gradient(ellipse at 50% 50%, rgba(10,10,20,0.95) 0%, #000 100%);
+}
+
+/* ── Animated fluid blobs ── */
+.blob {
+  position:absolute; border-radius:50%;
+  filter:blur(80px); mix-blend-mode:screen;
+  will-change:transform;
+  animation:fluidFloat var(--dur,18s) var(--spring) infinite alternate;
+}
+.blob-1 {
+  --dur:20s;
+  width:70vw; height:70vw; max-width:560px; max-height:560px;
+  background:radial-gradient(circle at 40% 40%, var(--blob-1), transparent 70%);
+  opacity:0.45; top:-15%; left:-20%;
+}
+.blob-2 {
+  --dur:25s;
+  width:80vw; height:80vw; max-width:640px; max-height:640px;
+  background:radial-gradient(circle at 60% 60%, var(--blob-2), transparent 70%);
+  opacity:0.35; bottom:-20%; right:-25%; animation-delay:-8s;
+}
+.blob-3 {
+  --dur:30s;
+  width:55vw; height:55vw; max-width:440px; max-height:440px;
+  background:radial-gradient(circle at 50% 50%, var(--blob-3), transparent 70%);
+  opacity:0.3; bottom:15%; left:-15%; animation-delay:-15s;
+}
+.blob-4 {
+  --dur:22s;
+  width:40vw; height:40vw; max-width:320px; max-height:320px;
+  background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06), transparent 70%);
+  opacity:0.8; top:30%; right:-10%; animation-delay:-5s;
+}
+
+@keyframes fluidFloat {
+  0%   { transform: translate(0,0) scale(1) rotate(0deg); }
+  25%  { transform: translate(30px,-40px) scale(1.08) rotate(8deg); }
+  50%  { transform: translate(-20px,30px) scale(0.95) rotate(-5deg); }
+  75%  { transform: translate(50px,20px) scale(1.12) rotate(12deg); }
+  100% { transform: translate(-30px,-20px) scale(1.05) rotate(-3deg); }
+}
+
+/* Fluid noise overlay */
+.fluid-noise {
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity:0.4;
+}
+
+/* Scan line effect */
+.scanlines {
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+  background:repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(0,0,0,0.015) 2px, rgba(0,0,0,0.015) 4px);
+}
+
+/* ══════════════════════════════════════
+   APP CONTAINER
+══════════════════════════════════════ */
+#app {
+  position:fixed; inset:0; z-index:10;
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+
+/* ══════════════════════════════════════
+   ONBOARDING
+══════════════════════════════════════ */
+#onboarding {
+  position:fixed; inset:0; z-index:8000;
+  display:none; flex-direction:column;
+  background:transparent;
+}
+#onboarding.visible { display:flex; }
+
+.ob-step {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; justify-content:flex-start;
+  padding:60px 28px 0;
+  animation:slideUpFade 0.5s var(--spring) both;
+}
+.ob-step.active { display:flex; }
+
+@keyframes slideUpFade {
+  from { opacity:0; transform:translateY(24px) scale(0.98); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+
+.ob-visual {
+  width:200px; height:200px; position:relative;
+  margin-bottom:32px; flex-shrink:0;
+  animation:obFloat 3s ease-in-out infinite;
+}
+@keyframes obFloat {
+  0%,100% { transform:translateY(0); }
+  50%      { transform:translateY(-8px); }
+}
+.ob-visual-card {
+  width:100%; height:100%; border-radius:36px;
+  background:var(--glass-dark);
+  backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border);
+  box-shadow:var(--glass-shadow);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; position:relative;
+}
+.ob-visual-card::before {
+  content:''; position:absolute; top:-1px; left:10%; right:10%; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+}
+
+.ob-title { font-size:32px; font-weight:800; letter-spacing:-0.03em; text-align:center; line-height:1.15; margin-bottom:14px; }
+.ob-desc  { font-size:15px; color:var(--text-secondary); text-align:center; line-height:1.65; max-width:300px; }
+
+.ob-bottom {
+  padding:24px 28px calc(32px + var(--safe-bottom));
+  display:flex; flex-direction:column; gap:14px;
+}
+.ob-dots { display:flex; gap:6px; justify-content:center; margin-bottom:4px; }
+.ob-dot  { width:6px; height:6px; border-radius:100px; background:rgba(255,255,255,0.2); transition:all 0.4s var(--spring); }
+.ob-dot.active { width:20px; background:var(--ios-blue); }
+
+/* ══════════════════════════════════════
+   GLASS COMPONENTS
+══════════════════════════════════════ */
+.glass-panel {
+  background:var(--glass-dark);
+  backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border);
+  border-radius:20px; margin:0 16px 14px;
+  overflow:hidden;
+  box-shadow:var(--glass-shadow);
+  position:relative;
+}
+/* Top shine */
+.glass-panel::before {
+  content:''; position:absolute; top:0; left:10%; right:10%; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  pointer-events:none;
+}
+
+.glass-card {
+  background:var(--glass-medium);
+  backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border);
+  border-radius:16px; overflow:hidden;
+  box-shadow:var(--glass-shadow);
+  position:relative;
+}
+.glass-card::before {
+  content:''; position:absolute; top:0; left:8%; right:8%; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  pointer-events:none;
+}
+
+/* ══════════════════════════════════════
+   LIQUID GLASS BUTTON SYSTEM
+══════════════════════════════════════ */
+
+/* Base glass button */
+.btn-glass {
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 14px;
+  overflow: hidden; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 14px 20px;
+  font-family: inherit; font-size: 15px; font-weight: 600;
+  color: var(--text-primary); cursor: pointer;
+  /* Spring-out on release */
+  transition:
+    transform 0.55s var(--bouncy),
+    box-shadow 0.4s var(--spring),
+    background 0.3s var(--spring),
+    border-color 0.3s var(--spring);
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.2),
+    0 1px 0 rgba(255,255,255,0.08) inset,
+    0 -1px 0 rgba(0,0,0,0.15) inset;
+  will-change: transform;
+  -webkit-user-select: none; user-select: none;
+}
+
+/* Top shine */
+.btn-glass::before {
+  content: ''; position: absolute;
+  top: 0; left: 12%; right: 12%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  pointer-events: none;
+}
+
+/* Liquid highlight overlay (mouse track) */
+.btn-glass::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(
+    ellipse 60% 45% at var(--mx, 50%) var(--my, 0%),
+    rgba(255,255,255,0.18) 0%,
+    rgba(255,255,255,0.06) 40%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.btn-glass:hover { background: rgba(255,255,255,0.11); }
+.btn-glass:hover::after { opacity: 1; }
+
+/* ── Press state: compress + dim + shift shine ── */
+.btn-glass.pressing {
+  transform: scale(0.96) translateY(1px);
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.25),
+    0 0 0 rgba(255,255,255,0) inset;
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.08);
+  transition:
+    transform 0.12s cubic-bezier(0.4, 0, 1, 1),
+    box-shadow 0.12s ease,
+    background 0.12s ease;
+}
+
+/* ── Release: spring back ── */
+.btn-glass.releasing {
+  transform: scale(1.018) translateY(0px);
+  transition:
+    transform 0.5s var(--bouncy),
+    box-shadow 0.4s var(--spring);
+}
+
+/* Primary variant */
+.btn-primary {
+  background: var(--ios-blue);
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow:
+    0 8px 28px rgba(88,172,253,0.45),
+    0 2px 8px rgba(0,0,0,0.25),
+    0 1px 0 rgba(255,255,255,0.18) inset;
+}
+.btn-primary::after {
+  background: radial-gradient(
+    ellipse 55% 40% at var(--mx,50%) var(--my,0%),
+    rgba(255,255,255,0.28) 0%,
+    rgba(255,255,255,0.06) 45%,
+    transparent 70%
+  );
+}
+.btn-primary:hover { background: #6DBBFF; box-shadow: 0 12px 36px rgba(88,172,253,0.58), 0 2px 8px rgba(0,0,0,0.25), 0 1px 0 rgba(255,255,255,0.18) inset; }
+.btn-primary.pressing {
+  background: #3D9EF5;
+  box-shadow: 0 3px 10px rgba(88,172,253,0.3), 0 1px 3px rgba(0,0,0,0.2);
+}
+.btn-primary.releasing {
+  box-shadow: 0 14px 40px rgba(88,172,253,0.65), 0 2px 8px rgba(0,0,0,0.25);
+}
+
+/* ══════════════════════════════════════
+   ios-press: all tappable elements
+══════════════════════════════════════ */
+.ios-press {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  position: relative; overflow: hidden;
+  /* spring return on release */
+  transition: transform 0.5s var(--bouncy), opacity 0.4s ease !important;
+}
+.ios-press.pressing {
+  transform: scale(0.94) !important;
+  opacity: 0.78 !important;
+  transition: transform 0.1s cubic-bezier(0.4,0,1,1), opacity 0.1s ease !important;
+}
+.ios-press.releasing {
+  transform: scale(1.03) !important;
+  opacity: 1 !important;
+  transition: transform 0.45s var(--bouncy), opacity 0.25s ease !important;
+}
+
+/* nav-item special: icon scales, not whole container */
+.nav-item { overflow: visible; }
+.nav-item .nav-icon {
+  transition: transform 0.45s var(--bouncy), color 0.35s var(--spring);
+  display: inline-block;
+  will-change: transform;
+}
+.nav-item.pressing   .nav-icon { transform: scale(0.72) !important; }
+.nav-item.releasing  .nav-icon { transform: scale(1.18) !important; }
+.nav-item.done-press .nav-icon { transform: scale(1) !important;
+  transition: transform 0.5s var(--bouncy) !important; }
+
+/* list-item press: soft radial glow, no scale */
+.list-item.pressing {
+  background: rgba(255,255,255,0.045) !important;
+  transform: none !important;
+  transition: background 0.08s ease !important;
+}
+.list-item.releasing {
+  background: transparent !important;
+  transform: none !important;
+  transition: background 0.4s ease !important;
+}
+
+/* theme-btn: scale spring */
+.theme-btn.pressing  { transform: scale(0.86) !important; }
+.theme-btn.releasing { transform: scale(1.18) !important; transition: transform 0.45s var(--bouncy) !important; }
+
+/* action-btn spring */
+.action-btn.pressing  { transform: scale(0.91) !important; opacity: 0.75 !important; }
+.action-btn.releasing { transform: scale(1.06) !important; transition: transform 0.45s var(--bouncy) !important; }
+
+/* header-btn */
+.header-btn.pressing  { transform: scale(0.84) !important; background: rgba(255,255,255,0.18) !important; }
+.header-btn.releasing { transform: scale(1.12) !important; transition: transform 0.4s var(--bouncy) !important; }
+
+/* send-btn */
+.send-btn.pressing  { transform: scale(0.83) !important; }
+.send-btn.releasing { transform: scale(1.14) !important; transition: transform 0.42s var(--bouncy) !important; }
+
+/* attach-btn */
+.attach-btn.pressing  { transform: scale(0.82) !important; background: rgba(255,255,255,0.15) !important; }
+.attach-btn.releasing { transform: scale(1.1)  !important; transition: transform 0.4s var(--bouncy) !important; }
+
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
+#app-header {
+  position:relative; z-index:200;
+  padding:calc(16px + env(safe-area-inset-top,0px)) 16px 12px;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-shrink:0;
+  background:linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+}
+#app-header h1 {
+  font-size:30px; font-weight:800; letter-spacing:-0.03em;
+  transition:opacity 0.3s, transform 0.3s var(--spring);
+}
+.header-btn {
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.12);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--ios-blue); cursor:pointer;
+  transition:all 0.3s var(--spring);
+}
+/* header-btn press: handled by JS liquid glass engine */
+
+/* ══════════════════════════════════════
+   SCREENS
+══════════════════════════════════════ */
+.screen {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  overflow-y:auto; overflow-x:hidden;
+  padding-top:90px; padding-bottom:140px;
+  opacity:0; pointer-events:none;
+  transform: scale(0.96) translateY(16px);
+  transition:
+    opacity  0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.screen.active {
+  opacity: 1; pointer-events: auto;
+  transform: scale(1) translateY(0);
+}
+.screen.exit {
+  opacity: 0; pointer-events: none;
+  transform: scale(1.015) translateY(-6px);
+  transition:
+    opacity  0.2s cubic-bezier(0.4, 0, 1, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* ══════════════════════════════════════
+   SEARCH BAR
+══════════════════════════════════════ */
+.search-wrap { padding:0 16px 14px; }
+.search-bar {
+  height:40px; border-radius:12px;
+  background:rgba(118,118,128,0.22);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  display:flex; align-items:center; padding:0 12px; gap:8px;
+  border:1px solid rgba(255,255,255,0.06);
+  transition:all 0.3s var(--spring);
+}
+.search-bar:focus-within {
+  background:rgba(118,118,128,0.3);
+  border-color:rgba(88,172,253,0.4);
+  box-shadow:0 0 0 3px rgba(88,172,253,0.12);
+}
+.search-bar input {
+  flex:1; background:none; border:none; outline:none;
+  font-family:inherit; font-size:15px; color:var(--text-primary);
+}
+.search-bar input::placeholder { color:var(--ios-gray); }
+
+/* ══════════════════════════════════════
+   LIST ITEMS
+══════════════════════════════════════ */
+.list-item {
+  display:flex; align-items:center; padding:13px 16px;
+  position:relative; gap:0;
+  transition:background 0.15s;
+}
+/* list-item press: handled by JS liquid glass engine */
+.list-sep::after {
+  content:''; position:absolute; bottom:0; left:78px; right:0;
+  height:0.5px; background:rgba(255,255,255,0.08);
+}
+.list-sep:last-child::after { display:none; }
+
+.avatar {
+  width:50px; height:50px; border-radius:50%;
+  margin-right:14px; flex-shrink:0;
+  background:linear-gradient(135deg,#2C2C3E,#1C1C2E);
+  display:flex; align-items:center; justify-content:center;
+  font-size:19px; font-weight:700; overflow:hidden;
+  border:1px solid rgba(255,255,255,0.08);
+}
+.avatar img { width:100%; height:100%; object-fit:cover; }
+
+.item-info { flex:1; min-width:0; }
+.item-top  { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px; }
+.item-name { font-size:16px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+.item-time { font-size:12px; color:var(--text-secondary); font-weight:500; flex-shrink:0; }
+.item-msg  { font-size:14px; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.unread-badge {
+  min-width:20px; height:20px; padding:0 6px; border-radius:100px;
+  background:var(--ios-blue); color:#fff;
+  font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;
+  margin-left:8px; flex-shrink:0;
+}
+
+/* ══════════════════════════════════════
+   SETTINGS ICON TILES
+══════════════════════════════════════ */
+.setting-icon {
+  width:34px; height:34px; border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  margin-right:14px; flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+.setting-icon .material-symbols-rounded { font-size:19px; color:#fff; }
+
+/* ══════════════════════════════════════
+   TOGGLE
+══════════════════════════════════════ */
+.toggle { position:relative; width:50px; height:30px; cursor:pointer; flex-shrink:0; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-track {
+  position:absolute; inset:0; border-radius:15px;
+  background:rgba(255,255,255,0.12); transition:all 0.3s var(--spring);
+  border:1px solid rgba(255,255,255,0.08);
+}
+.toggle-thumb {
+  position:absolute; top:3px; left:3px;
+  width:24px; height:24px; border-radius:50%; background:#fff;
+  box-shadow:0 2px 6px rgba(0,0,0,0.4);
+  transition:transform 0.35s var(--bouncy);
+}
+.toggle input:checked ~ .toggle-track { background:var(--ios-green); border-color:var(--ios-green); }
+.toggle input:checked ~ .toggle-thumb { transform:translateX(20px); }
+
+/* ══════════════════════════════════════
+   PROFILE
+══════════════════════════════════════ */
+.profile-hero { text-align:center; padding:16px 20px 24px; }
+.profile-avatar {
+  width:96px; height:96px; border-radius:50%;
+  margin:0 auto 14px; overflow:hidden;
+  background:linear-gradient(135deg,#1e3a8a,#2563eb);
+  font-size:36px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 12px 40px rgba(0,0,0,0.5), 0 0 0 3px rgba(255,255,255,0.1);
+  border:2px solid rgba(255,255,255,0.12);
+}
+.profile-name   { font-size:24px; font-weight:800; letter-spacing:-0.02em; margin-bottom:5px; }
+.profile-handle { font-size:14px; color:var(--text-secondary); }
+
+.action-grid { display:flex; gap:10px; margin:0 16px 16px; }
+.action-btn {
+  flex:1; padding:12px 6px;
+  background:var(--glass-dark);
+  backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border);
+  border-radius:16px; display:flex; flex-direction:column; align-items:center; gap:6px;
+  font-size:12px; font-weight:600; color:var(--text-primary);
+  box-shadow:var(--glass-shadow); cursor:pointer;
+  transition:all 0.3s var(--spring); position:relative;
+}
+.action-btn::before {
+  content:''; position:absolute; top:0; left:20%; right:20%; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);
+}
+/* action-btn press: handled by JS liquid glass engine */
+
+/* ══════════════════════════════════════
+   CONVERSATION SCREEN
+══════════════════════════════════════ */
+#screen-conversation {
+  padding-top:0;
+  display:flex; flex-direction:column;
+}
+.conv-header {
+  padding:calc(14px + env(safe-area-inset-top,0px)) 12px 10px;
+  display:flex; align-items:center; gap:10px; flex-shrink:0;
+  background:var(--glass-dark);
+  backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+  border-bottom:0.5px solid rgba(255,255,255,0.08);
+  position:sticky; top:0; z-index:100;
+}
+.conv-back {
+  width:34px; height:34px; border-radius:50%;
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1);
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  color:var(--ios-blue); flex-shrink:0;
+  transition:all 0.2s var(--spring);
+}
+/* conv-back press: handled by JS liquid glass engine */
+.conv-info { flex:1; min-width:0; }
+.conv-name   { font-size:16px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.conv-status { font-size:12px; color:var(--ios-green); display:flex; align-items:center; gap:4px; }
+.conv-status::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--ios-green); box-shadow:0 0 6px var(--ios-green); animation:convPulse 2s ease infinite; }
+@keyframes convPulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+.messages-area {
+  flex:1; overflow-y:auto; padding:14px 14px 0;
+  display:flex; flex-direction:column; gap:8px;
+}
+
+/* Chat bubbles */
+.bubble-wrap { display:flex; flex-direction:column; }
+.bubble-wrap.out { align-items:flex-end; }
+.bubble-wrap.in  { align-items:flex-start; }
+.bubble {
+  max-width:78%; padding:9px 13px;
+  border-radius:18px; font-size:15px; line-height:1.45;
+  position:relative; word-break:break-word;
+  animation:bubbleIn 0.35s var(--spring) both;
+}
+@keyframes bubbleIn {
+  from { opacity:0; transform:scale(0.85) translateY(8px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.bubble.out {
+  background:var(--ios-blue);
+  border-bottom-right-radius:5px;
+  box-shadow:0 4px 16px rgba(88,172,253,0.35);
+  font-family:inherit;
+}
+.bubble.in {
+  background:rgba(44,44,52,0.85);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.08);
+  border-bottom-left-radius:5px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.3);
+  font-family:inherit;
+}
+/* Emoji in chat: use AppleEmoji font */
+.bubble .chat-emoji {
+  font-family:'AppleEmoji','Apple Color Emoji','Segoe UI Emoji',sans-serif;
+  font-size:1.2em;
+}
+.bubble-meta { font-size:11px; color:rgba(255,255,255,0.45); margin-top:4px; display:flex; align-items:center; gap:4px; justify-content:flex-end; }
+.bubble.in .bubble-meta { color:var(--text-secondary); justify-content:flex-start; }
+
+/* Date label */
+.date-label {
+  text-align:center; padding:6px 0 10px;
+  font-size:12px; color:var(--text-secondary);
+}
+.date-label span {
+  background:rgba(44,44,52,0.7); backdrop-filter:blur(12px);
+  padding:4px 12px; border-radius:100px; border:0.5px solid rgba(255,255,255,0.1);
+}
+
+/* Composer */
+.composer {
+  flex-shrink:0; padding:8px 12px calc(8px + var(--safe-bottom));
+  background:var(--glass-dark);
+  backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+  border-top:0.5px solid rgba(255,255,255,0.08);
+}
+.composer-attach { display:flex; gap:6px; margin-bottom:6px; overflow-x:auto; padding-bottom:2px; }
+.composer-attach::-webkit-scrollbar { display:none; }
+.attach-btn {
+  width:30px; height:30px; border-radius:50%; flex-shrink:0;
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ios-gray);
+  transition:all 0.2s;
+}
+/* attach-btn press: handled by JS liquid glass engine */
+.attach-btn .material-symbols-rounded { font-size:16px; }
+.composer-row {
+  display:flex; align-items:flex-end; gap:8px;
+  background:rgba(44,44,52,0.7);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:24px; padding:6px 6px 6px 14px;
+  transition:border-color 0.3s;
+}
+.composer-row:focus-within { border-color:rgba(88,172,253,0.5); }
+.composer-input {
+  flex:1; background:none; border:none; outline:none; resize:none;
+  font-family:inherit; font-size:15px; color:var(--text-primary);
+  min-height:34px; max-height:120px; padding:6px 0; line-height:1.4;
+}
+.composer-input::placeholder { color:var(--ios-gray); }
+/* Emoji in input: use AppleEmoji */
+.composer-input { font-family: 'LINKA800','AppleEmoji',-apple-system,sans-serif; }
+.send-btn {
+  width:34px; height:34px; border-radius:50%; flex-shrink:0;
+  background:var(--ios-blue); display:flex; align-items:center; justify-content:center;
+  cursor:pointer; box-shadow:0 4px 14px rgba(88,172,253,0.45);
+  transition:all 0.3s var(--bouncy);
+}
+/* send-btn press: handled by JS liquid glass engine */
+.send-btn .material-symbols-rounded { font-size:18px; color:#fff; }
+
+/* ══════════════════════════════════════
+   NAV BAR — Liquid Glass
+══════════════════════════════════════ */
+.nav-wrap {
+  position:fixed; bottom:calc(20px + var(--safe-bottom)); left:0; width:100%;
+  display:flex; justify-content:center; z-index:300; pointer-events:none;
+  padding:0 20px;
+}
+.nav-container {
+  pointer-events:auto;
+  display:flex; gap:2px; padding:5px;
+  background:rgba(28,28,36,0.6);
+  backdrop-filter:blur(50px) saturate(200%); -webkit-backdrop-filter:blur(50px) saturate(200%);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:100px;
+  box-shadow:0 12px 40px rgba(0,0,0,0.4), 0 2px 0 rgba(255,255,255,0.06) inset;
+  position:relative;
+}
+/* Top shine on nav */
+.nav-container::before {
+  content:''; position:absolute; top:0; left:15%; right:15%; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  pointer-events:none;
+}
+.nav-indicator {
+  position:absolute; top:5px; bottom:5px;
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border-radius:100px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.1) inset;
+  z-index:1; pointer-events:none;
+  transition:none; /* JS-driven */
+}
+.nav-item {
+  display:flex; align-items:center; justify-content:center;
+  height:46px; border-radius:100px; padding:0 16px;
+  cursor:pointer; position:relative; z-index:2;
+  color:rgba(255,255,255,0.38);
+  transition:color 0.35s var(--spring);
+}
+.nav-item.active { color:var(--ios-blue); }
+.nav-icon { font-size:23px; }
+.nav-text {
+  font-size:14px; font-weight:700;
+  max-width:0; opacity:0; transform:translateX(-4px);
+  white-space:nowrap; overflow:hidden; pointer-events:none;
+  transition:max-width 0.4s var(--spring), opacity 0.3s ease, transform 0.4s var(--spring), margin-left 0.4s var(--spring);
+}
+.nav-item.active .nav-text { max-width:100px; opacity:1; transform:translateX(0); margin-left:6px; }
+
+/* ══════════════════════════════════════
+   THEME SELECTOR
+══════════════════════════════════════ */
+.theme-selector { display:flex; gap:12px; padding:4px 16px 18px; }
+.theme-btn {
+  width:46px; height:46px; border-radius:50%; cursor:pointer;
+  border:2.5px solid rgba(255,255,255,0.15);
+  box-shadow:0 4px 14px rgba(0,0,0,0.4);
+  position:relative; overflow:hidden;
+  transition:transform 0.35s var(--bouncy), border-color 0.3s, box-shadow 0.3s;
+}
+.theme-btn::after {
+  content:''; position:absolute; top:0; left:0; right:0; bottom:0;
+  background:linear-gradient(135deg, rgba(255,255,255,0.35) 0%, transparent 55%);
+}
+.theme-btn.active { border-color:#fff; transform:scale(1.12); box-shadow:0 0 24px rgba(255,255,255,0.5); }
+.theme-1 { background:linear-gradient(135deg,#58ACFD,#3B8FE8); }
+.theme-2 { background:linear-gradient(135deg,#00F0FF,#FF00E4); }
+.theme-3 { background:linear-gradient(135deg,#FF9F0A,#FF2A54); }
+.theme-4 { background:linear-gradient(135deg,#34E863,#00D2FF); }
+.theme-5 { background:linear-gradient(135deg,#FF375F,#BF5AF2); }
+
+/* ══════════════════════════════════════
+   MODALS / SHEETS
+══════════════════════════════════════ */
+.overlay {
+  position:fixed; inset:0; z-index:2000;
+  background:rgba(0,0,0,0.65); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  opacity:0; pointer-events:none;
+  transition:opacity 0.3s;
+  display:flex; align-items:flex-end;
+}
+.overlay.open { opacity:1; pointer-events:all; }
+.sheet {
+  width:100%; background:rgba(24,24,32,0.95);
+  backdrop-filter:blur(50px) saturate(180%); -webkit-backdrop-filter:blur(50px) saturate(180%);
+  border-radius:24px 24px 0 0;
+  border-top:1px solid rgba(255,255,255,0.12);
+  padding-bottom:calc(24px + var(--safe-bottom));
+  transform:translateY(100%); transition:transform 0.45s var(--spring);
+  max-height:88vh; overflow-y:auto; position:relative;
+}
+.sheet::before {
+  content:''; position:absolute; top:0; left:20%; right:20%; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
+}
+.overlay.open .sheet { transform:translateY(0); }
+.sheet-handle { width:36px; height:4px; border-radius:2px; background:rgba(255,255,255,0.2); margin:12px auto 8px; }
+
+/* Toast */
+#toast {
+  position:fixed; bottom:120px; left:50%; transform:translateX(-50%) translateY(16px);
+  z-index:5000; padding:11px 20px; border-radius:100px;
+  background:rgba(44,44,52,0.92); backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.12);
+  color:#fff; font-size:13px; font-weight:600;
+  white-space:nowrap; box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  opacity:0; transition:all 0.35s var(--spring); pointer-events:none;
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ══════════════════════════════════════
+   UTILITY
+══════════════════════════════════════ */
+.chevron { color:rgba(255,255,255,0.28); font-size:20px !important; }
+.section-title { padding:8px 16px 6px; font-size:13px; font-weight:600; color:var(--text-secondary); letter-spacing:0.04em; }
+.pulse-dot {
+  width:8px; height:8px; border-radius:50%; background:var(--ios-green);
+  box-shadow:0 0 8px var(--ios-green); display:inline-block;
+  animation:pulseDot 2s ease infinite;
+}
+@keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.85);} }
+.status-online { color:var(--ios-green); font-size:11px; font-weight:500; }
+
+/* SVG icon in UI */
+.ui-svg { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.setting-svg { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; margin-right:14px; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,0.3); }
+.setting-svg svg { width:19px; height:19px; }
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ AMBIENT BG ═══ -->
+<div class="ambient-bg">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+</div>
+<div class="fluid-noise"></div>
+<div class="scanlines"></div>
+
+<!-- SVG SPRITE (no emoji, all UI icons) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+  <symbol id="svg-lock" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="12" rx="3" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.6"/><path d="M7 11V7.5a5 5 0 0 1 10 0V11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="17" r="1.4" fill="currentColor"/><line x1="12" y1="18.4" x2="12" y2="19.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="svg-shield" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6v6c0 4.97 3.47 9.62 8 10.93C16.53 21.62 20 16.97 20 12V6L12 2z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-hub" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="3" r="2" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.3"/><circle cx="20.5" cy="7.5" r="2" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.3"/><circle cx="20.5" cy="16.5" r="2" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="21" r="2" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.3"/><circle cx="3.5" cy="16.5" r="2" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.3"/><circle cx="3.5" cy="7.5" r="2" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.3"/><line x1="12" y1="9" x2="12" y2="5" stroke="currentColor" stroke-width="1.1" stroke-opacity=".6"/><line x1="14.6" y1="10.4" x2="18.9" y2="8.1" stroke="currentColor" stroke-width="1.1" stroke-opacity=".6"/><line x1="14.6" y1="13.6" x2="18.9" y2="15.9" stroke="currentColor" stroke-width="1.1" stroke-opacity=".6"/><line x1="12" y1="15" x2="12" y2="19" stroke="currentColor" stroke-width="1.1" stroke-opacity=".6"/><line x1="9.4" y1="13.6" x2="5.1" y2="15.9" stroke="currentColor" stroke-width="1.1" stroke-opacity=".6"/><line x1="9.4" y1="10.4" x2="5.1" y2="8.1" stroke="currentColor" stroke-width="1.1" stroke-opacity=".6"/></symbol>
+  <symbol id="svg-bt" viewBox="0 0 24 24" fill="none"><path d="M6.5 7.5L17.5 17.5M6.5 17.5L17.5 7.5M12 3v18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 3l6 6-6 6M12 21l6-6-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-wifi" viewBox="0 0 24 24" fill="none"><path d="M1.5 8.5C6.5 3.5 17.5 3.5 22.5 8.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M5 12.5c3.86-3.86 10.14-3.86 14 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M8.5 16.5c1.93-1.93 5.07-1.93 7 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="20" r="1.5" fill="currentColor"/></symbol>
+  <symbol id="svg-check" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity=".15" stroke="currentColor" stroke-width="1.5"/><path d="M7.5 12l3 3 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-read" viewBox="0 0 24 24" fill="none"><path d="M2 12l5 5L17 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 12l5 5L22 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-globe" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="1.6"/><ellipse cx="12" cy="12" rx="4" ry="10" stroke="currentColor" stroke-width="1.3" fill="none"/><line x1="2" y1="9" x2="22" y2="9" stroke="currentColor" stroke-width="1.3"/><line x1="2" y1="15" x2="22" y2="15" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="svg-rocket" viewBox="0 0 24 24" fill="none"><path d="M12 2C12 2 17 4 17 11L14.5 13.5H9.5L7 11C7 4 12 2 12 2Z" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.5 13.5L8 17l4-1 4 1-1.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="9" r="1.4" fill="currentColor"/></symbol>
+  <symbol id="svg-transfer" viewBox="0 0 24 24" fill="none"><path d="M7 16V4m0 0L4 7m3-3l3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 8v12m0 0l3-3m-3 3l-3-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-mic" viewBox="0 0 24 24" fill="none"><rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.6"/><path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="svg-call" viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8C7.8 13.2 9.8 15.2 12.2 16.4l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V19c0 .6-.4 1-1 1C10.6 20 4 13.4 4 5c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" fill="currentColor" fill-opacity=".9"/></symbol>
+  <symbol id="svg-person-add" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M3 20c0-4 3.1-7 7-7s7 3 7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M19 8v6M16 11h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="svg-qr" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.5"/><rect x="5" y="5" width="3" height="3" fill="currentColor" fill-opacity=".7"/><rect x="16" y="5" width="3" height="3" fill="currentColor" fill-opacity=".7"/><rect x="5" y="16" width="3" height="3" fill="currentColor" fill-opacity=".7"/><path d="M14 14h3v3h-3zM17 17h3M17 14h3v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-bell" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="svg-key" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="10" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M12 10h8M18 10v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="10" r="1.5" fill="currentColor"/></symbol>
+  <symbol id="svg-palette" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 1.66 0 3-1.34 3-3 0-.78-.29-1.5-.78-2.03-.22-.25-.36-.58-.36-.97 0-.83.67-1.5 1.5-1.5H17c2.76 0 5-2.24 5-5C22 6.48 17.52 2 12 2z" fill="currentColor" fill-opacity=".15" stroke="currentColor" stroke-width="1.6"/><circle cx="7" cy="11" r="1.3" fill="currentColor"/><circle cx="10" cy="7.5" r="1.3" fill="currentColor" fill-opacity=".8"/><circle cx="14.5" cy="6.5" r="1.3" fill="currentColor" fill-opacity=".6"/><circle cx="17" cy="10" r="1.3" fill="currentColor" fill-opacity=".4"/></symbol>
+  <symbol id="svg-storage" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="6" rx="9" ry="3.5" stroke="currentColor" stroke-width="1.6"/><path d="M3 6v5c0 1.93 4.03 3.5 9 3.5s9-1.57 9-3.5V6" stroke="currentColor" stroke-width="1.6"/><path d="M3 11v5c0 1.93 4.03 3.5 9 3.5s9-1.57 9-3.5v-5" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="svg-devices" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M2 10h14" stroke="currentColor" stroke-width="1.3" stroke-opacity=".5"/><rect x="16" y="9" width="6" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="15" x2="10" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="7" y1="19" x2="13" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="svg-star" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-send" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22l-4-9-9-4 20-7z" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-verified" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 2.6H18l.5 3.4 2.8 1.9-1.4 3.1 1.4 3.1-2.8 1.9L18 21.6h-3.6L12 24l-2.4-2.4H6l-.5-3.6-2.8-1.9 1.4-3.1-1.4-3.1 2.8-1.9L6 4.6h3.6L12 2z" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.3"/><path d="M8.5 12l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-help" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity=".12" stroke="currentColor" stroke-width="1.6"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></symbol>
+  <symbol id="svg-privacy" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6v6c0 4.97 3.47 9.62 8 10.93C16.53 21.62 20 16.97 20 12V6L12 2z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-chat" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-node" viewBox="0 0 24 24" fill="none"><path d="M4.93 4.93a10 10 0 0 0 0 14.14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-opacity=".5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-opacity=".5"/><path d="M7.76 7.76a6 6 0 0 0 0 8.49" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="2.5" fill="currentColor" fill-opacity=".3" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></symbol>
+</svg>
+
+<!-- ═══ ONBOARDING ═══ -->
+<div id="onboarding">
+  <!-- Step 1 -->
+  <div class="ob-step active" id="ob-1">
+    <div class="ob-visual">
+      <div class="ob-visual-card">
+        <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
+          <line x1="80" y1="80" x2="80" y2="22" stroke="#58ACFD" stroke-width="1.2" stroke-opacity=".6"/>
+          <line x1="80" y1="80" x2="126" y2="50" stroke="#58ACFD" stroke-width="1.2" stroke-opacity=".6"/>
+          <line x1="80" y1="80" x2="126" y2="110" stroke="#58ACFD" stroke-width="1.2" stroke-opacity=".6"/>
+          <line x1="80" y1="80" x2="80" y2="138" stroke="#58ACFD" stroke-width="1.2" stroke-opacity=".6"/>
+          <line x1="80" y1="80" x2="34" y2="110" stroke="#58ACFD" stroke-width="1.2" stroke-opacity=".6"/>
+          <line x1="80" y1="80" x2="34" y2="50" stroke="#58ACFD" stroke-width="1.2" stroke-opacity=".6"/>
+          <line x1="80" y1="22" x2="126" y2="50" stroke="#5E5CE6" stroke-width=".7" stroke-opacity=".35"/>
+          <line x1="126" y1="50" x2="126" y2="110" stroke="#5E5CE6" stroke-width=".7" stroke-opacity=".35"/>
+          <line x1="126" y1="110" x2="80" y2="138" stroke="#5E5CE6" stroke-width=".7" stroke-opacity=".35"/>
+          <line x1="80" y1="138" x2="34" y2="110" stroke="#5E5CE6" stroke-width=".7" stroke-opacity=".35"/>
+          <line x1="34" y1="110" x2="34" y2="50" stroke="#5E5CE6" stroke-width=".7" stroke-opacity=".35"/>
+          <line x1="34" y1="50" x2="80" y2="22" stroke="#5E5CE6" stroke-width=".7" stroke-opacity=".35"/>
+          <circle cx="80" cy="80" r="26" stroke="#58ACFD" stroke-width="1" stroke-opacity=".2" fill="none"/>
+          <circle cx="80" cy="80" r="14" fill="#58ACFD" fill-opacity=".25" stroke="#58ACFD" stroke-width="1.6"/>
+          <circle cx="80" cy="80" r="8" fill="#58ACFD"/>
+          <circle cx="80" cy="80" r="3.5" fill="white" fill-opacity=".9"/>
+          <circle cx="80" cy="22" r="8" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.3"/><circle cx="80" cy="22" r="3.5" fill="#93c5fd"/>
+          <circle cx="126" cy="50" r="7" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.3"/><circle cx="126" cy="50" r="3" fill="#93c5fd"/>
+          <circle cx="126" cy="110" r="8" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.3"/><circle cx="126" cy="110" r="3.5" fill="#93c5fd"/>
+          <circle cx="80" cy="138" r="7" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.3"/><circle cx="80" cy="138" r="3" fill="#93c5fd"/>
+          <circle cx="34" cy="110" r="6" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.3"/><circle cx="34" cy="110" r="2.5" fill="#93c5fd"/>
+          <circle cx="34" cy="50" r="7" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.3"/><circle cx="34" cy="50" r="3" fill="#93c5fd"/>
+          <circle r="2.5" fill="#60a5fa" fill-opacity=".9"><animateMotion dur="2.2s" repeatCount="indefinite" path="M80,80 L80,22"/></circle>
+          <circle r="2" fill="#a78bfa" fill-opacity=".8"><animateMotion dur="2.8s" repeatCount="indefinite" begin="0.9s" path="M80,80 L126,110"/></circle>
+        </svg>
+      </div>
+    </div>
+    <div class="ob-title">Komunikasi<br/><span style="color:var(--ios-blue)">Tanpa Batas</span></div>
+    <div class="ob-desc">LINKA menghubungkan orang lewat Bluetooth Mesh, WiFi Direct &amp; LAN — tanpa internet sama sekali.</div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="ob-step" id="ob-2">
+    <div class="ob-visual">
+      <div class="ob-visual-card" style="background:rgba(16,30,20,0.6);border-color:rgba(48,209,88,0.2);">
+        <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
+          <path d="M80 14L30 36V78C30 110 52 130 80 138C108 130 130 110 130 78V36L80 14Z" fill="#30D158" fill-opacity=".1" stroke="#30D158" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M80 28L44 46V78C44 104 60 120 80 126C100 120 116 104 116 78V46L80 28Z" fill="#30D158" fill-opacity=".06" stroke="#30D158" stroke-width="1" stroke-opacity=".4"/>
+          <rect x="62" y="75" width="36" height="26" rx="5" fill="#30D158" fill-opacity=".18" stroke="#6ee7b7" stroke-width="1.6"/>
+          <path d="M70 75V68a10 10 0 0 1 20 0v7" stroke="#6ee7b7" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="80" cy="88" r="3" fill="#6ee7b7"/>
+          <line x1="80" y1="91" x2="80" y2="95" stroke="#6ee7b7" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M54 60l5 5 9-9" stroke="#6ee7b7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".7"/>
+          <path d="M92 60l5 5 9-9" stroke="#6ee7b7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".7"/>
+          <rect x="36" y="106" width="88" height="3.5" rx="1.8" fill="#30D158" fill-opacity=".5"/>
+          <rect x="44" y="113" width="72" height="3.5" rx="1.8" fill="#30D158" fill-opacity=".35"/>
+          <rect x="54" y="120" width="52" height="3.5" rx="1.8" fill="#30D158" fill-opacity=".2"/>
+        </svg>
+      </div>
+    </div>
+    <div class="ob-title">Privasi<br/><span style="color:var(--ios-green)">Sejak Awal</span></div>
+    <div class="ob-desc">X25519 + ChaCha20-Poly1305 encryption. Tanpa nomor HP. Tanpa email. Tanpa server cloud. Hanya kamu.</div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="ob-step" id="ob-3">
+    <div class="ob-visual">
+      <div class="ob-visual-card" style="background:rgba(20,14,40,0.6);border-color:rgba(94,92,230,0.25);">
+        <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
+          <path d="M20 80 Q80 40 140 80" stroke="#5E5CE6" stroke-width="1" stroke-opacity=".4" fill="none" stroke-dasharray="3 5"/>
+          <line x1="20" y1="80" x2="80" y2="80" stroke="#5E5CE6" stroke-width=".8" stroke-opacity=".3"/>
+          <line x1="80" y1="80" x2="140" y2="80" stroke="#5E5CE6" stroke-width=".8" stroke-opacity=".3"/>
+          <line x1="44" y1="108" x2="80" y2="80" stroke="#a78bfa" stroke-width=".8" stroke-opacity=".3"/>
+          <line x1="116" y1="108" x2="80" y2="80" stroke="#a78bfa" stroke-width=".8" stroke-opacity=".3"/>
+          <circle cx="20" cy="80" r="18" fill="#1e1b4b" stroke="#7c3aed" stroke-width="1.6"/>
+          <circle cx="20" cy="75" r="6" fill="#7c3aed" fill-opacity=".7"/>
+          <path d="M8 93c0-6 5-9 12-9s12 3 12 9" fill="#7c3aed" fill-opacity=".4"/>
+          <circle cx="80" cy="80" r="22" fill="#1e1b4b" stroke="#a78bfa" stroke-width="2"/>
+          <circle cx="80" cy="74" r="7" fill="#7c3aed"/>
+          <path d="M66 92c0-8 6-12 14-12s14 4 14 12" fill="#7c3aed" fill-opacity=".6"/>
+          <circle cx="91" cy="66" r="5.5" fill="#0a1020" stroke="#1e1b4b" stroke-width="1.5"/>
+          <circle cx="91" cy="66" r="2.5" fill="#30D158"/>
+          <circle cx="140" cy="80" r="18" fill="#1e1b4b" stroke="#7c3aed" stroke-width="1.6"/>
+          <circle cx="140" cy="75" r="6" fill="#4f46e5" fill-opacity=".7"/>
+          <path d="M128 93c0-6 5-9 12-9s12 3 12 9" fill="#4f46e5" fill-opacity=".4"/>
+          <circle cx="44" cy="108" r="14" fill="#1e1b4b" stroke="#6d28d9" stroke-width="1.3"/>
+          <circle cx="44" cy="103.5" r="4.5" fill="#6d28d9" fill-opacity=".7"/>
+          <circle cx="116" cy="108" r="14" fill="#1e1b4b" stroke="#6d28d9" stroke-width="1.3"/>
+          <circle cx="116" cy="103.5" r="4.5" fill="#4338ca" fill-opacity=".7"/>
+          <text x="80" y="122" text-anchor="middle" font-size="8" font-weight="700" fill="#a78bfa" font-family="sans-serif">+9.000</text>
+          <rect x="52" y="128" width="56" height="22" rx="11" fill="#1a1040" stroke="#7c3aed" stroke-width="1"/>
+          <text x="80" y="143" text-anchor="middle" font-size="9" font-weight="700" fill="#c4b5fd" font-family="sans-serif"># general</text>
+        </svg>
+      </div>
+    </div>
+    <div class="ob-title">Komunitas<br/><span style="color:var(--ios-purple)">10.000+ Anggota</span></div>
+    <div class="ob-desc">Buat grup besar, channel, topik, voice room, dan peran canggih — semua offline.</div>
+  </div>
+
+  <!-- Step 4 - Setup -->
+  <div class="ob-step" id="ob-4" style="padding-top:52px;align-items:stretch;text-align:left;">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px;">
+      <div>
+        <div class="ob-title" style="text-align:left;font-size:28px;">Buat<br/><span style="color:var(--ios-blue)">Identitasmu</span></div>
+        <div class="ob-desc" style="text-align:left;margin-top:8px;">Tidak ada server yang menyimpan data kamu.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.06em;margin-bottom:7px;">NAMA TAMPIL</div>
+          <input class="search-bar" id="setup-name" placeholder="Nama kamu" value="Nova User" style="width:100%;border-radius:12px;height:46px;font-size:15px;font-family:inherit;"/>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.06em;margin-bottom:7px;">USERNAME</div>
+          <div style="position:relative;">
+            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ios-blue);font-weight:700;font-size:16px;z-index:1;">@</span>
+            <input class="search-bar" id="setup-username" placeholder="username" value="novauser" style="width:100%;border-radius:12px;height:46px;font-size:15px;font-family:inherit;padding-left:28px;"/>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.06em;margin-bottom:7px;">BIO <span style="font-weight:400;">(opsional)</span></div>
+          <textarea class="search-bar" id="setup-bio" placeholder="Ceritakan tentang diri kamu…" rows="2" style="width:100%;border-radius:12px;min-height:72px;font-size:15px;font-family:inherit;padding:12px 14px;resize:none;height:auto;">Building the future of communication.</textarea>
+        </div>
+      </div>
+      <div style="padding:12px 14px;background:rgba(88,172,253,0.1);border-radius:12px;border:1px solid rgba(88,172,253,0.2);">
+        <div style="font-size:12px;font-weight:700;color:var(--ios-blue);margin-bottom:3px;display:flex;align-items:center;gap:6px;">
+          <svg width="13" height="13"><use href="#svg-lock" color="#58ACFD"/></svg>
+          Data tersimpan di perangkat
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);">Tidak ada server yang pernah menerima profilmu. Zero telemetry.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom controls -->
+  <div class="ob-bottom">
+    <div class="ob-dots" id="ob-dots">
+      <div class="ob-dot active"></div>
+      <div class="ob-dot"></div>
+      <div class="ob-dot"></div>
+      <div class="ob-dot"></div>
+    </div>
+    <button class="btn-glass btn-primary ios-press" id="ob-next-btn" onclick="obNext()" style="width:100%;padding:16px;border-radius:16px;font-size:16px;font-family:inherit;">
+      <span>Lanjutkan</span>
+      <svg width="18" height="18"><use href="#svg-rocket" color="white"/></svg>
+    </button>
+    <button onclick="finishOnboarding()" style="background:none;border:none;padding:10px;font-size:14px;color:rgba(255,255,255,0.35);cursor:pointer;font-family:inherit;">Lewati untuk sekarang</button>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app" style="display:none;">
+
+  <!-- HEADER -->
+  <div id="app-header">
+    <h1 id="header-title">Obrolan</h1>
+    <div style="display:flex;gap:8px;">
+      <div class="header-btn ios-press" id="header-search-btn" onclick="headerAction('search')">
+        <span class="material-symbols-rounded" style="font-size:19px;">search</span>
+      </div>
+      <div class="header-btn ios-press" id="header-main-btn" onclick="headerAction('main')">
+        <span class="material-symbols-rounded" style="font-size:19px;">edit_square</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: OBROLAN ── -->
+  <div id="screen-chats" class="screen active">
+    <div class="search-wrap">
+      <div class="search-bar ios-press">
+        <span class="material-symbols-rounded" style="font-size:19px;color:var(--ios-gray);">search</span>
+        <input type="text" placeholder="Cari Obrolan" oninput="searchChats(this.value)"/>
+      </div>
+    </div>
+
+    <!-- Filter tabs -->
+    <div style="display:flex;gap:6px;padding:0 16px 14px;overflow-x:auto;" id="chat-filters">
+      <button class="ios-press" onclick="setChatFilter(this,'all')" style="padding:5px 14px;border-radius:100px;background:rgba(88,172,253,0.18);border:1px solid rgba(88,172,253,0.3);color:var(--ios-blue);font-size:12px;font-weight:700;white-space:nowrap;font-family:inherit;cursor:pointer;">Semua</button>
+      <button class="ios-press" onclick="setChatFilter(this,'direct')" style="padding:5px 14px;border-radius:100px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);font-size:12px;font-weight:700;white-space:nowrap;font-family:inherit;cursor:pointer;">Pribadi</button>
+      <button class="ios-press" onclick="setChatFilter(this,'group')" style="padding:5px 14px;border-radius:100px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);font-size:12px;font-weight:700;white-space:nowrap;font-family:inherit;cursor:pointer;">Grup</button>
+      <button class="ios-press" onclick="setChatFilter(this,'channel')" style="padding:5px 14px;border-radius:100px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);font-size:12px;font-weight:700;white-space:nowrap;font-family:inherit;cursor:pointer;">Channel</button>
+    </div>
+
+    <!-- Birthday banner -->
+    <div class="glass-panel ios-press" style="padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;" id="birthday-banner">
+      <div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:3px;">Tambahkan tanggal lahir Anda!</div>
+        <div style="font-size:13px;color:var(--text-secondary);">Beri tahu kontak Anda saat merayakan.</div>
+      </div>
+      <button onclick="event.stopPropagation();document.getElementById('birthday-banner').style.display='none'" style="background:none;border:none;color:var(--ios-gray);cursor:pointer;padding:4px;"><span class="material-symbols-rounded" style="font-size:20px;">close</span></button>
+    </div>
+
+    <!-- Chat list -->
+    <div id="chat-list"></div>
+  </div>
+
+  <!-- ── SCREEN: KONTAK ── -->
+  <div id="screen-contacts" class="screen">
+    <div class="search-wrap">
+      <div class="search-bar">
+        <span class="material-symbols-rounded" style="font-size:19px;color:var(--ios-gray);">search</span>
+        <input type="text" placeholder="Cari Kontak" oninput="filterContacts(this.value)"/>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="glass-panel">
+      <div class="list-item list-sep ios-press" onclick="showToast('Undang teman via link…')" style="gap:0;">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#3b82f6,#1d4ed8);margin-right:14px;">
+          <svg viewBox="0 0 24 24" fill="none"><use href="#svg-person-add" color="white"/></svg>
+        </div>
+        <div class="item-name">Undang Teman</div>
+        <span class="material-symbols-rounded chevron" style="margin-left:auto;">chevron_right</span>
+      </div>
+      <div class="list-item ios-press" onclick="showToast('Membuka panggilan terkini…')">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#34d399,#059669);margin-right:14px;">
+          <svg viewBox="0 0 24 24" fill="none"><use href="#svg-call" color="white"/></svg>
+        </div>
+        <div class="item-name">Panggilan Terkini</div>
+        <span class="material-symbols-rounded chevron" style="margin-left:auto;">chevron_right</span>
+      </div>
+    </div>
+
+    <div id="contacts-list"></div>
+  </div>
+
+  <!-- ── SCREEN: PENGATURAN ── -->
+  <div id="screen-settings" class="screen">
+
+    <!-- Theme -->
+    <div class="glass-panel">
+      <div style="padding:14px 16px 8px;font-size:16px;font-weight:700;">Tema Background</div>
+      <div class="theme-selector">
+        <div class="theme-btn theme-1 active ios-press" onclick="setTheme('default',this)" title="Biru LINKA"></div>
+        <div class="theme-btn theme-2 ios-press" onclick="setTheme('theme-cyber',this)" title="Cyber"></div>
+        <div class="theme-btn theme-3 ios-press" onclick="setTheme('theme-warm',this)" title="Hangat"></div>
+        <div class="theme-btn theme-4 ios-press" onclick="setTheme('theme-emerald',this)" title="Hijau"></div>
+        <div class="theme-btn theme-5 ios-press" onclick="setTheme('theme-rose',this)" title="Rose"></div>
+      </div>
+    </div>
+
+    <!-- Font size -->
+    <div class="glass-panel">
+      <div style="padding:14px 16px;font-size:16px;font-weight:700;">Ukuran Font</div>
+      <div style="padding:0 16px 16px;display:flex;align-items:center;gap:14px;">
+        <span style="font-size:12px;color:var(--text-secondary);">A</span>
+        <input type="range" min="12" max="20" value="15" id="font-size-slider" oninput="changeFontSize(this.value)" style="flex:1;accent-color:var(--ios-blue);height:4px;"/>
+        <span style="font-size:18px;color:var(--text-secondary);">A</span>
+      </div>
+      <div style="padding:0 16px 14px;font-size:12px;color:var(--text-secondary);">
+        Font teks: <strong style="color:var(--text-primary);">LINKA800</strong> — 
+        <span style="color:var(--ios-gray);">Font emoji terkunci: AppleEmoji iOS 18.4</span>
+      </div>
+    </div>
+
+    <!-- Umum -->
+    <div class="section-title">UMUM</div>
+    <div class="glass-panel">
+      <div class="list-item list-sep ios-press" onclick="showToast('Notifikasi')">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#f87171,#dc2626);margin-right:14px;">
+          <svg viewBox="0 0 24 24" fill="none"><use href="#svg-bell" color="white"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Notifikasi</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+      <div class="list-item list-sep ios-press" onclick="showToast('Privasi & Keamanan')">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#34d399,#059669);margin-right:14px;">
+          <svg viewBox="0 0 24 24" fill="none"><use href="#svg-privacy" color="white"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Privasi &amp; Keamanan</div><div style="font-size:12px;color:var(--text-secondary);">Terakhir dilihat, Perangkat, Passkey</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+      <div class="list-item list-sep ios-press" onclick="showToast('Pengaturan obrolan')">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#3b82f6,#1d4ed8);margin-right:14px;">
+          <svg viewBox="0 0 24 24" fill="none"><use href="#svg-chat" color="white"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Pengaturan Obrolan</div><div style="font-size:12px;color:var(--text-secondary);">Latar, Mode Gelap, Animasi</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+      <div class="list-item list-sep ios-press" onclick="showToast('Perangkat terhubung')">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#818cf8,#4338ca);margin-right:14px;">
+          <svg viewBox="0 0 24 24" fill="none"><use href="#svg-devices" color="white"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Perangkat</div><div style="font-size:12px;color:var(--text-secondary);">Kelola perangkat terhubung</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+      <div class="list-item ios-press" onclick="showToast('Penyimpanan')">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#fb923c,#ea580c);margin-right:14px;">
+          <svg viewBox="0 0 24 24" fill="none"><use href="#svg-storage" color="white"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Penyimpanan &amp; Data</div><div style="font-size:12px;color:var(--text-secondary);">48 MB digunakan</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+    </div>
+
+    <!-- Jaringan -->
+    <div class="section-title">JARINGAN</div>
+    <div class="glass-panel">
+      <div class="list-item list-sep" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;">
+          <div class="setting-svg" style="background:linear-gradient(145deg,#3b82f6,#1d4ed8);margin-right:14px;">
+            <svg viewBox="0 0 24 24" fill="none"><use href="#svg-bt" color="white"/></svg>
+          </div>
+          <div><div class="item-name">Bluetooth Mesh</div><div style="font-size:12px;color:var(--ios-green);">Terhubung · 8 node</div></div>
+        </div>
+        <label class="toggle" style="margin-left:auto;"><input type="checkbox" checked onchange="showToast('BT Mesh '+(this.checked?'aktif':'nonaktif'))"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+      <div class="list-item list-sep" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;">
+          <div class="setting-svg" style="background:linear-gradient(145deg,#38bdf8,#0284c7);margin-right:14px;">
+            <svg viewBox="0 0 24 24" fill="none"><use href="#svg-wifi" color="white"/></svg>
+          </div>
+          <div><div class="item-name">WiFi Direct</div><div style="font-size:12px;color:var(--ios-green);">Aktif · 3 peers</div></div>
+        </div>
+        <label class="toggle" style="margin-left:auto;"><input type="checkbox" checked onchange="showToast('WiFi Direct '+(this.checked?'aktif':'nonaktif'))"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+      <div class="list-item" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;">
+          <div class="setting-svg" style="background:linear-gradient(145deg,#818cf8,#4338ca);margin-right:14px;">
+            <svg viewBox="0 0 24 24" fill="none"><use href="#svg-node" color="white"/></svg>
+          </div>
+          <div><div class="item-name">LAN Discovery</div><div style="font-size:12px;color:var(--text-secondary);">Memindai…</div></div>
+        </div>
+        <label class="toggle" style="margin-left:auto;"><input type="checkbox" checked onchange="showToast('LAN '+(this.checked?'aktif':'nonaktif'))"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+    </div>
+
+    <!-- Premium -->
+    <div class="section-title">LINKA+</div>
+    <div class="glass-panel">
+      <div class="list-item list-sep ios-press" onclick="showToast('LINKA+ Premium')">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#fbbf24,#8b5cf6,#ec4899);margin-right:14px;">
+          <svg viewBox="0 0 24 24" fill="none"><use href="#svg-star" color="white"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name" style="background:linear-gradient(90deg,#fbbf24,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">LINKA+ Premium</div><div style="font-size:12px;color:var(--text-secondary);">Fitur eksklusif tanpa batas</div></div>
+        <span style="font-size:10px;padding:3px 8px;border-radius:100px;background:linear-gradient(90deg,#fbbf24,#f97316);color:#000;font-weight:800;">GRATIS</span>
+      </div>
+      <div class="list-item ios-press" onclick="showToast('Kunci enkripsi')">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#34d399,#059669);margin-right:14px;">
+          <svg viewBox="0 0 24 24" fill="none"><use href="#svg-key" color="white"/></svg>
+        </div>
+        <div class="item-info"><div class="item-name">Kunci Enkripsi</div><div style="font-size:12px;color:var(--ios-green);">X25519 · Ed25519 aktif</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="glass-panel" style="padding:20px;text-align:center;margin-bottom:20px;">
+      <div style="width:56px;height:56px;border-radius:14px;overflow:hidden;margin:0 auto 12px;box-shadow:0 8px 24px rgba(88,172,253,0.3);">
+        <img src="assets/logo/logo.png" alt="LINKA" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\'width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#58ACFD,#5E5CE6);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:white;\'>L</div>'"/>
+      </div>
+      <div style="font-size:20px;font-weight:800;letter-spacing:-0.02em;">LINKA</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Versi 1.0.0 · Build 2026.06</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Connected Without Limits</div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: PROFIL ── -->
+  <div id="screen-profile" class="screen">
+    <div class="profile-hero">
+      <div class="profile-avatar ios-press" id="profile-av">N</div>
+      <div class="profile-name" id="profile-name-disp">Nova User</div>
+      <div class="profile-handle">
+        <span class="pulse-dot" style="margin-right:5px;"></span>
+        <span id="profile-handle-disp">@novauser</span>
+        <span style="color:rgba(255,255,255,0.3);margin:0 6px;">·</span>
+        <span style="color:var(--ios-green);">Online</span>
+      </div>
+    </div>
+
+    <div class="action-grid">
+      <div class="action-btn ios-press" onclick="showToast('Pasang Foto')">
+        <svg width="24" height="24"><use href="#svg-qr" color="#58ACFD"/></svg>
+        <span style="font-size:11px;">QR Code</span>
+      </div>
+      <div class="action-btn ios-press" onclick="switchNav('settings','Pengaturan',document.querySelector('[data-screen=settings]'))">
+        <svg width="24" height="24"><use href="#svg-palette" color="white"/></svg>
+        <span style="font-size:11px;">Edit</span>
+      </div>
+      <div class="action-btn ios-press" onclick="showToast('Pengaturan akun')">
+        <span class="material-symbols-rounded" style="font-size:24px;">settings</span>
+        <span style="font-size:11px;">Atur</span>
+      </div>
+    </div>
+
+    <div class="glass-panel" style="padding:0;">
+      <div class="list-item list-sep">
+        <div style="flex:1;"><div style="font-size:15px;font-weight:600;" id="profile-phone-disp">+62 812 1448 6208</div><div style="font-size:12px;color:var(--text-secondary);">Ponsel</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+      <div class="list-item">
+        <div style="flex:1;"><div style="font-size:15px;font-weight:600;" id="profile-user-disp">@novauser</div><div style="font-size:12px;color:var(--text-secondary);">Username</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+    </div>
+
+    <!-- Postingan tab -->
+    <div style="display:flex;gap:4px;margin:0 16px 16px;background:rgba(255,255,255,0.06);padding:3px;border-radius:12px;">
+      <button id="tab-posts" onclick="setPostTab('posts',this)" style="flex:1;padding:8px;border-radius:10px;background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">Postingan</button>
+      <button id="tab-archive" onclick="setPostTab('archive',this)" style="flex:1;padding:8px;border-radius:10px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Arsip Postingan</button>
+    </div>
+
+    <div id="posts-grid" style="padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+      <div style="aspect-ratio:1;border-radius:12px;background:var(--glass-dark);backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="showToast('Tambah postingan')">
+        <span class="material-symbols-rounded" style="font-size:32px;color:rgba(255,255,255,0.3);">add_a_photo</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: CONVERSATION ── -->
+  <div id="screen-conversation" class="screen">
+    <div class="conv-header">
+      <div class="conv-back ios-press" onclick="goBack()">
+        <span class="material-symbols-rounded" style="font-size:19px;">arrow_back_ios</span>
+      </div>
+      <div class="avatar" id="conv-av" style="width:38px;height:38px;font-size:15px;font-weight:700;margin:0 10px 0 0;flex-shrink:0;">A</div>
+      <div class="conv-info">
+        <div class="conv-name" id="conv-name">Alex Chen</div>
+        <div class="conv-status" id="conv-status">Aktif via Bluetooth</div>
+      </div>
+      <div style="display:flex;gap:6px;margin-left:auto;">
+        <div class="header-btn ios-press" onclick="showToast('Panggilan suara…')">
+          <svg width="18" height="18"><use href="#svg-call" color="var(--ios-blue)"/></svg>
+        </div>
+        <div class="header-btn ios-press" onclick="showToast('Video call…')">
+          <span class="material-symbols-rounded" style="font-size:18px;color:var(--ios-blue);">videocam</span>
+        </div>
+        <div class="header-btn ios-press" onclick="showChatMenu()">
+          <span class="material-symbols-rounded" style="font-size:18px;">more_vert</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Encryption banner -->
+    <div style="padding:6px 14px;background:rgba(88,172,253,0.1);border-bottom:0.5px solid rgba(88,172,253,0.2);display:flex;align-items:center;gap:7px;flex-shrink:0;">
+      <svg width="13" height="13"><use href="#svg-bt" color="#58ACFD"/></svg>
+      <span style="font-size:11px;color:var(--ios-blue);font-weight:600;">Bluetooth Mesh · 2 hop · Terenkripsi E2E</span>
+      <svg width="13" height="13" style="margin-left:auto;"><use href="#svg-lock" color="#30D158"/></svg>
+    </div>
+
+    <div class="messages-area" id="messages-area"></div>
+
+    <div class="composer">
+      <div class="composer-attach">
+        <div class="attach-btn ios-press" onclick="showToast('Lampiran')"><span class="material-symbols-rounded">attach_file</span></div>
+        <div class="attach-btn ios-press" onclick="showToast('Kamera')"><span class="material-symbols-rounded">photo_camera</span></div>
+        <div class="attach-btn ios-press" onclick="showToast('GIF')" style="width:auto;padding:0 10px;border-radius:100px;font-size:11px;font-weight:800;color:var(--ios-gray);">GIF</div>
+        <div class="attach-btn ios-press" onclick="showToast('Stiker')"><span class="material-symbols-rounded">sentiment_satisfied</span></div>
+        <div class="attach-btn ios-press" onclick="showToast('File transfer')"><svg width="14" height="14"><use href="#svg-transfer" color="var(--ios-gray)"/></svg></div>
+      </div>
+      <div class="composer-row">
+        <textarea class="composer-input" id="msg-input" placeholder="Pesan…" rows="1"></textarea>
+        <div class="attach-btn ios-press" onclick="showToast('Voice note')" style="margin-bottom:2px;"><span class="material-symbols-rounded">mic</span></div>
+        <div class="send-btn ios-press" onclick="sendMsg()">
+          <span class="material-symbols-rounded">send</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: MESH ── -->
+  <div id="screen-mesh" class="screen">
+    <div class="search-wrap">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div>
+          <div style="font-size:20px;font-weight:800;">Jaringan Mesh</div>
+          <div style="font-size:12px;color:var(--text-secondary);">1,204 node · 12ms</div>
+        </div>
+        <div class="glass-panel" style="margin:0;padding:6px 12px;display:flex;align-items:center;gap:6px;border-radius:100px;">
+          <span class="pulse-dot"></span>
+          <span style="font-size:12px;font-weight:600;color:var(--ios-green);">LIVE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas -->
+    <div style="margin:0 16px 16px;border-radius:22px;overflow:hidden;background:#080810;border:1px solid rgba(255,255,255,0.08);position:relative;height:240px;">
+      <canvas id="mesh-canvas" style="width:100%;height:100%;"></canvas>
+      <div style="position:absolute;bottom:12px;right:12px;font-size:10px;color:rgba(255,255,255,0.3);">Mode Developer</div>
+    </div>
+
+    <!-- Stats grid -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 16px;">
+      <div class="glass-card" style="padding:16px;">
+        <div style="font-size:26px;font-weight:800;">1,204</div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);letter-spacing:0.04em;margin-top:3px;">NODE TERHUBUNG</div>
+        <div style="margin-top:10px;height:3px;border-radius:100px;background:rgba(255,255,255,0.1);"><div style="height:100%;width:72%;border-radius:100px;background:var(--ios-blue);"></div></div>
+      </div>
+      <div class="glass-card" style="padding:16px;">
+        <div style="font-size:26px;font-weight:800;">12<span style="font-size:14px;font-weight:500;color:var(--text-secondary);">ms</span></div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);letter-spacing:0.04em;margin-top:3px;">LATENSI RATA-RATA</div>
+        <div style="margin-top:10px;height:3px;border-radius:100px;background:rgba(255,255,255,0.1);"><div style="height:100%;width:90%;border-radius:100px;background:var(--ios-green);"></div></div>
+      </div>
+      <div class="glass-card" style="padding:16px;">
+        <div style="font-size:26px;font-weight:800;">4</div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);letter-spacing:0.04em;margin-top:3px;">PROTOKOL AKTIF</div>
+        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;">
+          <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(88,172,253,0.18);color:var(--ios-blue);font-weight:700;">BT-LE</span>
+          <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(88,172,253,0.18);color:var(--ios-blue);font-weight:700;">WiFi-D</span>
+          <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(88,172,253,0.18);color:var(--ios-blue);font-weight:700;">LAN</span>
+          <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(88,172,253,0.18);color:var(--ios-blue);font-weight:700;">P2P</span>
+        </div>
+      </div>
+      <div class="glass-card" style="padding:16px;">
+        <div style="font-size:26px;font-weight:800;color:var(--ios-green);">99.2<span style="font-size:14px;font-weight:500;color:var(--text-secondary);">%</span></div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);letter-spacing:0.04em;margin-top:3px;">UPTIME</div>
+        <div style="margin-top:10px;height:3px;border-radius:100px;background:rgba(255,255,255,0.1);"><div style="height:100%;width:99%;border-radius:100px;background:var(--ios-green);"></div></div>
+      </div>
+    </div>
+
+    <!-- Nearby -->
+    <div class="section-title">PERANGKAT TERDEKAT</div>
+    <div class="glass-panel" id="nearby-list"></div>
+
+    <!-- Route -->
+    <div class="section-title">RUTE AKTIF</div>
+    <div class="glass-panel" style="padding:14px 16px;">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <span style="padding:5px 12px;border-radius:100px;background:rgba(88,172,253,0.2);border:1px solid rgba(88,172,253,0.3);color:var(--ios-blue);font-size:12px;font-weight:700;">Kamu</span>
+        <span class="material-symbols-rounded" style="font-size:16px;color:rgba(255,255,255,0.3);">arrow_forward</span>
+        <span style="padding:5px 12px;border-radius:100px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--text-secondary);font-size:12px;font-weight:600;">Node BT A</span>
+        <span class="material-symbols-rounded" style="font-size:16px;color:rgba(255,255,255,0.3);">arrow_forward</span>
+        <span style="padding:5px 12px;border-radius:100px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--text-secondary);font-size:12px;font-weight:600;">Relay B</span>
+        <span class="material-symbols-rounded" style="font-size:16px;color:rgba(255,255,255,0.3);">arrow_forward</span>
+        <span style="padding:5px 12px;border-radius:100px;background:rgba(48,209,88,0.15);border:1px solid rgba(48,209,88,0.3);color:var(--ios-green);font-size:12px;font-weight:700;">Tujuan</span>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--text-secondary);">3 hop · Auto-routing · Self-healing mesh</div>
+    </div>
+  </div>
+
+  <!-- NAV BAR -->
+  <div class="nav-wrap">
+    <div class="nav-container">
+      <div class="nav-indicator" id="nav-indicator"></div>
+      <div class="nav-item active" data-screen="chats" onclick="switchNav('chats','Obrolan',this)">
+        <span class="material-symbols-rounded nav-icon">chat_bubble</span>
+        <div class="nav-text">Obrolan</div>
+      </div>
+      <div class="nav-item" data-screen="contacts" onclick="switchNav('contacts','Kontak',this)">
+        <span class="material-symbols-rounded nav-icon">group</span>
+        <div class="nav-text">Kontak</div>
+      </div>
+      <div class="nav-item" data-screen="mesh" onclick="switchNav('mesh','Jaringan',this)">
+        <span class="material-symbols-rounded nav-icon">hub</span>
+        <div class="nav-text">Jaringan</div>
+      </div>
+      <div class="nav-item" data-screen="settings" onclick="switchNav('settings','Pengaturan',this)">
+        <span class="material-symbols-rounded nav-icon">settings</span>
+        <div class="nav-text">Pengaturan</div>
+      </div>
+      <div class="nav-item" data-screen="profile" onclick="switchNav('profile','Profil',this)">
+        <span class="material-symbols-rounded nav-icon">account_circle</span>
+        <div class="nav-text">Profil</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /#app -->
+
+<!-- Chat Menu Sheet -->
+<div class="overlay" id="chat-menu-overlay" onclick="closeOverlay('chat-menu-overlay')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div style="padding:0 0 8px;">
+      <div class="list-item ios-press" onclick="showToast('Cari di obrolan');closeOverlay('chat-menu-overlay')">
+        <span class="material-symbols-rounded" style="margin-right:14px;color:var(--text-secondary);">search</span>Cari di Obrolan
+      </div>
+      <div class="list-item ios-press" onclick="showToast('Media & file');closeOverlay('chat-menu-overlay')">
+        <span class="material-symbols-rounded" style="margin-right:14px;color:var(--text-secondary);">perm_media</span>Media &amp; File
+      </div>
+      <div class="list-item ios-press" onclick="showToast('Pin obrolan');closeOverlay('chat-menu-overlay')">
+        <span class="material-symbols-rounded" style="margin-right:14px;color:var(--text-secondary);">push_pin</span>Sematkan Obrolan
+      </div>
+      <div class="list-item ios-press" onclick="showToast('Bisukan');closeOverlay('chat-menu-overlay')">
+        <span class="material-symbols-rounded" style="margin-right:14px;color:var(--text-secondary);">notifications_off</span>Bisukan
+      </div>
+      <div class="list-item ios-press" onclick="showToast('Hapus obrolan');closeOverlay('chat-menu-overlay')" style="color:var(--ios-red);">
+        <span class="material-symbols-rounded" style="margin-right:14px;">delete</span>Hapus Obrolan
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════ */
+const CHATS = [
+  { id:1, name:'XIONECRA',          user:'@xionecra',     last:'linka-ready.zip',          lastType:'file',  time:'17:45', unread:0, online:true,  color:'linear-gradient(135deg,#7c3aed,#4f46e5)', type:'direct', via:'BT'   },
+  { id:2, name:'—ALL TEAM Z4SHII',  user:'@z4shii_team',  last:'Rose: Nice knowing you!',  lastType:'msg',   time:'07 Jun',unread:84,online:false, color:'linear-gradient(135deg,#374151,#1f2937)', type:'group',  via:'Mesh' },
+  { id:3, name:'ROOM PUBLIC FANZ¹', user:'2336 anggota',  last:'Acan: +62858-8246-3889',   lastType:'msg',   time:'14:06', unread:2336,online:true, color:'linear-gradient(135deg,#1e293b,#0f172a)', type:'group',  via:'WiFi' },
+  { id:4, name:'—_ORiON\'S_—',      user:'@orions',       last:'DRAFT SUSUNAN KEPENGURUSAN…',lastType:'draft',time:'08 Jan',unread:0, online:false, color:'linear-gradient(135deg,#450a0a,#7f1d1d)', type:'direct', via:''     },
+  { id:5, name:'PARTNER PRIB ZASHI',user:'@z4shii',       last:'Draf: bot.sendVideo(chatId…',lastType:'draft',time:'03 Nov',unread:0, online:false, color:'linear-gradient(135deg,#1e1b4b,#312e81)', type:'direct', via:''     },
+  { id:6, name:'METAJAYA Market',   user:'57768 anggota', last:'fardan: P R O X Y',        lastType:'msg',   time:'19:45', unread:0, online:true,  color:'linear-gradient(135deg,#0c4a6e,#075985)', type:'channel',via:'WiFi' },
+  { id:7, name:'Sarah Kim',         user:'@sarahk',       last:'File ditransfer sempurna!', lastType:'msg',   time:'18m',   unread:0, online:true,  color:'linear-gradient(135deg,#0891b2,#0e7490)', type:'direct', via:'LAN'  },
+  { id:8, name:'Marcus Reed',       user:'@marcusreed',   last:'Kamu: Dapat pesanku?',     lastType:'msg',   time:'3j',    unread:0, online:false, color:'linear-gradient(135deg,#d97706,#b45309)', type:'direct', via:''     },
+];
+
+const MESSAGES = [
+  { out:false, text:'Hei! Kamu terhubung ke jaringan mesh? Aku bisa lihat node kamu', time:'10:32', read:true },
+  { out:true,  text:'Ya! Koneksi Bluetooth. Sinyal sangat kuat hari ini.', time:'10:33', read:true },
+  { out:false, text:'Luar biasa. Tidak butuh internet sama sekali. Ini masa depan', time:'10:33', read:true },
+  { out:true,  text:'Tepat sekali. Aku juga baru kirim file 50MB — hanya 8 detik via BT.', time:'10:34', read:true },
+  { out:false, text:'Terima! SHA256 verified. Enkripsinya kuat banget.', time:'10:35', read:true },
+  { out:true,  text:'ChaCha20-Poly1305 + key exchange X25519. Forward secrecy juga aktif.', time:'10:35', read:true },
+  { out:false, text:'Sampai jumpa di sana!', time:'10:41', read:false },
+];
+
+const CONTACTS = [
+  { name:'Alex Chen',      user:'@alexchen',  status:'terlihat belakangan ini', color:'linear-gradient(135deg,#7c3aed,#4f46e5)', online:true  },
+  { name:'Aditya Nugraha', user:'@adityaN',   status:'terlihat kemarin',        color:'linear-gradient(135deg,#0891b2,#0e7490)', online:false },
+  { name:'Bima Santoso',   user:'@bimasantoso',status:'terlihat belakangan ini', color:'linear-gradient(135deg,#059669,#047857)', online:true  },
+  { name:'Bella Rahayu',   user:'@bellar',    status:'terlihat 1 jam lalu',     color:'linear-gradient(135deg,#ec4899,#db2777)', online:false },
+  { name:'Dika Firmansyah',user:'@dikafirman',status:'terlihat belakangan ini', color:'linear-gradient(135deg,#f59e0b,#d97706)', online:false },
+  { name:'Marcus Reed',    user:'@marcusreed',status:'terlihat belakangan ini', color:'linear-gradient(135deg,#d97706,#b45309)', online:true  },
+  { name:'Maya Putri',     user:'@mayaputri', status:'terlihat kemarin',        color:'linear-gradient(135deg,#a78bfa,#7c3aed)', online:false },
+  { name:'Nova User',      user:'@novauser',  status:'Kamu',                    color:'linear-gradient(135deg,#1e3a8a,#2563eb)', online:true, self:true },
+  { name:'Priya Sharma',   user:'@priyasharma',status:'terlihat 5 jam lalu',   color:'linear-gradient(135deg,#7c3aed,#6d28d9)', online:false },
+  { name:'Rizky Habibie',  user:'@rizkyh',    status:'terlihat belakangan ini', color:'linear-gradient(135deg,#10b981,#059669)', online:true  },
+  { name:'Sarah Kim',      user:'@sarahk',    status:'terlihat belakangan ini', color:'linear-gradient(135deg,#0891b2,#0e7490)', online:true  },
+  { name:'Zara Amelia',    user:'@zaraamelia',status:'terlihat seminggu lalu',  color:'linear-gradient(135deg,#14b8a6,#0d9488)', online:false },
+];
+
+const NEARBY = [
+  { name:'Alex Chen',   type:'Bluetooth LE', signal:95, color:'linear-gradient(135deg,#7c3aed,#4f46e5)' },
+  { name:'Sarah Kim',   type:'WiFi Direct',  signal:78, color:'linear-gradient(135deg,#0891b2,#0e7490)' },
+  { name:'Marcus Reed', type:'LAN',          signal:62, color:'linear-gradient(135deg,#d97706,#b45309)' },
+  { name:'Node Anonim', type:'Bluetooth Mesh',signal:45,color:'linear-gradient(135deg,#374151,#1f2937)' },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let obStep    = 1;
+let prevScreen = 'chats';
+let userName   = 'Nova User';
+let userHandle = '@novauser';
+let navSyncRAF;
+
+/* ═══════════════════════════════════════════
+   ONBOARDING (shown immediately, no splash delay)
+═══════════════════════════════════════════ */
+window.addEventListener('load', () => {
+  document.getElementById('onboarding').classList.add('visible');
+});
+
+/* ═══════════════════════════════════════════
+   ONBOARDING
+═══════════════════════════════════════════ */
+let _obTotal = 4;
+function obNext() {
+  if (obStep < _obTotal) {
+    document.getElementById('ob-'+obStep).classList.remove('active');
+    obStep++;
+    document.getElementById('ob-'+obStep).classList.add('active');
+    updateObDots();
+    if (obStep === _obTotal) {
+      document.getElementById('ob-next-btn').innerHTML = '<span>Mulai</span><svg width="18" height="18"><use href="#svg-rocket" color="white"/></svg>';
+    }
+  } else {
+    finishOnboarding();
+  }
+}
+function updateObDots() {
+  document.querySelectorAll('.ob-dot').forEach((d,i) => d.classList.toggle('active', i === obStep-1));
+}
+function finishOnboarding() {
+  userName   = (document.getElementById('setup-name')?.value  || 'Nova User').trim();
+  userHandle = '@'+(document.getElementById('setup-username')?.value || 'novauser').trim().replace(/^@/,'');
+  // Sync profile
+  ['profile-name-disp'].forEach(id => { const e=document.getElementById(id); if(e) e.textContent=userName; });
+  ['profile-handle-disp','profile-user-disp'].forEach(id => { const e=document.getElementById(id); if(e) e.textContent=userHandle; });
+  const pav = document.getElementById('profile-av');
+  if(pav) pav.textContent = userName[0]?.toUpperCase() || 'N';
+
+  document.getElementById('onboarding').style.display = 'none';
+  const app = document.getElementById('app');
+  app.style.display = 'flex';
+  app.style.flexDirection = 'column';
+
+  // Init all data
+  renderChats();
+  renderContacts();
+  renderNearby();
+  initMeshCanvas();
+  initNavIndicator();
+}
+
+/* ═══════════════════════════════════════════
+   NAV — Liquid Indicator (JS-driven)
+═══════════════════════════════════════════ */
+function initNavIndicator() {
+  const active = document.querySelector('.nav-item.active');
+  if (!active) return;
+  const ind = document.getElementById('nav-indicator');
+  ind.style.left  = active.offsetLeft  + 'px';
+  ind.style.width = active.offsetWidth + 'px';
+}
+
+function startIndicatorSync(target) {
+  cancelAnimationFrame(navSyncRAF);
+  const ind = document.getElementById('nav-indicator');
+  if (!ind) return;
+
+  const startL = parseFloat(ind.style.left)  || 0;
+  const startW = parseFloat(ind.style.width) || 0;
+  const endL   = target.offsetLeft;
+  const endW   = target.offsetWidth;
+
+  const dur = 480;
+  const t0  = performance.now();
+
+  // Spring-overshoot easing (custom: slight bounce at end)
+  function springEase(t) {
+    const c4 = (2 * Math.PI) / 2.8;
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    return Math.pow(2, -9 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+  }
+
+  // Width uses a softer ease (no overshoot on size)
+  function widthEase(t) {
+    return 1 - Math.pow(1 - t, 4);
+  }
+
+  function frame(now) {
+    const p  = Math.min((now - t0) / dur, 1);
+    const el = springEase(p);
+    const ew = widthEase(p);
+    ind.style.left  = (startL + (endL - startL) * el) + 'px';
+    ind.style.width = (startW + (endW - startW) * ew) + 'px';
+    if (p < 1) navSyncRAF = requestAnimationFrame(frame);
+  }
+  navSyncRAF = requestAnimationFrame(frame);
+}
+
+function switchNav(screenId, title, el) {
+  if (el.classList.contains('active')) return;
+  if (navigator.vibrate) navigator.vibrate(18);
+
+  // Trigger nav container shimmer sweep
+  const navCont = document.querySelector('.nav-container');
+  if (navCont) {
+    navCont.classList.remove('shimmer');
+    void navCont.offsetWidth; // force reflow
+    navCont.classList.add('shimmer');
+    setTimeout(() => navCont.classList.remove('shimmer'), 600);
+  }
+
+  // Header title with fade
+  const htEl = document.getElementById('header-title');
+  if (htEl) {
+    htEl.style.opacity = '0';
+    htEl.style.transform = 'translateY(6px)';
+    setTimeout(() => {
+      htEl.textContent = title;
+      htEl.style.transition = 'opacity 0.3s var(--spring), transform 0.3s var(--spring)';
+      htEl.style.opacity = '1';
+      htEl.style.transform = 'translateY(0)';
+    }, 120);
+  }
+
+  // Show/hide header
+  const isConv = screenId === 'conversation';
+  document.getElementById('app-header').style.display = isConv ? 'none' : '';
+
+  // Screen transition: exit current
+  document.querySelectorAll('.screen').forEach(s => {
+    if (s.classList.contains('active')) {
+      s.classList.add('exit');
+      setTimeout(() => s.classList.remove('active', 'exit'), 320);
+    }
+  });
+
+  // Enter next with slight delay for cross-fade feel
+  const next = document.getElementById('screen-' + screenId);
+  if (next) setTimeout(() => next.classList.add('active'), 40);
+
+  // Nav active state
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  startIndicatorSync(el);
+
+  updateHeaderButtons(screenId);
+  prevScreen = screenId;
+  if (screenId === 'mesh') setTimeout(initMeshCanvas, 200);
+}
+
+function headerAction(type) {
+  const cur = document.querySelector('.nav-item.active')?.dataset.screen || prevScreen;
+  if (type === 'search') showToast('Pencarian');
+  else if (type === 'main') {
+    if (cur === 'chats')    showToast('Chat baru');
+    else if (cur === 'contacts') showToast('Kontak baru');
+    else if (cur === 'profile')  showToast('Tambah postingan');
+    else showToast('Tindakan');
+  }
+}
+
+function updateHeaderButtons(screenId) {
+  const mainBtn = document.getElementById('header-main-btn');
+  const searchBtn = document.getElementById('header-search-btn');
+  if (!mainBtn) return;
+  const icons = { chats:'edit_square', contacts:'person_add', settings:'check', profile:'add_a_photo', mesh:'refresh' };
+  mainBtn.querySelector('.material-symbols-rounded').textContent = icons[screenId] || 'more_vert';
+}
+
+function goBack() {
+  const navItem = document.querySelector('.nav-item[data-screen="'+prevScreen+'"]');
+  if (navItem) switchNav(prevScreen, document.getElementById('header-title')?.textContent || 'Obrolan', navItem);
+  else switchNav('chats','Obrolan', document.querySelector('[data-screen="chats"]'));
+}
+
+/* ═══════════════════════════════════════════
+   THEME
+═══════════════════════════════════════════ */
+function setTheme(name, el) {
+  if (navigator.vibrate) navigator.vibrate(25);
+  document.body.className = name !== 'default' ? name : '';
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  showToast('Tema diterapkan');
+}
+
+/* ═══════════════════════════════════════════
+   FONT SIZE
+═══════════════════════════════════════════ */
+function changeFontSize(v) {
+  document.documentElement.style.setProperty('--base-font', v+'px');
+  document.querySelectorAll('.bubble, .item-name, .item-msg').forEach(el => el.style.fontSize = '');
+  showToast('Ukuran font: '+v+'px');
+}
+
+/* ═══════════════════════════════════════════
+   RENDER: CHATS
+═══════════════════════════════════════════ */
+function renderChats(filter='', typeFilter='all') {
+  const el = document.getElementById('chat-list');
+  if (!el) return;
+  let list = CHATS;
+  if (filter) list = list.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+  if (typeFilter !== 'all') list = list.filter(c => c.type === typeFilter);
+
+  el.innerHTML = `<div class="glass-panel" style="overflow:hidden;">` + list.map((c,i) => `
+    <div class="list-item list-sep ios-press" onclick="openConv(${i})" style="animation:slideUpFade 0.3s ease ${i*25}ms both;">
+      <div style="position:relative;flex-shrink:0;margin-right:14px;">
+        <div class="avatar" style="background:${c.color};font-size:17px;font-weight:800;">${c.name[0]}</div>
+        ${c.online ? '<div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--ios-green);border:2px solid #0a0a12;box-shadow:0 0 6px var(--ios-green);"></div>' : ''}
+      </div>
+      <div class="item-info">
+        <div class="item-top">
+          <div class="item-name">${c.name}</div>
+          <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+            ${c.via ? `<span style="font-size:9px;padding:2px 6px;border-radius:100px;background:rgba(88,172,253,0.14);color:var(--ios-blue);font-weight:700;border:1px solid rgba(88,172,253,0.25);display:inline-flex;align-items:center;gap:3px;">${viaIconSVG(c.via)}${c.via}</span>` : ''}
+            <span class="item-time">${c.time}</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div class="item-msg" style="${c.lastType==='file'?'color:var(--ios-blue);font-weight:600;':c.lastType==='draft'?'color:var(--ios-red);':''}">${c.lastType==='draft'?'Draf: ':''}${c.last}</div>
+          ${c.unread > 0 ? `<div class="unread-badge">${c.unread > 999 ? Math.floor(c.unread/1000)+'k' : c.unread}</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('') + `</div>`;
+}
+
+function viaIconSVG(via) {
+  const m = { 'BT':'<path d="M7 8l5 5-5 5M7 8l5 5-5 5M12 3v18M12 3l5 5-5 5M12 21l5-5-5-5" stroke="#58ACFD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>','WiFi':'<path d="M2 9C6.5 4 17.5 4 22 9" stroke="#58ACFD" stroke-width="1.8" stroke-linecap="round"/><path d="M5 12.5c3.5-3.5 9.5-3.5 14 0" stroke="#58ACFD" stroke-width="1.8" stroke-linecap="round"/><path d="M8.5 16c1.8-1.8 5.2-1.8 7 0" stroke="#58ACFD" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="19.5" r="1.5" fill="#58ACFD"/>','LAN':'<rect x="9" y="2" width="6" height="4" rx="1" stroke="#58ACFD" stroke-width="1.5"/><rect x="2" y="14" width="6" height="4" rx="1" stroke="#58ACFD" stroke-width="1.5"/><rect x="16" y="14" width="6" height="4" rx="1" stroke="#58ACFD" stroke-width="1.5"/><path d="M12 6v4M12 10H5v4M12 10h7v4" stroke="#58ACFD" stroke-width="1.5" stroke-linecap="round"/>','Mesh':'<circle cx="12" cy="12" r="3" stroke="#58ACFD" stroke-width="1.8"/><circle cx="12" cy="3" r="2" stroke="#58ACFD" stroke-width="1.4"/><circle cx="20" cy="7" r="2" stroke="#58ACFD" stroke-width="1.4"/><circle cx="20" cy="17" r="2" stroke="#58ACFD" stroke-width="1.4"/><circle cx="12" cy="21" r="2" stroke="#58ACFD" stroke-width="1.4"/><circle cx="4" cy="17" r="2" stroke="#58ACFD" stroke-width="1.4"/><circle cx="4" cy="7" r="2" stroke="#58ACFD" stroke-width="1.4"/>' };
+  return `<svg width="9" height="9" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">${m[via]||''}</svg>`;
+}
+
+function searchChats(val) { renderChats(val); }
+function setChatFilter(btn, type) {
+  document.querySelectorAll('#chat-filters button').forEach(b => {
+    b.style.background = 'rgba(255,255,255,0.07)';
+    b.style.color = 'rgba(255,255,255,0.5)';
+    b.style.borderColor = 'rgba(255,255,255,0.1)';
+  });
+  btn.style.background = 'rgba(88,172,253,0.18)';
+  btn.style.color = 'var(--ios-blue)';
+  btn.style.borderColor = 'rgba(88,172,253,0.3)';
+  renderChats('', type);
+}
+
+/* ═══════════════════════════════════════════
+   OPEN CONVERSATION
+═══════════════════════════════════════════ */
+function openConv(idx) {
+  const c = CHATS[idx];
+  if (!c) return;
+  document.getElementById('conv-av').textContent   = c.name[0];
+  document.getElementById('conv-av').style.background = c.color;
+  document.getElementById('conv-name').textContent = c.name;
+  document.getElementById('conv-status').textContent = `Aktif via ${c.via || 'Bluetooth'}`;
+  prevScreen = document.querySelector('.nav-item.active')?.dataset.screen || 'chats';
+  renderMessages();
+
+  // Slide to conversation
+  document.querySelectorAll('.screen').forEach(s => {
+    if (s.classList.contains('active')) { s.classList.add('exit'); setTimeout(()=>s.classList.remove('active','exit'),300); }
+  });
+  document.getElementById('app-header').style.display = 'none';
+  setTimeout(() => document.getElementById('screen-conversation').classList.add('active'), 30);
+  setTimeout(() => {
+    const a = document.getElementById('messages-area');
+    if(a) a.scrollTop = a.scrollHeight;
+  }, 150);
+}
+
+/* ═══════════════════════════════════════════
+   MESSAGES
+═══════════════════════════════════════════ */
+function renderMessages() {
+  const el = document.getElementById('messages-area');
+  if (!el) return;
+  el.innerHTML = '<div class="date-label"><span>Hari ini</span></div>';
+  MESSAGES.forEach((m,i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'bubble-wrap '+(m.out?'out':'in');
+    wrap.style.animationDelay = (i*35)+'ms';
+    // Process text: wrap emoji in chat-emoji class for AppleEmoji font
+    const processed = m.text.replace(/([\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{1FA00}-\u{1FA9F}])/gu, '<span class="chat-emoji">$1</span>');
+    wrap.innerHTML = `
+      <div class="bubble ${m.out?'out':'in'}">
+        ${processed}
+        <div class="bubble-meta">
+          <span>${m.time}</span>
+          ${m.out ? `<svg width="14" height="9" viewBox="0 0 24 16" fill="none"><use href="${m.read?'#svg-read':'#svg-check'}" color="rgba(255,255,255,0.55)"/></svg>` : ''}
+        </div>
+      </div>`;
+    el.appendChild(wrap);
+  });
+}
+
+function sendMsg() {
+  const inp = document.getElementById('msg-input');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  MESSAGES.push({ out:true, text:txt, time: new Date().toLocaleTimeString('id',{hour:'2-digit',minute:'2-digit'}), read:false });
+  inp.value = ''; inp.style.height = 'auto';
+  renderMessages();
+  const a = document.getElementById('messages-area');
+  setTimeout(() => { if(a) a.scrollTop=a.scrollHeight; }, 80);
+  setTimeout(() => {
+    MESSAGES.push({ out:false, text:'Oke siap!', time: new Date().toLocaleTimeString('id',{hour:'2-digit',minute:'2-digit'}), read:false });
+    renderMessages();
+    setTimeout(() => { if(a) a.scrollTop=a.scrollHeight; }, 60);
+  }, 1400);
+}
+
+// Auto-resize composer
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('msg-input');
+  if (inp) {
+    inp.addEventListener('input', function() { this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,120)+'px'; });
+    inp.addEventListener('keydown', function(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();} });
+  }
+});
+
+/* ═══════════════════════════════════════════
+   CONTACTS
+═══════════════════════════════════════════ */
+function renderContacts(filter='') {
+  const el = document.getElementById('contacts-list');
+  if (!el) return;
+  const q = filter.toLowerCase();
+  const list = filter ? CONTACTS.filter(c => c.name.toLowerCase().includes(q) || c.user.toLowerCase().includes(q)) : CONTACTS;
+  const grouped = {};
+  list.forEach(c => { const L=c.name[0].toUpperCase(); if(!grouped[L]) grouped[L]=[]; grouped[L].push(c); });
+  let html = '';
+  Object.keys(grouped).sort().forEach(L => {
+    html += `<div class="section-title">${L}</div><div class="glass-panel" style="overflow:hidden;">`;
+    grouped[L].forEach((c,i) => {
+      const isLast = i===grouped[L].length-1;
+      html += `
+        <div class="list-item ${isLast?'':'list-sep'} ios-press" onclick="${c.self?"switchNav('profile','Profil',document.querySelector('[data-screen=profile]'))":`openContactConv('${c.name.replace(/'/g,"\\'")}','${c.user}','${c.color}')`}" style="animation:slideUpFade 0.3s ease ${i*20}ms both;">
+          <div style="position:relative;flex-shrink:0;margin-right:14px;">
+            <div class="avatar" style="background:${c.color};font-size:17px;font-weight:800;">${c.name[0]}</div>
+            ${c.online?'<div style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;background:var(--ios-green);border:2px solid #0a0a12;"></div>':''}
+          </div>
+          <div class="item-info">
+            <div style="font-size:16px;font-weight:600;${c.self?'color:var(--ios-blue)':''}">${c.name}${c.self?' <span style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.4);">(Kamu)</span>':''}</div>
+            <div style="font-size:13px;color:var(--text-secondary);">${c.status}</div>
+          </div>
+          ${!c.self?`<button onclick="event.stopPropagation();showToast('Menghubungi ${c.name}…')" style="width:32px;height:32px;border-radius:50%;background:rgba(88,172,253,0.12);border:1px solid rgba(88,172,253,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><use href="#svg-call" color="#58ACFD"/></svg></button>`:''}
+        </div>`;
+    });
+    html += `</div>`;
+  });
+  if (!html) html = `<div style="text-align:center;padding:48px 20px;color:var(--text-secondary);"><span class="material-symbols-rounded" style="font-size:40px;opacity:0.3;display:block;margin-bottom:10px;">person_search</span>Tidak ada kontak</div>`;
+  el.innerHTML = html;
+}
+
+function filterContacts(v) { renderContacts(v); }
+function openContactConv(name, user, color) {
+  const fakeIdx = CHATS.findIndex(c=>c.name===name);
+  if(fakeIdx>=0) openConv(fakeIdx);
+  else {
+    document.getElementById('conv-av').textContent = name[0];
+    document.getElementById('conv-av').style.background = color;
+    document.getElementById('conv-name').textContent = name;
+    document.getElementById('conv-status').textContent = 'Aktif via Bluetooth';
+    MESSAGES.length = 0;
+    renderMessages();
+    prevScreen = 'contacts';
+    document.querySelectorAll('.screen').forEach(s=>{ if(s.classList.contains('active')){s.classList.add('exit');setTimeout(()=>s.classList.remove('active','exit'),300);} });
+    document.getElementById('app-header').style.display='none';
+    setTimeout(()=>document.getElementById('screen-conversation').classList.add('active'),30);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   NEARBY / MESH
+═══════════════════════════════════════════ */
+function renderNearby() {
+  const el = document.getElementById('nearby-list');
+  if (!el) return;
+  el.innerHTML = NEARBY.map((n,i) => `
+    <div class="list-item ${i<NEARBY.length-1?'list-sep':''} ios-press" onclick="showToast('Menghubungkan ke ${n.name}…')">
+      <div class="avatar" style="background:${n.color};font-size:17px;font-weight:800;margin-right:14px;">${n.name[0]}</div>
+      <div class="item-info">
+        <div style="font-size:15px;font-weight:600;">${n.name}</div>
+        <div style="font-size:12px;color:var(--text-secondary);">${n.type}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+        <div style="width:52px;height:4px;border-radius:100px;background:rgba(255,255,255,0.1);">
+          <div style="height:100%;width:${n.signal}%;border-radius:100px;background:${n.signal>70?'var(--ios-green)':n.signal>40?'var(--ios-orange)':'var(--ios-red)'}"></div>
+        </div>
+        <span style="font-size:10px;color:var(--text-secondary);">${n.signal}%</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════
+   MESH CANVAS
+═══════════════════════════════════════════ */
+let meshRAF;
+function initMeshCanvas() {
+  const canvas = document.getElementById('mesh-canvas');
+  if (!canvas) return;
+  cancelAnimationFrame(meshRAF);
+  const W = canvas.clientWidth * devicePixelRatio;
+  const H = canvas.clientHeight * devicePixelRatio;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const dpr = devicePixelRatio;
+  const cw = canvas.clientWidth, ch = canvas.clientHeight;
+
+  const nodes = Array.from({length:22}, () => ({
+    x: Math.random()*cw, y: Math.random()*ch,
+    vx:(Math.random()-.5)*.35, vy:(Math.random()-.5)*.35,
+    r: Math.random()*2.5+1.5,
+    alpha: Math.random()*.5+.5,
+    color: Math.random()>0.6?'#5E5CE6':Math.random()>0.5?'#BF5AF2':'#58ACFD',
+  }));
+  nodes[0] = { x:cw/2, y:ch/2, vx:0, vy:0, r:7, alpha:1, center:true, color:'#58ACFD' };
+
+  function draw() {
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,cw,ch);
+
+    nodes.forEach((a,i) => {
+      nodes.forEach((b,j) => {
+        if(j<=i) return;
+        const d = Math.hypot(a.x-b.x,a.y-b.y);
+        if(d<100) {
+          const al = (1-d/100)*0.55;
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(88,172,253,${al})`;
+          ctx.lineWidth = 0.8;
+          ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+          ctx.stroke();
+        }
+      });
+    });
+
+    nodes.forEach(n => {
+      const g = ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r*5);
+      g.addColorStop(0, n.center?`rgba(88,172,253,${n.alpha*0.5})`:`rgba(94,92,230,${n.alpha*0.3})`);
+      g.addColorStop(1,'transparent');
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r*5,0,Math.PI*2);
+      ctx.fillStyle=g; ctx.fill();
+
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+      ctx.fillStyle = n.center?'#58ACFD':`rgba(180,197,255,${n.alpha})`;
+      ctx.fill();
+
+      if(n.center) {
+        ctx.beginPath(); ctx.arc(n.x,n.y,n.r+5,0,Math.PI*2);
+        ctx.strokeStyle='rgba(88,172,253,0.35)'; ctx.lineWidth=1; ctx.stroke();
+        ctx.beginPath(); ctx.arc(n.x,n.y,n.r+11,0,Math.PI*2);
+        ctx.strokeStyle='rgba(88,172,253,0.15)'; ctx.lineWidth=0.7; ctx.stroke();
+      }
+      if(!n.center){n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>cw)n.vx*=-1;if(n.y<0||n.y>ch)n.vy*=-1;}
+    });
+    meshRAF = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ═══════════════════════════════════════════
+   PROFILE TABS
+═══════════════════════════════════════════ */
+function setPostTab(tab, btn) {
+  ['posts','archive'].forEach(t => {
+    const b = document.getElementById('tab-'+t);
+    if(b){ b.style.background=t===tab?'rgba(255,255,255,0.1)':'none'; b.style.color=t===tab?'#fff':'rgba(255,255,255,0.4)'; b.style.fontWeight=t===tab?'700':'600'; }
+  });
+}
+
+/* ═══════════════════════════════════════════
+   OVERLAYS / SHEETS
+═══════════════════════════════════════════ */
+function showChatMenu() { openOverlay('chat-menu-overlay'); }
+function openOverlay(id)  { document.getElementById(id)?.classList.add('open'); }
+function closeOverlay(id) { document.getElementById(id)?.classList.remove('open'); }
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ═══════════════════════════════════════════
+   LIQUID GLASS PRESS ENGINE
+   — smooth spring, ink-spread, not just circles
+═══════════════════════════════════════════ */
+(function() {
+
+  /* Selectors that get FULL liquid-glass treatment */
+  const BTN_SEL  = '.btn-glass, .btn-primary';
+
+  /* Selectors for spring-only press (no ink) */
+  const PRESS_SEL = '.ios-press:not(.btn-glass):not(.btn-primary):not(.nav-item):not(.list-item):not(.theme-btn):not(.action-btn):not(.header-btn):not(.send-btn):not(.attach-btn)';
+
+  /* ── Mouse-tracking highlight for glass buttons ── */
+  document.querySelectorAll(BTN_SEL).forEach(btn => {
+    btn.addEventListener('pointermove', ev => {
+      const r = btn.getBoundingClientRect();
+      const x = ((ev.clientX - r.left) / r.width  * 100).toFixed(1) + '%';
+      const y = ((ev.clientY - r.top)  / r.height * 100).toFixed(1) + '%';
+      btn.style.setProperty('--mx', x);
+      btn.style.setProperty('--my', y);
+    }, { passive: true });
+  });
+
+  /* ── Ink-spread layer (NOT a full circle) ── */
+  function spawnInk(el, clientX, clientY) {
+    // Remove any existing ink
+    el.querySelectorAll('.lq-ink').forEach(i => i.remove());
+
+    const rect = el.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    const w = rect.width;
+    const h = rect.height;
+
+    // Ellipse size: wider than tall, doesn't fill whole button
+    const ew = Math.min(w * 1.4, 360);
+    const eh = Math.min(h * 1.8, 180);
+
+    const ink = document.createElement('span');
+    ink.className = 'lq-ink';
+    ink.style.cssText = `
+      position:absolute; pointer-events:none; border-radius:50%; z-index:0;
+      width:${ew}px; height:${eh}px;
+      left:${x - ew/2}px; top:${y - eh/2}px;
+      background:radial-gradient(ellipse at center,
+        rgba(255,255,255,0.22) 0%,
+        rgba(255,255,255,0.10) 35%,
+        rgba(255,255,255,0.03) 60%,
+        transparent 100%);
+      transform:scale(0) translate(0,0);
+      opacity:1;
+      animation: lqInkSpread 0.55s cubic-bezier(0.22,1,0.36,1) forwards;
+      will-change:transform,opacity;
+    `;
+    el.appendChild(ink);
+    return ink;
+  }
+
+  /* ── Generic press handler ── */
+  function applyPress(el, cx, cy) {
+    const isBtnGlass = el.matches(BTN_SEL);
+    const isNavItem  = el.matches('.nav-item');
+    const isListItem = el.matches('.list-item');
+    const isTheme    = el.matches('.theme-btn');
+    const isAction   = el.matches('.action-btn');
+    const isHeader   = el.matches('.header-btn');
+    const isSend     = el.matches('.send-btn');
+    const isAttach   = el.matches('.attach-btn');
+    const isIosPress = el.matches('.ios-press');
+
+    let ink = null;
+
+    // Press classes
+    el.classList.add('pressing');
+    el.classList.remove('releasing', 'done-press');
+
+    // Ink only on full glass buttons
+    if (isBtnGlass) ink = spawnInk(el, cx, cy);
+
+    // Haptic (mobile)
+    if (navigator.vibrate) navigator.vibrate(8);
+
+    return ink;
+  }
+
+  function applyRelease(el, ink) {
+    el.classList.remove('pressing');
+    el.classList.add('releasing');
+
+    // Fade out ink on release
+    if (ink) {
+      ink.style.animationName = 'lqInkFade';
+      ink.style.animationDuration = '0.35s';
+      ink.style.animationTimingFunction = 'ease-out';
+      ink.style.animationFillMode = 'forwards';
+      setTimeout(() => ink.remove(), 380);
+    }
+
+    // Nav icon: done state after spring
+    if (el.matches('.nav-item')) {
+      setTimeout(() => {
+        el.classList.remove('releasing');
+        el.classList.add('done-press');
+        setTimeout(() => el.classList.remove('done-press'), 500);
+      }, 80);
+    } else {
+      setTimeout(() => el.classList.remove('releasing'), 500);
+    }
+  }
+
+  /* ── Pointer events ── */
+  const ALL_SEL = [
+    BTN_SEL,
+    '.ios-press',
+    '.nav-item',
+    '.list-item',
+    '.theme-btn',
+    '.action-btn',
+    '.header-btn',
+    '.send-btn',
+    '.attach-btn',
+  ].join(',');
+
+  let activeEl  = null;
+  let activeInk = null;
+
+  document.addEventListener('pointerdown', e => {
+    const el = e.target.closest(ALL_SEL);
+    if (!el) return;
+    // Don't double-process (e.g. btn-glass also has ios-press)
+    activeEl  = el;
+    activeInk = applyPress(el, e.clientX, e.clientY);
+  }, { passive: true });
+
+  function handleRelease() {
+    if (!activeEl) return;
+    applyRelease(activeEl, activeInk);
+    activeEl  = null;
+    activeInk = null;
+  }
+
+  document.addEventListener('pointerup',     handleRelease, { passive: true });
+  document.addEventListener('pointercancel', handleRelease, { passive: true });
+  document.addEventListener('pointerleave',  e => {
+    if (activeEl && !activeEl.contains(e.target)) handleRelease();
+  }, { passive: true });
+
+  /* ── Nav item: icon bounce on tap ── */
+  document.addEventListener('pointerdown', e => {
+    const nav = e.target.closest('.nav-item');
+    if (!nav) return;
+    const icon = nav.querySelector('.nav-icon');
+    if (icon) {
+      icon.style.transition = 'transform 0.1s cubic-bezier(0.4,0,1,1)';
+      icon.style.transform  = 'scale(0.72)';
+    }
+  }, { passive: true });
+
+  document.addEventListener('pointerup', e => {
+    const nav = e.target.closest('.nav-item');
+    if (!nav) return;
+    const icon = nav.querySelector('.nav-icon');
+    if (icon) {
+      setTimeout(() => {
+        icon.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+        icon.style.transform  = 'scale(1)';
+      }, 30);
+    }
+  }, { passive: true });
+
+  /* ── Live mouse highlight on glass buttons (desktop) ── */
+  function updateHighlight(e) {
+    const btn = e.target.closest(BTN_SEL);
+    if (btn) {
+      const r = btn.getBoundingClientRect();
+      btn.style.setProperty('--mx', ((e.clientX - r.left) / r.width  * 100).toFixed(1) + '%');
+      btn.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100).toFixed(1) + '%');
+    }
+    // list-item radial glow tracking
+    const li = e.target.closest('.list-item');
+    if (li) {
+      const r = li.getBoundingClientRect();
+      li.style.setProperty('--lx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+    }
+  }
+  document.addEventListener('mousemove', updateHighlight, { passive: true });
+
+  /* Also wire conv-back as ios-press at runtime */
+  document.querySelectorAll('.conv-back').forEach(el => el.classList.add('ios-press'));
+
+})();
+
+/* ═══════════════════════════════════════════
+   WINDOW RESIZE
+═══════════════════════════════════════════ */
+window.addEventListener('resize', () => {
+  initNavIndicator();
+  initMeshCanvas();
+});
+</script>
+
+<style>
+/* ── Header title animate on nav switch ── */
+#header-title {
+  transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* ── Onboarding dots transition ── */
+.ob-dot {
+  transition: width 0.4s cubic-bezier(0.34,1.56,0.64,1),
+              background 0.3s ease;
+}
+
+/* ── Button text stays above ink ── */
+.btn-glass span, .btn-primary span { position: relative; z-index: 1; }
+.btn-glass svg,  .btn-primary svg  { position: relative; z-index: 1; }
+
+
+.lq-ink { z-index: 0 !important; }
+.btn-glass > *:not(.lq-ink),
+.btn-primary > *:not(.lq-ink) { position: relative; z-index: 1; }
+
+/* Ensure pressable elements have overflow:hidden for ink containment */
+.btn-glass, .btn-primary, .header-btn, .send-btn, .attach-btn,
+.theme-btn, .action-btn {
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Liquid ink spread keyframe ── */
+@keyframes lqInkSpread {
+  0%   { transform: scale(0);    opacity: 0.9; }
+  40%  { transform: scale(0.75); opacity: 0.6; }
+  100% { transform: scale(1);    opacity: 0.15; }
+}
+
+/* ── Ink fade out on release ── */
+@keyframes lqInkFade {
+  from { opacity: 0.15; transform: scale(1); }
+  to   { opacity: 0;    transform: scale(1.08); }
+}
+
+/* ── Nav container shimmer ── */
+@keyframes navShimmer {
+  0%   { left: -100%; opacity: 0; }
+  15%  { opacity: 1; }
+  100% { left: 130%;  opacity: 0; }
+}
+.nav-container { position: relative; overflow: hidden; }
+.nav-container::after {
+  content: ''; position: absolute;
+  top: 0; left: -100%; width: 55%; height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.09) 50%,
+    transparent 100%
+  );
+  border-radius: 100px;
+  pointer-events: none; opacity: 0;
+}
+.nav-container.shimmer::after {
+  animation: navShimmer 0.55s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+/* ── List item radial glow on press ── */
+.list-item { isolation: isolate; }
+.list-item::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(
+    ellipse 75% 110% at var(--lx, 50%) 50%,
+    rgba(255,255,255,0.065) 0%,
+    transparent 68%
+  );
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+  border-radius: inherit;
+}
+.list-item.pressing::after  { opacity: 1; }
+.list-item.releasing::after { opacity: 0; transition: opacity 0.45s ease; }
+
+/* ── Screen transition polish (defined above in main CSS) ── */
+
+/* ── Button shimmer sweep on first focus ── */
+@keyframes btnShimmer {
+  0%   { left: -120%; }
+  100% { left: 120%; }
+}
+.btn-glass.shine::before {
+  animation: btnShimmer 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+/* ── Legacy ── */
+@keyframes rippleAnim {
+  to { transform: scale(2.5); opacity: 0; }
+}
+</style>
+</body>
+</html>
