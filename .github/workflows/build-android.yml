@@ -138,7 +138,7 @@ jobs:
 
       - name: 📦 Install dependencies
         run: |
-          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npm ci 2>/dev/null || npm install
           npm install -g @capacitor/cli
 
       - name: 📱 Setup Android platform
@@ -238,10 +238,10 @@ jobs:
         run: |
           if [ -n "$KEYSTORE_BASE64" ]; then
             echo "$KEYSTORE_BASE64" | base64 -d > linka.keystore
-            echo "LINKA_STORE_FILE=$(pwd)/linka.keystore"  >> $GITHUB_ENV
-            echo "LINKA_STORE_PASSWORD=${KEYSTORE_STORE_PASSWORD}" >> $GITHUB_ENV
-            echo "LINKA_KEY_ALIAS=${KEYSTORE_ALIAS}"               >> $GITHUB_ENV
-            echo "LINKA_KEY_PASSWORD=${KEYSTORE_KEY_PASSWORD}"     >> $GITHUB_ENV
+            echo "ORG_GRADLE_PROJECT_LINKA_STORE_FILE=$(pwd)/linka.keystore"  >> $GITHUB_ENV
+            echo "ORG_GRADLE_PROJECT_LINKA_STORE_PASSWORD=${KEYSTORE_STORE_PASSWORD}" >> $GITHUB_ENV
+            echo "ORG_GRADLE_PROJECT_LINKA_KEY_ALIAS=${KEYSTORE_ALIAS}"               >> $GITHUB_ENV
+            echo "ORG_GRADLE_PROJECT_LINKA_KEY_PASSWORD=${KEYSTORE_KEY_PASSWORD}"     >> $GITHUB_ENV
             echo "✅ Keystore decoded"
           else
             echo "ℹ️ No keystore secret set – skipping (unsigned release build)"
@@ -306,8 +306,9 @@ jobs:
       - name: 📁 Collect artifacts
         run: |
           mkdir -p dist/android
-          find android -name "*.apk" -exec cp {} dist/android/ \;
-          find android -name "*.aab" -exec cp {} dist/android/ \;
+          find android -path "*apk/debug*" -name "*.apk" -exec cp {} dist/android/linka-debug.apk \;
+          find android -path "*apk/release*" -name "*.apk" -exec cp {} dist/android/linka-release.apk \;
+          find android -name "*.aab" -exec cp {} dist/android/linka-release.aab \;
           echo "📦 Artifacts:"
           ls -lah dist/android/
           if [ -z "$(ls -A dist/android/ 2>/dev/null)" ]; then
@@ -443,7 +444,7 @@ jobs:
           | Platform | File | Keterangan |
           |----------|------|-----------|
           | Android APK (Debug) | `linka-debug.apk` | Untuk testing langsung |
-          | Android APK (Release) | `linka-release-unsigned.apk` | Produksi (unsigned) |
+          | Android APK (Release) | `linka-release.apk` | Produksi |
           | Android AAB | `linka-release.aab` | Google Play Store |
           | PWA | `linka-pwa-*.zip` | Web App |
 
