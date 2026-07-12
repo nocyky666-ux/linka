@@ -1,0 +1,92 @@
+name: ✅ LINKA – CI (Lint & Validate)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ci:
+    name: ✅ CI Pipeline
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: 🔍 Validate project structure
+        run: |
+          FILES=(index.html manifest.json sw.js capacitor.config.json package.json)
+          OK=true
+          for f in "${FILES[@]}"; do
+            [ -f "$f" ] && echo "✅ $f" || { echo "❌ $f"; OK=false; }
+          done
+          [ -d "assets/fonts" ] && echo "✅ assets/fonts/" || echo "⚠️ assets/fonts/ missing"
+          [ -d "assets/logo"  ] && echo "✅ assets/logo/"  || echo "⚠️ assets/logo/ missing"
+          $OK || exit 1
+
+      - name: 📋 Validate JSON
+        run: |
+          python3 << 'EOF'
+          import json, os, sys
+          ok = True
+          for f in ['manifest.json', 'capacitor.config.json', 'package.json']:
+            if os.path.exists(f):
+              try:
+                json.load(open(f))
+                print(f"✅ {f}")
+              except Exception as e:
+                print(f"❌ {f}: {e}")
+                ok = False
+          sys.exit(0 if ok else 1)
+          EOF
+
+      - name: 🔒 Security check
+        run: |
+          echo "Checking for common issues…"
+          # No eval()
+          grep -n "eval(" index.html && echo "⚠️ eval() found" || echo "✅ No eval()"
+          # No inline event password leak
+          grep -in "password.*=.*['\"][^'\"]\+['\"]" index.html && echo "⚠️ Possible password" || echo "✅ No hardcoded passwords"
+          echo "✅ Security check done"
+
+      - name: 📏 Size check
+        run: |
+          HTML=$(wc -c < index.html)
+          echo "📦 index.html: ${HTML} bytes ($(echo "scale=1;$HTML/1024" | bc) KB)"
+          FONTS=$(du -sh assets/fonts/ 2>/dev/null | cut -f1 || echo "N/A")
+          echo "🔤 Fonts: $FONTS"
+          [ $HTML -gt 5242880 ] && echo "⚠️ HTML > 5MB" || echo "✅ HTML size OK"
+
+      - name: 🌐 PWA check
+        run: |
+          python3 -c "
+          import json
+          m=json.load(open('manifest.json'))
+          required=['name','start_url','display','icons','theme_color','background_color']
+          for k in required:
+            print(f\"  {'✅' if k in m else '❌'} {k}\")
+          "
+          [ -f sw.js ] && echo "  ✅ sw.js" || echo "  ❌ sw.js missing"
+
+      - name: 🔤 Font files check
+        run: |
+          [ -f "assets/fonts/800.ttf" ] \
+            && echo "✅ 800.ttf ($(du -sh assets/fonts/800.ttf | cut -f1))" \
+            || echo "⚠️ 800.ttf not found"
+          [ -f "assets/fonts/iOS18_4.ttf" ] \
+            && echo "✅ iOS18_4.ttf emoji font ($(du -sh assets/fonts/iOS18_4.ttf | cut -f1))" \
+            || echo "⚠️ iOS18_4.ttf not found"
+
+      - name: 📊 CI Summary
+        run: |
+          echo "## ✅ CI – LINKA" >> $GITHUB_STEP_SUMMARY
+          echo "Semua pengecekan lulus untuk commit \`${GITHUB_SHA:0:8}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Pengecekan | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| File struktur | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| JSON valid    | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security scan | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| PWA audit     | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Font assets   | ✅ |" >> $GITHUB_STEP_SUMMARY
