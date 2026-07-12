@@ -169,104 +169,6 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 }
 
 /* ══════════════════════════════════════
-   SPLASH SCREEN
-══════════════════════════════════════ */
-#splash {
-  position:fixed; inset:0; z-index:9000;
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:0;
-  background:#000;
-  transition:opacity 0.8s var(--smooth), transform 0.8s var(--smooth);
-}
-#splash.exit {
-  opacity:0; transform:scale(1.05);
-  pointer-events:none;
-}
-
-/* Logo container — placeholder for custom Lottie/video animation */
-.splash-logo-wrap {
-  position:relative; width:140px; height:140px;
-  display:flex; align-items:center; justify-content:center;
-}
-
-/* Animated ring layers — match logo blue #58ACFD */
-.splash-ring {
-  position:absolute; border-radius:50%; border:1.5px solid;
-  animation:splashRing 2.4s var(--spring) infinite;
-  opacity:0;
-}
-.splash-ring:nth-child(1) { width:140px; height:140px; border-color:rgba(88,172,253,0.65); animation-delay:0s;   }
-.splash-ring:nth-child(2) { width:180px; height:180px; border-color:rgba(88,172,253,0.45); animation-delay:0.3s; }
-.splash-ring:nth-child(3) { width:220px; height:220px; border-color:rgba(88,172,253,0.28); animation-delay:0.6s; }
-.splash-ring:nth-child(4) { width:260px; height:260px; border-color:rgba(88,172,253,0.15); animation-delay:0.9s; }
-
-@keyframes splashRing {
-  0%   { transform:scale(0.6); opacity:0.8; }
-  60%  { opacity:0.3; }
-  100% { transform:scale(1.5); opacity:0; }
-}
-
-/* Logo icon — matches LINKA logo background #58ACFD */
-.splash-icon {
-  width:100px; height:100px; border-radius:24px;
-  background:#58ACFD;
-  border:1px solid rgba(255,255,255,0.3);
-  overflow:hidden; position:relative; z-index:2;
-  box-shadow:
-    0 0 60px rgba(88,172,253,0.6),
-    0 0 120px rgba(88,172,253,0.25),
-    0 20px 60px rgba(0,0,0,0.5);
-  animation:splashPulse 2s var(--smooth) infinite alternate;
-}
-.splash-icon img {
-  width:100%; height:100%; object-fit:cover;
-}
-
-@keyframes splashPulse {
-  0%   { box-shadow:0 0 40px rgba(88,172,253,0.4), 0 20px 60px rgba(0,0,0,0.5); transform:scale(1); }
-  100% { box-shadow:0 0 90px rgba(88,172,253,0.75), 0 20px 80px rgba(0,0,0,0.7); transform:scale(1.04); }
-}
-
-.splash-title {
-  margin-top:36px; font-size:38px; font-weight:800;
-  letter-spacing:-0.04em; color:#fff;
-  animation:splashFadeUp 1s var(--spring) 0.4s both;
-}
-.splash-sub {
-  margin-top:8px; font-size:13px; font-weight:500;
-  color:rgba(255,255,255,0.4); letter-spacing:0.12em;
-  animation:splashFadeUp 1s var(--spring) 0.6s both;
-}
-.splash-chips {
-  margin-top:20px; display:flex; gap:8px;
-  animation:splashFadeUp 1s var(--spring) 0.8s both;
-}
-.splash-chip {
-  padding:5px 12px; border-radius:100px;
-  background:rgba(88,172,253,0.18);
-  border:1px solid rgba(88,172,253,0.4);
-  font-size:11px; font-weight:600;
-  color:rgba(88,172,253,1);
-  display:flex; align-items:center; gap:5px;
-}
-.splash-loader {
-  margin-top:60px;
-  animation:splashFadeUp 1s var(--spring) 1s both;
-  display:flex; flex-direction:column; align-items:center; gap:8px;
-}
-.splash-spinner {
-  width:28px; height:28px; border-radius:50%;
-  border:2px solid rgba(255,255,255,0.1);
-  border-top-color:var(--ios-blue);
-  animation:spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform:rotate(360deg); } }
-@keyframes splashFadeUp {
-  from { opacity:0; transform:translateY(16px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-
-/* ══════════════════════════════════════
    ONBOARDING
 ══════════════════════════════════════ */
 #onboarding {
@@ -995,38 +897,6 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   <symbol id="svg-node" viewBox="0 0 24 24" fill="none"><path d="M4.93 4.93a10 10 0 0 0 0 14.14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-opacity=".5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-opacity=".5"/><path d="M7.76 7.76a6 6 0 0 0 0 8.49" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="2.5" fill="currentColor" fill-opacity=".3" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></symbol>
 </svg>
 
-<!-- ═══ SPLASH ═══ -->
-<div id="splash">
-  <div class="splash-logo-wrap">
-    <div class="splash-ring"></div><div class="splash-ring"></div>
-    <div class="splash-ring"></div><div class="splash-ring"></div>
-    <!-- SPLASH ICON / ANIMATION PLACEHOLDER -->
-    <div class="splash-icon" id="splash-anim-container">
-      <img src="assets/logo/logo.png" alt="LINKA" style="width:100%;height:100%;object-fit:cover;"/>
-    </div>
-  </div>
-  <div class="splash-title">LINKA</div>
-  <div class="splash-sub">CONNECTED WITHOUT LIMITS</div>
-  <div class="splash-chips">
-    <div class="splash-chip">
-      <svg width="11" height="11"><use href="#svg-bt" color="#58ACFD"/></svg>
-      Offline
-    </div>
-    <div class="splash-chip">
-      <svg width="11" height="11"><use href="#svg-privacy" color="#58ACFD"/></svg>
-      Private
-    </div>
-    <div class="splash-chip">
-      <svg width="11" height="11"><use href="#svg-globe" color="#58ACFD"/></svg>
-      Borderless
-    </div>
-  </div>
-  <div class="splash-loader">
-    <div class="splash-spinner"></div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.35);">Menginisialisasi node aman…</div>
-  </div>
-</div>
-
 <!-- ═══ ONBOARDING ═══ -->
 <div id="onboarding">
   <!-- Step 1 -->
@@ -1667,18 +1537,10 @@ let userHandle = '@novauser';
 let navSyncRAF;
 
 /* ═══════════════════════════════════════════
-   SPLASH → ONBOARDING → APP
+   ONBOARDING (shown immediately, no splash delay)
 ═══════════════════════════════════════════ */
 window.addEventListener('load', () => {
-  setTimeout(() => {
-    const splash = document.getElementById('splash');
-    splash.classList.add('exit');
-    setTimeout(() => {
-      splash.style.display = 'none';
-      const ob = document.getElementById('onboarding');
-      ob.classList.add('visible');
-    }, 800);
-  }, 3000);
+  document.getElementById('onboarding').classList.add('visible');
 });
 
 /* ═══════════════════════════════════════════

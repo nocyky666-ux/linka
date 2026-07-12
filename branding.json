@@ -24,12 +24,6 @@
       "note": "iOS 18.4 Apple Color Emoji \u2014 locked"
     }
   },
-  "splash": {
-    "type": "logo",
-    "file": "assets/logo/logo.png",
-    "background": "#58ACFD",
-    "note": "Static logo with pulse glow \u2014 matches logo blue #58ACFD"
-  },
   "themes": {
     "default": {
       "blob1": "#0A84FF",
