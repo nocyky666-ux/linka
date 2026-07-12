@@ -13,7 +13,8 @@
     "open:ios": "npx cap open ios",
     "icons": "node scripts/gen-icons.js",
     "lint": "echo '✅ Lint passed'",
-    "test": "echo '✅ Tests passed'"
+    "test": "echo '✅ Tests passed'",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@capacitor/android": "^5.7.0",
@@ -28,7 +29,8 @@
     "@capacitor/share": "^5.0.7"
   },
   "devDependencies": {
-    "@capacitor/cli": "^5.7.5"
+    "@capacitor/cli": "^5.7.5",
+    "patch-package": "^8.0.1"
   },
   "keywords": [
     "linka",
