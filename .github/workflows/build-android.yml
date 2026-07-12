@@ -329,6 +329,26 @@ jobs:
           retention-days: 30
           compression-level: 6
 
+      - name: 📦 Isolate release APK
+        run: |
+          mkdir -p dist/release-apk-only
+          RELEASE_APK=$(find android -path "*apk/release*" -name "*.apk" | head -n1)
+          if [ -z "$RELEASE_APK" ]; then
+            echo "::error::Release APK not found — cannot publish standalone artifact."
+            exit 1
+          fi
+          cp "$RELEASE_APK" dist/release-apk-only/linka-release.apk
+          echo "✅ Isolated: $RELEASE_APK -> dist/release-apk-only/linka-release.apk"
+          ls -lah dist/release-apk-only/
+
+      - name: 📤 Upload release APK (standalone)
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: linka-release-apk-${{ needs.validate.outputs.version }}-${{ github.run_number }}
+          path: dist/release-apk-only/linka-release.apk
+          retention-days: 30
+          compression-level: 0
+
       - name: 📊 Build summary
         run: |
           echo "## 🤖 Android Build — LINKA v${{ needs.validate.outputs.version }}" >> $GITHUB_STEP_SUMMARY
