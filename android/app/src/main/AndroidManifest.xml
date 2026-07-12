@@ -48,7 +48,6 @@
 
     <!-- ── Notifications ── -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
@@ -122,15 +121,6 @@
                 <data android:scheme="https" android:host="linka.app"/>
             </intent-filter>
         </activity>
-
-        <!-- Boot receiver for background mesh -->
-        <receiver
-            android:name=".BootReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-            </intent-filter>
-        </receiver>
 
         <!-- File provider for sharing -->
         <provider
