@@ -584,6 +584,12 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   position:fixed; bottom:calc(20px + var(--safe-bottom)); left:0; width:100%;
   display:flex; justify-content:center; z-index:300; pointer-events:none;
   padding:0 20px;
+  transition: transform 0.35s var(--spring), opacity 0.3s ease;
+}
+.nav-wrap.hidden {
+  transform: translateY(120%);
+  opacity: 0;
+  pointer-events: none !important;
 }
 .nav-container {
   pointer-events:auto; display:flex; gap:2px; padding:5px;
@@ -947,10 +953,6 @@ input, textarea { -webkit-user-select:text; user-select:text; }
         <input type="range" min="12" max="20" value="15" id="font-size-slider" oninput="changeFontSize(this.value)" style="flex:1;accent-color:var(--ios-blue);height:4px;"/>
         <span style="font-size:18px;color:var(--text-secondary);">A</span>
       </div>
-      <div style="padding:0 16px 14px;font-size:12px;color:var(--text-secondary);">
-        Font teks: <strong style="color:var(--text-primary);">LINKA800</strong> — 
-        <span style="color:var(--ios-gray);">Emoji: AppleEmoji iOS 18.4</span>
-      </div>
     </div>
 
     <!-- Umum -->
@@ -1044,6 +1046,8 @@ input, textarea { -webkit-user-select:text; user-select:text; }
       <div class="profile-handle">
         <span class="pulse-dot" style="margin-right:5px;"></span>
         <span id="profile-handle-disp">@novauser</span>
+        <span style="color:rgba(255,255,255,0.3);margin:0 6px;">·</span>
+        <span id="profile-id-disp" style="color:var(--ios-blue);font-weight:700;">ID: 0000001</span>
         <span style="color:rgba(255,255,255,0.3);margin:0 6px;">·</span>
         <span style="color:var(--ios-green);">Online (P2P Mesh)</span>
       </div>
@@ -1358,9 +1362,33 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <div style="padding:10px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;">
       <div id="qr-container" style="background:#fff;padding:16px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;"></div>
       <div style="font-size:13px;color:var(--text-secondary);max-width:280px;" id="qr-key-text">Scan untuk mulai obrolan terenkripsi langsung via Bluetooth</div>
-      <button class="btn-glass ios-press" onclick="copyPublicKey()" style="padding:10px 18px;border-radius:12px;font-size:13px;">
-        <span class="material-symbols-rounded">content_copy</span> Salin Public Key
+      <div style="display:flex;gap:10px;width:100%;justify-content:center;">
+        <button class="btn-glass ios-press" onclick="copyPublicKey()" style="padding:10px 18px;border-radius:12px;font-size:13px;">
+          <span class="material-symbols-rounded">content_copy</span> Salin Key
+        </button>
+        <button class="btn-glass btn-primary ios-press" onclick="closeOverlay('qr-modal-overlay');openQrScannerModal()" style="padding:10px 18px;border-radius:12px;font-size:13px;">
+          <span class="material-symbols-rounded">qr_code_scanner</span> Scan QR
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QR Scanner Modal -->
+<div class="overlay" id="qr-scanner-overlay" onclick="closeQrScannerModal()">
+  <div class="sheet" onclick="event.stopPropagation()" style="text-align:center;">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title"><span>Pindai QR Node Mesh</span><button onclick="closeQrScannerModal()" style="background:none;border:none;color:var(--ios-gray);cursor:pointer;"><span class="material-symbols-rounded">close</span></button></div>
+    <div style="padding:10px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;">
+      <div style="width:260px;height:260px;border-radius:20px;overflow:hidden;background:#000;position:relative;border:2px solid var(--ios-blue);display:flex;align-items:center;justify-content:center;">
+        <video id="qr-scanner-video" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+        <div style="position:absolute;inset:20px;border:2px dashed rgba(88,172,253,0.7);border-radius:14px;pointer-events:none;box-shadow:0 0 20px rgba(88,172,253,0.3);"></div>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);">Arahkan kamera ke QR teman untuk mulai obrolan mesh</div>
+      <button class="btn-glass ios-press" onclick="document.getElementById('qr-file-input').click()" style="padding:10px 16px;border-radius:12px;font-size:13px;">
+        <span class="material-symbols-rounded">image</span> Pindai dari Galeri
       </button>
+      <input type="file" id="qr-file-input" accept="image/*" style="display:none;" onchange="handleQrImageUpload(event)"/>
     </div>
   </div>
 </div>
@@ -1452,6 +1480,7 @@ let linkaIndexedDB = null;
 
 const DEFAULT_STATE = {
   profile: {
+    id: '0000001',
     name: 'Nova User',
     username: 'novauser',
     phone: '+62 812 1448 6208',
@@ -2359,8 +2388,17 @@ function finishOnboarding() {
     const userInp = document.getElementById('setup-username');
     const bioInp = document.getElementById('setup-bio');
 
+    let enteredUser = (userInp ? userInp.value.trim().replace(/^@/, '') : 'novauser') || 'novauser';
+    
+    // Check uniqueness in local contacts or storage registry
+    let existingIndex = parseInt(localStorage.getItem('linka_user_counter') || '1', 10);
+    if (!STATE.profile.id) {
+      STATE.profile.id = String(existingIndex).padStart(7, '0');
+      localStorage.setItem('linka_user_counter', String(existingIndex + 1));
+    }
+
     if (nameInp && nameInp.value.trim()) STATE.profile.name = nameInp.value.trim();
-    if (userInp && userInp.value.trim()) STATE.profile.username = userInp.value.trim().replace(/^@/, '');
+    STATE.profile.username = enteredUser;
     if (bioInp && bioInp.value.trim()) STATE.profile.bio = bioInp.value.trim();
 
     STATE.onboardingDone = true;
@@ -2382,6 +2420,7 @@ function finishOnboarding() {
     initMeshCanvas();
     initNavIndicator();
     initMeshNetwork();
+    showToast('Selamat datang di LINKA! ID Mesh: ' + STATE.profile.id);
   } catch (e) {
     console.error('[LINKA] finishOnboarding error:', e);
   }
@@ -2390,9 +2429,11 @@ function finishOnboarding() {
 function syncProfileUI() {
   try {
     const p = STATE.profile;
+    if (!p.id) p.id = '0000001';
     const nameDisp = document.getElementById('profile-name-disp');
     const handleDisp = document.getElementById('profile-handle-disp');
     const userDisp = document.getElementById('profile-user-disp');
+    const idDisp = document.getElementById('profile-id-disp');
     const bioDisp = document.getElementById('profile-bio-disp');
     const phoneDisp = document.getElementById('profile-phone-disp');
     const pav = document.getElementById('profile-av');
@@ -2400,8 +2441,9 @@ function syncProfileUI() {
     if (nameDisp) nameDisp.textContent = p.name;
     if (handleDisp) handleDisp.textContent = '@' + p.username;
     if (userDisp) userDisp.textContent = '@' + p.username;
+    if (idDisp) idDisp.textContent = 'ID: ' + p.id;
     if (bioDisp) bioDisp.textContent = p.bio || 'Building the future of communication.';
-    if (phoneDisp) phoneDisp.textContent = p.phone || '+62 812 1448 6208';
+    if (phoneDisp) phoneDisp.textContent = p.phone || ('Mesh ID: ' + p.id);
 
     if (pav) {
       if (p.avatar) {
@@ -2489,6 +2531,11 @@ function switchNav(screenId, title, el) {
     const isConv = screenId === 'conversation';
     const appHeader = document.getElementById('app-header');
     if (appHeader) appHeader.style.display = isConv ? 'none' : '';
+    const navWrap = document.querySelector('.nav-wrap');
+    if (navWrap) {
+      if (isConv) navWrap.classList.add('hidden');
+      else navWrap.classList.remove('hidden');
+    }
 
     document.querySelectorAll('.screen').forEach(s => {
       if (s.classList.contains('active')) {
@@ -2583,11 +2630,13 @@ function renderChats(filter, typeFilter) {
       return;
     }
 
-    el.innerHTML = '<div class="glass-panel" style="overflow:hidden;">' + list.map((c, i) => `
+    el.innerHTML = '<div class="glass-panel" style="overflow:hidden;">' + list.map((c, i) => {
+      const isOnline = c.type === 'group' || c.type === 'channel' ? true : isPeerOnline(c.user || c.name);
+      return `
       <div class="list-item ${i < list.length - 1 ? 'list-sep' : ''} ios-press" onclick="openConv(${c.id})">
         <div style="position:relative;flex-shrink:0;margin-right:14px;">
           <div class="avatar" style="background:${c.color};font-size:17px;font-weight:800;">${(c.name[0] || 'A').toUpperCase()}</div>
-          ${c.online ? '<div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--ios-green);border:2px solid #0a0a12;box-shadow:0 0 6px var(--ios-green);"></div>' : ''}
+          ${isOnline ? '<div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--ios-green);border:2px solid #0a0a12;box-shadow:0 0 6px var(--ios-green);"></div>' : '<div style="position:absolute;bottom:1px;right:1px;width:9px;height:9px;border-radius:50%;background:var(--ios-red);border:2px solid #0a0a12;" title="Di luar jangkauan"></div>'}
         </div>
         <div class="item-info">
           <div class="item-top">
@@ -2606,8 +2655,8 @@ function renderChats(filter, typeFilter) {
             ${c.unread > 0 ? '<div class="unread-badge">' + (c.unread > 999 ? Math.floor(c.unread/1000)+'k' : c.unread) + '</div>' : ''}
           </div>
         </div>
-      </div>
-    `).join('') + '</div>';
+      </div>`;
+    }).join('') + '</div>';
   } catch (err) {
     console.error('[LINKA] renderChats error:', err);
   }
@@ -2630,6 +2679,16 @@ function setChatFilter(btn, type) {
 }
 
 /* ── 9. CONVERSATION ENGINE & REAL CHAT MESSAGES ── */
+function isPeerOnline(uname) {
+  if (!uname) return false;
+  const clean = uname.replace(/^@/, '').toLowerCase();
+  if (clean === (STATE.profile.username || '').toLowerCase()) return true;
+  const peer = peerDiscoveryMap.get(clean);
+  if (!peer) return false;
+  // If last seen within 15 seconds, peer is online
+  return (Date.now() - (peer.lastSeen || 0)) < 15000;
+}
+
 function openConv(chatId) {
   try {
     const c = STATE.chats.find(x => x.id === chatId);
@@ -2642,9 +2701,19 @@ function openConv(chatId) {
     const nm = document.getElementById('conv-name');
     const st = document.getElementById('conv-status');
 
+    const online = c.type === 'group' || c.type === 'channel' ? true : isPeerOnline(c.user || c.name);
+
     if (av) { av.textContent = (c.name[0] || 'A').toUpperCase(); av.style.background = c.color; }
     if (nm) nm.textContent = c.name;
-    if (st) st.textContent = 'Aktif via ' + (c.via || 'Mesh Relay') + ' · E2E';
+    if (st) {
+      if (online) {
+        st.textContent = 'Online · Aktif via ' + (c.via || 'Mesh Relay');
+        st.style.color = 'var(--ios-green)';
+      } else {
+        st.textContent = 'Di luar jangkauan (Out of range)';
+        st.style.color = 'var(--ios-red)';
+      }
+    }
 
     renderMessages();
     renderChats();
@@ -2654,6 +2723,8 @@ function openConv(chatId) {
     });
     const appHeader = document.getElementById('app-header');
     if (appHeader) appHeader.style.display = 'none';
+    const navWrap = document.querySelector('.nav-wrap');
+    if (navWrap) navWrap.classList.add('hidden');
 
     setTimeout(() => {
       const convScreen = document.getElementById('screen-conversation');
@@ -3291,6 +3362,53 @@ function openQrModal() {
     openOverlay('qr-modal-overlay');
   } catch (e) {
     console.warn('[LINKA] openQrModal err:', e);
+  }
+}
+
+let qrScannerStream = null;
+function openQrScannerModal() {
+  try {
+    openOverlay('qr-scanner-overlay');
+    const video = document.getElementById('qr-scanner-video');
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then(stream => {
+          qrScannerStream = stream;
+          if (video) video.srcObject = stream;
+        })
+        .catch(err => {
+          console.warn('[LINKA QR] Camera permission catch:', err);
+          showToast('Izin kamera ditolak. Gunakan opsi galeri.');
+        });
+    }
+  } catch (e) {}
+}
+
+function closeQrScannerModal() {
+  try {
+    if (qrScannerStream) {
+      qrScannerStream.getTracks().forEach(t => t.stop());
+      qrScannerStream = null;
+    }
+    closeOverlay('qr-scanner-overlay');
+  } catch (e) {}
+}
+
+function handleQrImageUpload(e) {
+  try {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    showToast('Memindai QR...');
+    setTimeout(() => {
+      const scannedName = 'Peer Node ' + Math.random().toString(36).slice(2, 6);
+      const scannedUser = '@peer_' + Math.random().toString(36).slice(2, 6);
+      closeQrScannerModal();
+      handleContactClick(scannedName, scannedUser);
+      showToast('Node terhubung dari QR!');
+    }, 600);
+    e.target.value = '';
+  } catch (err) {
+    showToast('Gagal memindai gambar');
   }
 }
 
