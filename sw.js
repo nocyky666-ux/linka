@@ -10,6 +10,8 @@ const CORE_ASSETS = [
   '/assets/logo/logo.png',
   '/assets/fonts/800.ttf',
   '/assets/fonts/iOS18_4.ttf',
+  '/assets/mqtt.min.js',
+  '/assets/qrcode.js',
 ];
 
 const FONT_ASSETS = [
