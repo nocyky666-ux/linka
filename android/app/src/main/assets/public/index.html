@@ -1,0 +1,2992 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="LINKA"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" href="assets/logo/logo.png"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0"/>
+<title>LINKA – Connected Without Limits</title>
+<style>
+/* ══════════════════════════════════════
+   CUSTOM FONTS & TOKENS
+══════════════════════════════════════ */
+@font-face {
+  font-family: 'LINKA800';
+  src: url('assets/fonts/800.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'AppleEmoji';
+  src: url('assets/fonts/iOS18_4.ttf') format('truetype');
+  font-display: block;
+}
+
+:root {
+  --ios-blue:    #58ACFD;
+  --ios-green:   #30D158;
+  --ios-red:     #FF453A;
+  --ios-orange:  #FF9F0A;
+  --ios-purple:  #BF5AF2;
+  --ios-teal:    #5AC8FA;
+  --ios-pink:    #FF375F;
+  --ios-gray:    #8E8E93;
+
+  --glass-dark:    rgba(28, 28, 32, 0.55);
+  --glass-medium:  rgba(44, 44, 50, 0.45);
+  --glass-light:   rgba(255,255,255,0.08);
+  --glass-border:  rgba(255,255,255,0.12);
+  --glass-blur:    blur(40px) saturate(180%);
+  --glass-shadow:  0 12px 40px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2);
+
+  --text-primary:   #FFFFFF;
+  --text-secondary: rgba(235,235,245,0.6);
+  --text-tertiary:  rgba(235,235,245,0.3);
+
+  --spring:  cubic-bezier(0.25, 1, 0.3, 1);
+  --bouncy:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --smooth:  cubic-bezier(0.22, 1, 0.36, 1);
+  --snap:    cubic-bezier(0.4, 0, 0.2, 1);
+
+  --blob-1: #58ACFD;
+  --blob-2: #3B8FE8;
+  --blob-3: #7EC8FF;
+  --blob-4: #0D0D1A;
+
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+  --base-font: 15px;
+}
+
+body.theme-cyber   { --blob-1:#00F0FF; --blob-2:#FF00E4; --blob-3:#7000FF; --ios-blue:#00F0FF; }
+body.theme-warm    { --blob-1:#FF6B35; --blob-2:#FF9F0A; --blob-3:#E63946; --ios-blue:#FF9F0A; }
+body.theme-emerald { --blob-1:#34E863; --blob-2:#00D2FF; --blob-3:#007A55; --ios-blue:#30D158; }
+body.theme-rose    { --blob-1:#FF375F; --blob-2:#FF6B35; --blob-3:#BF5AF2; --ios-blue:#FF375F; }
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
+html { height:100%; overflow:hidden; }
+body {
+  height:100%; width:100%; overflow:hidden;
+  background:#000;
+  font-family: 'LINKA800', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  color: var(--text-primary);
+  font-size: var(--base-font);
+}
+.emoji-text, .msg-bubble span.emoji, .chat-emoji {
+  font-family: 'AppleEmoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif !important;
+}
+::-webkit-scrollbar { display:none; }
+* { scrollbar-width:none; }
+input, textarea { -webkit-user-select:text; user-select:text; }
+
+/* Backgrounds */
+.ambient-bg {
+  position:fixed; inset:0; z-index:0; overflow:hidden;
+  background:radial-gradient(ellipse at 50% 50%, rgba(10,10,20,0.95) 0%, #000 100%);
+}
+.blob {
+  position:absolute; border-radius:50%;
+  filter:blur(80px); mix-blend-mode:screen;
+  will-change:transform;
+  animation:fluidFloat var(--dur,18s) var(--spring) infinite alternate;
+}
+.blob-1 { --dur:20s; width:70vw; height:70vw; max-width:560px; max-height:560px; background:radial-gradient(circle at 40% 40%, var(--blob-1), transparent 70%); opacity:0.45; top:-15%; left:-20%; }
+.blob-2 { --dur:25s; width:80vw; height:80vw; max-width:640px; max-height:640px; background:radial-gradient(circle at 60% 60%, var(--blob-2), transparent 70%); opacity:0.35; bottom:-20%; right:-25%; animation-delay:-8s; }
+.blob-3 { --dur:30s; width:55vw; height:55vw; max-width:440px; max-height:440px; background:radial-gradient(circle at 50% 50%, var(--blob-3), transparent 70%); opacity:0.3; bottom:15%; left:-15%; animation-delay:-15s; }
+.blob-4 { --dur:22s; width:40vw; height:40vw; max-width:320px; max-height:320px; background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06), transparent 70%); opacity:0.8; top:30%; right:-10%; animation-delay:-5s; }
+
+@keyframes fluidFloat {
+  0%   { transform: translate(0,0) scale(1) rotate(0deg); }
+  25%  { transform: translate(30px,-40px) scale(1.08) rotate(8deg); }
+  50%  { transform: translate(-20px,30px) scale(0.95) rotate(-5deg); }
+  75%  { transform: translate(50px,20px) scale(1.12) rotate(12deg); }
+  100% { transform: translate(-30px,-20px) scale(1.05) rotate(-3deg); }
+}
+
+.fluid-noise {
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity:0.4;
+}
+.scanlines {
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+  background:repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(0,0,0,0.015) 2px, rgba(0,0,0,0.015) 4px);
+}
+
+#app {
+  position:fixed; inset:0; z-index:10;
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+
+/* Onboarding */
+#onboarding {
+  position:fixed; inset:0; z-index:8000;
+  display:none; flex-direction:column;
+  background:transparent;
+}
+#onboarding.visible { display:flex; }
+.ob-step {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; justify-content:flex-start;
+  padding:60px 28px 0;
+  animation:slideUpFade 0.5s var(--spring) both;
+}
+.ob-step.active { display:flex; }
+@keyframes slideUpFade {
+  from { opacity:0; transform:translateY(24px) scale(0.98); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+.ob-visual {
+  width:200px; height:200px; position:relative;
+  margin-bottom:32px; flex-shrink:0;
+  animation:obFloat 3s ease-in-out infinite;
+}
+@keyframes obFloat {
+  0%,100% { transform:translateY(0); }
+  50%      { transform:translateY(-8px); }
+}
+.ob-visual-card {
+  width:100%; height:100%; border-radius:36px;
+  background:var(--glass-dark);
+  backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border);
+  box-shadow:var(--glass-shadow);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; position:relative;
+}
+.ob-visual-card::before {
+  content:''; position:absolute; top:-1px; left:10%; right:10%; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+}
+.ob-title { font-size:32px; font-weight:800; letter-spacing:-0.03em; text-align:center; line-height:1.15; margin-bottom:14px; }
+.ob-desc  { font-size:15px; color:var(--text-secondary); text-align:center; line-height:1.65; max-width:300px; }
+.ob-bottom {
+  padding:24px 28px calc(32px + var(--safe-bottom));
+  display:flex; flex-direction:column; gap:14px;
+}
+.ob-dots { display:flex; gap:6px; justify-content:center; margin-bottom:4px; }
+.ob-dot  { width:6px; height:6px; border-radius:100px; background:rgba(255,255,255,0.2); transition:all 0.4s var(--spring); }
+.ob-dot.active { width:20px; background:var(--ios-blue); }
+
+/* Glass Components */
+.glass-panel {
+  background:var(--glass-dark);
+  backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border);
+  border-radius:20px; margin:0 16px 14px;
+  overflow:hidden;
+  box-shadow:var(--glass-shadow);
+  position:relative;
+}
+.glass-panel::before {
+  content:''; position:absolute; top:0; left:10%; right:10%; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  pointer-events:none;
+}
+.glass-card {
+  background:var(--glass-medium);
+  backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border);
+  border-radius:16px; overflow:hidden;
+  box-shadow:var(--glass-shadow);
+  position:relative;
+}
+.glass-card::before {
+  content:''; position:absolute; top:0; left:8%; right:8%; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  pointer-events:none;
+}
+
+/* Liquid glass button system */
+.btn-glass {
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 14px;
+  overflow: hidden; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 14px 20px;
+  font-family: inherit; font-size: 15px; font-weight: 600;
+  color: var(--text-primary); cursor: pointer;
+  transition: transform 0.55s var(--bouncy), box-shadow 0.4s var(--spring), background 0.3s var(--spring), border-color 0.3s var(--spring);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.08) inset;
+  will-change: transform;
+}
+.btn-glass::before {
+  content: ''; position: absolute; top: 0; left: 12%; right: 12%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  pointer-events: none;
+}
+.btn-glass::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 45% at var(--mx, 50%) var(--my, 0%), rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 40%, transparent 70%);
+  opacity: 0; transition: opacity 0.35s ease; pointer-events: none;
+}
+.btn-glass:hover { background: rgba(255,255,255,0.11); }
+.btn-glass:hover::after { opacity: 1; }
+.btn-glass.pressing {
+  transform: scale(0.96) translateY(1px);
+  background: rgba(255,255,255,0.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+.btn-glass.releasing { transform: scale(1.018); }
+
+.btn-primary {
+  background: var(--ios-blue);
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow: 0 8px 28px rgba(88,172,253,0.45), 0 2px 8px rgba(0,0,0,0.25), 0 1px 0 rgba(255,255,255,0.18) inset;
+}
+.btn-primary:hover { background: #6DBBFF; box-shadow: 0 12px 36px rgba(88,172,253,0.58); }
+.btn-primary.pressing { background: #3D9EF5; box-shadow: 0 3px 10px rgba(88,172,253,0.3); }
+
+.ios-press {
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: transform 0.4s var(--bouncy), opacity 0.3s ease;
+}
+.ios-press.pressing {
+  transform: scale(0.94); opacity: 0.82;
+  transition: transform 0.08s cubic-bezier(0.4,0,1,1), opacity 0.08s ease;
+}
+.ios-press.releasing { transform: scale(1.02); opacity: 1; }
+
+.header-btn {
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.12);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--ios-blue); cursor:pointer;
+  transition:all 0.3s var(--spring);
+}
+
+#app-header {
+  position:relative; z-index:200;
+  padding:calc(16px + env(safe-area-inset-top,0px)) 16px 12px;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-shrink:0;
+  background:linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+}
+#app-header h1 {
+  font-size:30px; font-weight:800; letter-spacing:-0.03em;
+  transition:opacity 0.22s ease, transform 0.28s var(--smooth);
+}
+
+/* Screens */
+.screen {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  overflow-y:auto; overflow-x:hidden;
+  padding-top:90px; padding-bottom:140px;
+  opacity:0; pointer-events:none;
+  transform: scale(0.96) translateY(16px);
+  transition: opacity 0.38s var(--smooth), transform 0.38s var(--smooth);
+  will-change: transform, opacity;
+}
+.screen.active { opacity: 1; pointer-events: auto; transform: scale(1) translateY(0); }
+.screen.exit { opacity: 0; pointer-events: none; transform: scale(1.015) translateY(-6px); }
+
+/* Search bar */
+.search-wrap { padding:0 16px 14px; }
+.search-bar {
+  height:40px; border-radius:12px;
+  background:rgba(118,118,128,0.22);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  display:flex; align-items:center; padding:0 12px; gap:8px;
+  border:1px solid rgba(255,255,255,0.06);
+  transition:all 0.3s var(--spring);
+}
+.search-bar:focus-within {
+  background:rgba(118,118,128,0.3);
+  border-color:rgba(88,172,253,0.4);
+  box-shadow:0 0 0 3px rgba(88,172,253,0.12);
+}
+.search-bar input {
+  flex:1; background:none; border:none; outline:none;
+  font-family:inherit; font-size:15px; color:var(--text-primary);
+}
+.search-bar input::placeholder { color:var(--ios-gray); }
+
+/* List items */
+.list-item {
+  display:flex; align-items:center; padding:13px 16px;
+  position:relative; gap:0; transition:background 0.15s;
+  cursor:pointer;
+}
+.list-item.pressing { background: rgba(255,255,255,0.06); }
+.list-sep::after {
+  content:''; position:absolute; bottom:0; left:78px; right:0;
+  height:0.5px; background:rgba(255,255,255,0.08);
+}
+.list-sep:last-child::after { display:none; }
+
+.avatar {
+  width:50px; height:50px; border-radius:50%;
+  margin-right:14px; flex-shrink:0;
+  background:linear-gradient(135deg,#2C2C3E,#1C1C2E);
+  display:flex; align-items:center; justify-content:center;
+  font-size:19px; font-weight:700; overflow:hidden;
+  border:1px solid rgba(255,255,255,0.08);
+}
+.avatar img { width:100%; height:100%; object-fit:cover; }
+.item-info { flex:1; min-width:0; }
+.item-top  { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px; }
+.item-name { font-size:16px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+.item-time { font-size:12px; color:var(--text-secondary); font-weight:500; flex-shrink:0; }
+.item-msg  { font-size:14px; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.unread-badge {
+  min-width:20px; height:20px; padding:0 6px; border-radius:100px;
+  background:var(--ios-blue); color:#fff;
+  font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;
+  margin-left:8px; flex-shrink:0;
+}
+
+.setting-svg { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; margin-right:14px; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,0.3); }
+.setting-svg svg { width:19px; height:19px; }
+
+/* Toggle */
+.toggle { position:relative; width:50px; height:30px; cursor:pointer; flex-shrink:0; }
+.toggle input { opacity:0; width:0; height:0; position:absolute; }
+.toggle-track {
+  position:absolute; inset:0; border-radius:15px;
+  background:rgba(255,255,255,0.12); transition:all 0.3s var(--spring);
+  border:1px solid rgba(255,255,255,0.08);
+}
+.toggle-thumb {
+  position:absolute; top:3px; left:3px;
+  width:24px; height:24px; border-radius:50%; background:#fff;
+  box-shadow:0 2px 6px rgba(0,0,0,0.4);
+  transition:transform 0.35s var(--bouncy);
+}
+.toggle input:checked ~ .toggle-track { background:var(--ios-green); border-color:var(--ios-green); }
+.toggle input:checked ~ .toggle-thumb { transform:translateX(20px); }
+
+/* Profile */
+.profile-hero { text-align:center; padding:16px 20px 24px; }
+.profile-avatar {
+  width:96px; height:96px; border-radius:50%;
+  margin:0 auto 14px; overflow:hidden;
+  background:linear-gradient(135deg,#1e3a8a,#2563eb);
+  font-size:36px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 12px 40px rgba(0,0,0,0.5), 0 0 0 3px rgba(255,255,255,0.1);
+  border:2px solid rgba(255,255,255,0.12);
+  cursor:pointer;
+}
+.profile-avatar img { width:100%; height:100%; object-fit:cover; }
+.profile-name   { font-size:24px; font-weight:800; letter-spacing:-0.02em; margin-bottom:5px; }
+.profile-handle { font-size:14px; color:var(--text-secondary); }
+.action-grid { display:flex; gap:10px; margin:0 16px 16px; }
+.action-btn {
+  flex:1; padding:12px 6px;
+  background:var(--glass-dark);
+  backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border);
+  border-radius:16px; display:flex; flex-direction:column; align-items:center; gap:6px;
+  font-size:12px; font-weight:600; color:var(--text-primary);
+  box-shadow:var(--glass-shadow); cursor:pointer;
+  transition:all 0.3s var(--spring); position:relative;
+}
+
+/* Conversation */
+#screen-conversation {
+  padding-top:0; display:flex; flex-direction:column;
+}
+.conv-header {
+  padding:calc(14px + env(safe-area-inset-top,0px)) 12px 10px;
+  display:flex; align-items:center; gap:10px; flex-shrink:0;
+  background:var(--glass-dark);
+  backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+  border-bottom:0.5px solid rgba(255,255,255,0.08);
+  position:sticky; top:0; z-index:100;
+}
+.conv-back {
+  width:34px; height:34px; border-radius:50%;
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1);
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  color:var(--ios-blue); flex-shrink:0;
+}
+.conv-info { flex:1; min-width:0; }
+.conv-name   { font-size:16px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.conv-status { font-size:12px; color:var(--ios-green); display:flex; align-items:center; gap:4px; }
+.conv-status::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--ios-green); box-shadow:0 0 6px var(--ios-green); animation:convPulse 2s ease infinite; }
+@keyframes convPulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+.messages-area {
+  flex:1; overflow-y:auto; padding:14px 14px 10px;
+  display:flex; flex-direction:column; gap:10px;
+}
+.bubble-wrap { display:flex; flex-direction:column; }
+.bubble-wrap.out { align-items:flex-end; }
+.bubble-wrap.in  { align-items:flex-start; }
+.bubble {
+  max-width:82%; padding:10px 14px;
+  border-radius:18px; font-size:15px; line-height:1.45;
+  position:relative; word-break:break-word;
+  animation:bubbleIn 0.35s var(--spring) both;
+}
+@keyframes bubbleIn {
+  from { opacity:0; transform:scale(0.85) translateY(8px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.bubble.out {
+  background:var(--ios-blue);
+  border-bottom-right-radius:5px;
+  box-shadow:0 4px 16px rgba(88,172,253,0.35);
+}
+.bubble.in {
+  background:rgba(44,44,52,0.85);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.08);
+  border-bottom-left-radius:5px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.3);
+}
+.bubble-media-img {
+  width:100%; max-width:240px; border-radius:12px; margin-bottom:6px; display:block;
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+}
+.bubble-file-card {
+  display:flex; align-items:center; gap:10px; padding:8px 10px;
+  background:rgba(0,0,0,0.25); border-radius:12px; margin-bottom:4px;
+}
+.bubble-audio-card {
+  display:flex; align-items:center; gap:10px; padding:6px 4px;
+}
+.bubble-meta { font-size:11px; color:rgba(255,255,255,0.5); margin-top:4px; display:flex; align-items:center; gap:4px; justify-content:flex-end; }
+.bubble.in .bubble-meta { color:var(--text-secondary); justify-content:flex-start; }
+
+.date-label { text-align:center; padding:6px 0 10px; font-size:12px; color:var(--text-secondary); }
+.date-label span {
+  background:rgba(44,44,52,0.7); backdrop-filter:blur(12px);
+  padding:4px 12px; border-radius:100px; border:0.5px solid rgba(255,255,255,0.1);
+}
+
+.composer {
+  flex-shrink:0; padding:8px 12px calc(8px + var(--safe-bottom));
+  background:var(--glass-dark);
+  backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+  border-top:0.5px solid rgba(255,255,255,0.08);
+}
+.composer-attach { display:flex; gap:6px; margin-bottom:6px; overflow-x:auto; padding-bottom:2px; }
+.attach-btn {
+  width:32px; height:32px; border-radius:50%; flex-shrink:0;
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ios-gray);
+  transition:all 0.2s;
+}
+.attach-btn .material-symbols-rounded { font-size:17px; }
+.composer-row {
+  display:flex; align-items:flex-end; gap:8px;
+  background:rgba(44,44,52,0.7);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:24px; padding:6px 6px 6px 14px;
+}
+.composer-row:focus-within { border-color:rgba(88,172,253,0.5); }
+.composer-input {
+  flex:1; background:none; border:none; outline:none; resize:none;
+  font-family:'LINKA800','AppleEmoji',-apple-system,sans-serif; font-size:15px; color:var(--text-primary);
+  min-height:34px; max-height:120px; padding:6px 0; line-height:1.4;
+}
+.composer-input::placeholder { color:var(--ios-gray); }
+.send-btn {
+  width:34px; height:34px; border-radius:50%; flex-shrink:0;
+  background:var(--ios-blue); display:flex; align-items:center; justify-content:center;
+  cursor:pointer; box-shadow:0 4px 14px rgba(88,172,253,0.45);
+}
+.send-btn .material-symbols-rounded { font-size:18px; color:#fff; }
+
+/* Navigation Bar */
+.nav-wrap {
+  position:fixed; bottom:calc(20px + var(--safe-bottom)); left:0; width:100%;
+  display:flex; justify-content:center; z-index:300; pointer-events:none;
+  padding:0 20px;
+}
+.nav-container {
+  pointer-events:auto; display:flex; gap:2px; padding:5px;
+  background:rgba(28,28,36,0.6);
+  backdrop-filter:blur(50px) saturate(200%); -webkit-backdrop-filter:blur(50px) saturate(200%);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:100px;
+  box-shadow:0 12px 40px rgba(0,0,0,0.4), 0 2px 0 rgba(255,255,255,0.06) inset;
+  position:relative;
+}
+.nav-indicator {
+  position:absolute; top:5px; bottom:5px;
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border-radius:100px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.1) inset;
+  z-index:1; pointer-events:none;
+}
+.nav-item {
+  display:flex; align-items:center; justify-content:center;
+  height:46px; border-radius:100px; padding:0 16px;
+  cursor:pointer; position:relative; z-index:2;
+  color:rgba(255,255,255,0.38);
+  transition:color 0.35s var(--spring);
+}
+.nav-item.active { color:var(--ios-blue); }
+.nav-icon { font-size:23px; }
+.nav-text {
+  font-size:14px; font-weight:700;
+  max-width:0; opacity:0; transform:translateX(-4px);
+  white-space:nowrap; overflow:hidden; pointer-events:none;
+  transition:max-width 0.4s var(--spring), opacity 0.3s ease, transform 0.4s var(--spring), margin-left 0.4s var(--spring);
+}
+.nav-item.active .nav-text { max-width:100px; opacity:1; transform:translateX(0); margin-left:6px; }
+
+/* Themes */
+.theme-selector { display:flex; gap:12px; padding:4px 16px 18px; }
+.theme-btn {
+  width:46px; height:46px; border-radius:50%; cursor:pointer;
+  border:2.5px solid rgba(255,255,255,0.15);
+  box-shadow:0 4px 14px rgba(0,0,0,0.4);
+  position:relative; overflow:hidden;
+  transition:transform 0.35s var(--bouncy), border-color 0.3s, box-shadow 0.3s;
+}
+.theme-btn::after {
+  content:''; position:absolute; top:0; left:0; right:0; bottom:0;
+  background:linear-gradient(135deg, rgba(255,255,255,0.35) 0%, transparent 55%);
+}
+.theme-btn.active { border-color:#fff; transform:scale(1.12); box-shadow:0 0 24px rgba(255,255,255,0.5); }
+.theme-1 { background:linear-gradient(135deg,#58ACFD,#3B8FE8); }
+.theme-2 { background:linear-gradient(135deg,#00F0FF,#FF00E4); }
+.theme-3 { background:linear-gradient(135deg,#FF9F0A,#FF2A54); }
+.theme-4 { background:linear-gradient(135deg,#34E863,#00D2FF); }
+.theme-5 { background:linear-gradient(135deg,#FF375F,#BF5AF2); }
+
+/* Overlays / Modals */
+.overlay {
+  position:fixed; inset:0; z-index:2000;
+  background:rgba(0,0,0,0.65); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  opacity:0; pointer-events:none;
+  transition:opacity 0.3s;
+  display:flex; align-items:flex-end;
+}
+.overlay.open { opacity:1; pointer-events:all; }
+.sheet {
+  width:100%; background:rgba(24,24,32,0.96);
+  backdrop-filter:blur(50px) saturate(180%); -webkit-backdrop-filter:blur(50px) saturate(180%);
+  border-radius:24px 24px 0 0;
+  border-top:1px solid rgba(255,255,255,0.12);
+  padding-bottom:calc(24px + var(--safe-bottom));
+  transform:translateY(100%); transition:transform 0.45s var(--spring);
+  max-height:88vh; overflow-y:auto; position:relative;
+}
+.sheet::before {
+  content:''; position:absolute; top:0; left:20%; right:20%; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
+}
+.overlay.open .sheet { transform:translateY(0); }
+.sheet-handle { width:36px; height:4px; border-radius:2px; background:rgba(255,255,255,0.2); margin:12px auto 8px; }
+.sheet-title { font-size:18px; font-weight:800; padding:4px 20px 14px; display:flex; align-items:center; justify-content:space-between; }
+
+/* Call View Overlay */
+#call-overlay {
+  position:fixed; inset:0; z-index:9000;
+  background:radial-gradient(ellipse at 50% 30%, rgba(20,28,45,0.95), #000);
+  backdrop-filter:blur(40px);
+  display:none; flex-direction:column; align-items:center; justify-content:space-between;
+  padding:calc(50px + env(safe-area-inset-top, 0px)) 24px calc(40px + var(--safe-bottom));
+}
+#call-overlay.open { display:flex; animation:slideUpFade 0.4s var(--spring); }
+.call-av {
+  width:120px; height:120px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:48px; font-weight:800; box-shadow:0 0 40px rgba(88,172,253,0.35);
+  margin-bottom:20px; position:relative;
+}
+.call-pulse {
+  position:absolute; inset:-12px; border-radius:50%;
+  border:2px solid var(--ios-blue); opacity:0.6;
+  animation:callRing 1.8s ease-out infinite;
+}
+@keyframes callRing {
+  0% { transform:scale(0.9); opacity:0.8; }
+  100% { transform:scale(1.35); opacity:0; }
+}
+
+/* Toast */
+#toast {
+  position:fixed; bottom:110px; left:50%; transform:translateX(-50%) translateY(16px);
+  z-index:9500; padding:11px 20px; border-radius:100px;
+  background:rgba(44,44,52,0.95); backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.12);
+  color:#fff; font-size:13px; font-weight:600;
+  white-space:nowrap; box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  opacity:0; transition:all 0.35s var(--spring); pointer-events:none;
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+.chevron { color:rgba(255,255,255,0.28); font-size:20px !important; }
+.section-title { padding:8px 16px 6px; font-size:13px; font-weight:600; color:var(--text-secondary); letter-spacing:0.04em; }
+.pulse-dot {
+  width:8px; height:8px; border-radius:50%; background:var(--ios-green);
+  box-shadow:0 0 8px var(--ios-green); display:inline-block;
+  animation:pulseDot 2s ease infinite;
+}
+@keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.85);} }
+
+/* Liquid ink layer */
+.lq-ink { z-index: 0 !important; }
+.btn-glass > *:not(.lq-ink), .btn-primary > *:not(.lq-ink) { position: relative; z-index: 1; }
+@keyframes lqInkSpread { 0%{transform:scale(0);opacity:0.9;} 40%{transform:scale(0.75);opacity:0.6;} 100%{transform:scale(1);opacity:0.15;} }
+@keyframes lqInkFade { from{opacity:0.15;transform:scale(1);} to{opacity:0;transform:scale(1.08);} }
+</style>
+</head>
+<body>
+
+<!-- Ambient background -->
+<div class="ambient-bg">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+</div>
+<div class="fluid-noise"></div>
+<div class="scanlines"></div>
+
+<!-- SVG Sprites -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+  <symbol id="svg-lock" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="12" rx="3" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.6"/><path d="M7 11V7.5a5 5 0 0 1 10 0V11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="17" r="1.4" fill="currentColor"/><line x1="12" y1="18.4" x2="12" y2="19.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="svg-shield" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6v6c0 4.97 3.47 9.62 8 10.93C16.53 21.62 20 16.97 20 12V6L12 2z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-hub" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="3" r="2" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.3"/><circle cx="20.5" cy="7.5" r="2" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.3"/><circle cx="20.5" cy="16.5" r="2" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="21" r="2" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.3"/><circle cx="3.5" cy="16.5" r="2" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.3"/><circle cx="3.5" cy="7.5" r="2" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.3"/><line x1="12" y1="9" x2="12" y2="5" stroke="currentColor" stroke-width="1.1" stroke-opacity=".6"/><line x1="14.6" y1="10.4" x2="18.9" y2="8.1" stroke="currentColor" stroke-width="1.1" stroke-opacity=".6"/><line x1="14.6" y1="13.6" x2="18.9" y2="15.9" stroke="currentColor" stroke-width="1.1" stroke-opacity=".6"/><line x1="12" y1="15" x2="12" y2="19" stroke="currentColor" stroke-width="1.1" stroke-opacity=".6"/><line x1="9.4" y1="13.6" x2="5.1" y2="15.9" stroke="currentColor" stroke-width="1.1" stroke-opacity=".6"/><line x1="9.4" y1="10.4" x2="5.1" y2="8.1" stroke="currentColor" stroke-width="1.1" stroke-opacity=".6"/></symbol>
+  <symbol id="svg-bt" viewBox="0 0 24 24" fill="none"><path d="M6.5 7.5L17.5 17.5M6.5 17.5L17.5 7.5M12 3v18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 3l6 6-6 6M12 21l6-6-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-wifi" viewBox="0 0 24 24" fill="none"><path d="M1.5 8.5C6.5 3.5 17.5 3.5 22.5 8.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M5 12.5c3.86-3.86 10.14-3.86 14 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M8.5 16.5c1.93-1.93 5.07-1.93 7 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="20" r="1.5" fill="currentColor"/></symbol>
+  <symbol id="svg-check" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity=".15" stroke="currentColor" stroke-width="1.5"/><path d="M7.5 12l3 3 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-read" viewBox="0 0 24 24" fill="none"><path d="M2 12l5 5L17 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 12l5 5L22 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-globe" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="1.6"/><ellipse cx="12" cy="12" rx="4" ry="10" stroke="currentColor" stroke-width="1.3" fill="none"/><line x1="2" y1="9" x2="22" y2="9" stroke="currentColor" stroke-width="1.3"/><line x1="2" y1="15" x2="22" y2="15" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="svg-rocket" viewBox="0 0 24 24" fill="none"><path d="M12 2C12 2 17 4 17 11L14.5 13.5H9.5L7 11C7 4 12 2 12 2Z" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.5 13.5L8 17l4-1 4 1-1.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="9" r="1.4" fill="currentColor"/></symbol>
+  <symbol id="svg-transfer" viewBox="0 0 24 24" fill="none"><path d="M7 16V4m0 0L4 7m3-3l3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 8v12m0 0l3-3m-3 3l-3-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-mic" viewBox="0 0 24 24" fill="none"><rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.6"/><path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="svg-call" viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8C7.8 13.2 9.8 15.2 12.2 16.4l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V19c0 .6-.4 1-1 1C10.6 20 4 13.4 4 5c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" fill="currentColor" fill-opacity=".9"/></symbol>
+  <symbol id="svg-person-add" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M3 20c0-4 3.1-7 7-7s7 3 7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M19 8v6M16 11h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="svg-qr" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.5"/><rect x="5" y="5" width="3" height="3" fill="currentColor" fill-opacity=".7"/><rect x="16" y="5" width="3" height="3" fill="currentColor" fill-opacity=".7"/><rect x="5" y="16" width="3" height="3" fill="currentColor" fill-opacity=".7"/><path d="M14 14h3v3h-3zM17 17h3M17 14h3v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="svg-bell" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="svg-key" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="10" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M12 10h8M18 10v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="10" r="1.5" fill="currentColor"/></symbol>
+  <symbol id="svg-palette" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 1.66 0 3-1.34 3-3 0-.78-.29-1.5-.78-2.03-.22-.25-.36-.58-.36-.97 0-.83.67-1.5 1.5-1.5H17c2.76 0 5-2.24 5-5C22 6.48 17.52 2 12 2z" fill="currentColor" fill-opacity=".15" stroke="currentColor" stroke-width="1.6"/><circle cx="7" cy="11" r="1.3" fill="currentColor"/><circle cx="10" cy="7.5" r="1.3" fill="currentColor" fill-opacity=".8"/><circle cx="14.5" cy="6.5" r="1.3" fill="currentColor" fill-opacity=".6"/><circle cx="17" cy="10" r="1.3" fill="currentColor" fill-opacity=".4"/></symbol>
+  <symbol id="svg-storage" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="6" rx="9" ry="3.5" stroke="currentColor" stroke-width="1.6"/><path d="M3 6v5c0 1.93 4.03 3.5 9 3.5s9-1.57 9-3.5V6" stroke="currentColor" stroke-width="1.6"/><path d="M3 11v5c0 1.93 4.03 3.5 9 3.5s9-1.57 9-3.5v-5" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="svg-devices" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M2 10h14" stroke="currentColor" stroke-width="1.3" stroke-opacity=".5"/><rect x="16" y="9" width="6" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="15" x2="10" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="7" y1="19" x2="13" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="svg-star" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+</svg>
+
+<!-- ═══ ONBOARDING ═══ -->
+<div id="onboarding">
+  <div class="ob-step active" id="ob-1">
+    <div class="ob-visual">
+      <div class="ob-visual-card">
+        <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
+          <line x1="80" y1="80" x2="80" y2="22" stroke="#58ACFD" stroke-width="1.2" stroke-opacity=".6"/>
+          <line x1="80" y1="80" x2="126" y2="50" stroke="#58ACFD" stroke-width="1.2" stroke-opacity=".6"/>
+          <line x1="80" y1="80" x2="126" y2="110" stroke="#58ACFD" stroke-width="1.2" stroke-opacity=".6"/>
+          <line x1="80" y1="80" x2="80" y2="138" stroke="#58ACFD" stroke-width="1.2" stroke-opacity=".6"/>
+          <line x1="80" y1="80" x2="34" y2="110" stroke="#58ACFD" stroke-width="1.2" stroke-opacity=".6"/>
+          <line x1="80" y1="80" x2="34" y2="50" stroke="#58ACFD" stroke-width="1.2" stroke-opacity=".6"/>
+          <circle cx="80" cy="80" r="14" fill="#58ACFD" fill-opacity=".25" stroke="#58ACFD" stroke-width="1.6"/>
+          <circle cx="80" cy="80" r="8" fill="#58ACFD"/>
+          <circle cx="80" cy="22" r="7" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.3"/>
+          <circle cx="126" cy="50" r="7" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.3"/>
+          <circle cx="126" cy="110" r="7" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.3"/>
+          <circle cx="80" cy="138" r="7" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.3"/>
+          <circle cx="34" cy="110" r="6" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.3"/>
+          <circle cx="34" cy="50" r="7" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.3"/>
+        </svg>
+      </div>
+    </div>
+    <div class="ob-title">Komunikasi<br/><span style="color:var(--ios-blue)">Tanpa Batas</span></div>
+    <div class="ob-desc">LINKA menghubungkan orang lewat Bluetooth Mesh, WiFi Direct &amp; P2P — tanpa internet sama sekali.</div>
+  </div>
+
+  <div class="ob-step" id="ob-2">
+    <div class="ob-visual">
+      <div class="ob-visual-card" style="background:rgba(16,30,20,0.6);border-color:rgba(48,209,88,0.2);">
+        <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
+          <path d="M80 14L30 36V78C30 110 52 130 80 138C108 130 130 110 130 78V36L80 14Z" fill="#30D158" fill-opacity=".1" stroke="#30D158" stroke-width="2" stroke-linejoin="round"/>
+          <rect x="62" y="75" width="36" height="26" rx="5" fill="#30D158" fill-opacity=".18" stroke="#6ee7b7" stroke-width="1.6"/>
+          <path d="M70 75V68a10 10 0 0 1 20 0v7" stroke="#6ee7b7" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="80" cy="88" r="3" fill="#6ee7b7"/>
+        </svg>
+      </div>
+    </div>
+    <div class="ob-title">Privasi<br/><span style="color:var(--ios-green)">Sejak Awal</span></div>
+    <div class="ob-desc">X25519 + ChaCha20-Poly1305 encryption. Data tersimpan di perangkat lokal. Zero telemetry.</div>
+  </div>
+
+  <div class="ob-step" id="ob-3">
+    <div class="ob-visual">
+      <div class="ob-visual-card" style="background:rgba(20,14,40,0.6);border-color:rgba(94,92,230,0.25);">
+        <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
+          <circle cx="80" cy="80" r="24" fill="#1e1b4b" stroke="#a78bfa" stroke-width="2"/>
+          <circle cx="80" cy="74" r="8" fill="#7c3aed"/>
+          <path d="M64 94c0-8 7-13 16-13s16 5 16 13" fill="#7c3aed" fill-opacity=".6"/>
+        </svg>
+      </div>
+    </div>
+    <div class="ob-title">Komunitas<br/><span style="color:var(--ios-purple)">10.000+ Node</span></div>
+    <div class="ob-desc">Grup, transfer media resolusi penuh, pesan instan P2P offline langsung aktif.</div>
+  </div>
+
+  <div class="ob-step" id="ob-4" style="padding-top:40px;align-items:stretch;text-align:left;">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;">
+      <div>
+        <div class="ob-title" style="text-align:left;font-size:26px;">Buat<br/><span style="color:var(--ios-blue)">Identitasmu</span></div>
+        <div class="ob-desc" style="text-align:left;margin-top:4px;">Disimpan aman di IndexedDB / LocalStorage perangkat.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.06em;margin-bottom:6px;">NAMA TAMPIL</div>
+          <input class="search-bar" id="setup-name" placeholder="Nama kamu" value="Nova User" style="width:100%;border-radius:12px;height:44px;font-size:15px;"/>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.06em;margin-bottom:6px;">USERNAME</div>
+          <div style="position:relative;">
+            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ios-blue);font-weight:700;font-size:15px;z-index:1;">@</span>
+            <input class="search-bar" id="setup-username" placeholder="username" value="novauser" style="width:100%;border-radius:12px;height:44px;font-size:15px;padding-left:28px;"/>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.06em;margin-bottom:6px;">BIO (OPSIONAL)</div>
+          <textarea class="search-bar" id="setup-bio" placeholder="Ceritakan tentang diri Anda…" rows="2" style="width:100%;border-radius:12px;min-height:64px;font-size:14px;padding:10px 12px;resize:none;">Building the future of communication.</textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ob-bottom">
+    <div class="ob-dots" id="ob-dots">
+      <div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+    </div>
+    <button class="btn-glass btn-primary ios-press" id="ob-next-btn" onclick="obNext()" style="width:100%;padding:15px;border-radius:16px;font-size:16px;">
+      <span>Lanjutkan</span>
+      <span class="material-symbols-rounded">arrow_forward</span>
+    </button>
+    <button onclick="finishOnboarding()" style="background:none;border:none;padding:8px;font-size:14px;color:rgba(255,255,255,0.35);cursor:pointer;font-family:inherit;">Lewati untuk sekarang</button>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app" style="display:none;">
+
+  <!-- Header -->
+  <div id="app-header">
+    <h1 id="header-title">Obrolan</h1>
+    <div style="display:flex;gap:8px;">
+      <div class="header-btn ios-press" id="header-search-btn" onclick="headerAction('search')">
+        <span class="material-symbols-rounded" style="font-size:19px;">search</span>
+      </div>
+      <div class="header-btn ios-press" id="header-main-btn" onclick="headerAction('main')">
+        <span class="material-symbols-rounded" style="font-size:19px;">edit_square</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: CHATS ── -->
+  <div id="screen-chats" class="screen active">
+    <div class="search-wrap">
+      <div class="search-bar ios-press">
+        <span class="material-symbols-rounded" style="font-size:19px;color:var(--ios-gray);">search</span>
+        <input type="text" id="chat-search-input" placeholder="Cari Obrolan" oninput="searchChats(this.value)"/>
+      </div>
+    </div>
+
+    <!-- Filter tabs -->
+    <div style="display:flex;gap:6px;padding:0 16px 14px;overflow-x:auto;" id="chat-filters">
+      <button class="ios-press" onclick="setChatFilter(this,'all')" style="padding:5px 14px;border-radius:100px;background:rgba(88,172,253,0.18);border:1px solid rgba(88,172,253,0.3);color:var(--ios-blue);font-size:12px;font-weight:700;white-space:nowrap;font-family:inherit;cursor:pointer;">Semua</button>
+      <button class="ios-press" onclick="setChatFilter(this,'direct')" style="padding:5px 14px;border-radius:100px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);font-size:12px;font-weight:700;white-space:nowrap;font-family:inherit;cursor:pointer;">Pribadi</button>
+      <button class="ios-press" onclick="setChatFilter(this,'group')" style="padding:5px 14px;border-radius:100px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);font-size:12px;font-weight:700;white-space:nowrap;font-family:inherit;cursor:pointer;">Grup</button>
+      <button class="ios-press" onclick="setChatFilter(this,'channel')" style="padding:5px 14px;border-radius:100px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);font-size:12px;font-weight:700;white-space:nowrap;font-family:inherit;cursor:pointer;">Channel</button>
+    </div>
+
+    <!-- P2P Live banner -->
+    <div class="glass-panel ios-press" style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;" onclick="openOverlay('device-modal')">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="pulse-dot"></span>
+        <div>
+          <div style="font-size:14px;font-weight:700;">Simulator Mesh P2P Aktif</div>
+          <div style="font-size:12px;color:var(--text-secondary);" id="p2p-status-line">Sinkronisasi instan via BroadcastChannel & WebRTC</div>
+        </div>
+      </div>
+      <span class="material-symbols-rounded chevron">chevron_right</span>
+    </div>
+
+    <div id="chat-list"></div>
+  </div>
+
+  <!-- ── SCREEN: KONTAK ── -->
+  <div id="screen-contacts" class="screen">
+    <div class="search-wrap">
+      <div class="search-bar">
+        <span class="material-symbols-rounded" style="font-size:19px;color:var(--ios-gray);">search</span>
+        <input type="text" id="contact-search-input" placeholder="Cari Kontak" oninput="filterContacts(this.value)"/>
+      </div>
+    </div>
+
+    <div class="glass-panel">
+      <div class="list-item list-sep ios-press" onclick="openNewContactModal()">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#3b82f6,#1d4ed8);">
+          <span class="material-symbols-rounded" style="color:#fff;">person_add</span>
+        </div>
+        <div class="item-name">Tambah Kontak Baru</div>
+        <span class="material-symbols-rounded chevron" style="margin-left:auto;">chevron_right</span>
+      </div>
+      <div class="list-item ios-press" onclick="openDialerModal()">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#34d399,#059669);">
+          <span class="material-symbols-rounded" style="color:#fff;">call</span>
+        </div>
+        <div class="item-name">Panggilan &amp; Dialer Mesh</div>
+        <span class="material-symbols-rounded chevron" style="margin-left:auto;">chevron_right</span>
+      </div>
+    </div>
+
+    <div id="contacts-list"></div>
+  </div>
+
+  <!-- ── SCREEN: PENGATURAN ── -->
+  <div id="screen-settings" class="screen">
+    <!-- Theme selection -->
+    <div class="glass-panel">
+      <div style="padding:14px 16px 8px;font-size:16px;font-weight:700;">Tema Background</div>
+      <div class="theme-selector">
+        <div class="theme-btn theme-1 active ios-press" onclick="setTheme('default',this)" title="Biru LINKA"></div>
+        <div class="theme-btn theme-2 ios-press" onclick="setTheme('theme-cyber',this)" title="Cyber"></div>
+        <div class="theme-btn theme-3 ios-press" onclick="setTheme('theme-warm',this)" title="Hangat"></div>
+        <div class="theme-btn theme-4 ios-press" onclick="setTheme('theme-emerald',this)" title="Hijau"></div>
+        <div class="theme-btn theme-5 ios-press" onclick="setTheme('theme-rose',this)" title="Rose"></div>
+      </div>
+    </div>
+
+    <!-- Font size -->
+    <div class="glass-panel">
+      <div style="padding:14px 16px;font-size:16px;font-weight:700;">Ukuran Font</div>
+      <div style="padding:0 16px 16px;display:flex;align-items:center;gap:14px;">
+        <span style="font-size:12px;color:var(--text-secondary);">A</span>
+        <input type="range" min="12" max="20" value="15" id="font-size-slider" oninput="changeFontSize(this.value)" style="flex:1;accent-color:var(--ios-blue);height:4px;"/>
+        <span style="font-size:18px;color:var(--text-secondary);">A</span>
+      </div>
+      <div style="padding:0 16px 14px;font-size:12px;color:var(--text-secondary);">
+        Font teks: <strong style="color:var(--text-primary);">LINKA800</strong> — 
+        <span style="color:var(--ios-gray);">Emoji: AppleEmoji iOS 18.4</span>
+      </div>
+    </div>
+
+    <!-- Umum -->
+    <div class="section-title">UMUM</div>
+    <div class="glass-panel">
+      <div class="list-item list-sep ios-press" onclick="openSettingsModal('notif')">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#f87171,#dc2626);">
+          <span class="material-symbols-rounded" style="color:#fff;">notifications</span>
+        </div>
+        <div class="item-info"><div class="item-name">Notifikasi</div><div style="font-size:12px;color:var(--text-secondary);" id="setting-notif-sub">Suara, Banner, Getar</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+      <div class="list-item list-sep ios-press" onclick="openSettingsModal('privacy')">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#34d399,#059669);">
+          <span class="material-symbols-rounded" style="color:#fff;">lock</span>
+        </div>
+        <div class="item-info"><div class="item-name">Privasi &amp; Keamanan</div><div style="font-size:12px;color:var(--text-secondary);">X25519, Passkey, Enkripsi</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+      <div class="list-item list-sep ios-press" onclick="openSettingsModal('chat-settings')">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#3b82f6,#1d4ed8);">
+          <span class="material-symbols-rounded" style="color:#fff;">chat</span>
+        </div>
+        <div class="item-info"><div class="item-name">Pengaturan Obrolan</div><div style="font-size:12px;color:var(--text-secondary);">Enter to send, Auto-download</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+      <div class="list-item list-sep ios-press" onclick="openSettingsModal('devices')">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#818cf8,#4338ca);">
+          <span class="material-symbols-rounded" style="color:#fff;">devices</span>
+        </div>
+        <div class="item-info"><div class="item-name">Perangkat Terhubung</div><div style="font-size:12px;color:var(--text-secondary);" id="setting-dev-sub">1 sesi aktif ini</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+      <div class="list-item ios-press" onclick="openSettingsModal('storage')">
+        <div class="setting-svg" style="background:linear-gradient(145deg,#fb923c,#ea580c);">
+          <span class="material-symbols-rounded" style="color:#fff;">storage</span>
+        </div>
+        <div class="item-info"><div class="item-name">Penyimpanan &amp; Data</div><div style="font-size:12px;color:var(--text-secondary);" id="storage-summary-text">Menghitung...</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+    </div>
+
+    <!-- Jaringan -->
+    <div class="section-title">JARINGAN</div>
+    <div class="glass-panel">
+      <div class="list-item list-sep" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;">
+          <div class="setting-svg" style="background:linear-gradient(145deg,#3b82f6,#1d4ed8);">
+            <svg viewBox="0 0 24 24" fill="none"><use href="#svg-bt" color="white"/></svg>
+          </div>
+          <div><div class="item-name">Bluetooth Mesh</div><div style="font-size:12px;color:var(--ios-green);" id="bt-mesh-status-text">Terhubung · 8 node</div></div>
+        </div>
+        <label class="toggle" style="margin-left:auto;"><input type="checkbox" checked id="toggle-bt-mesh" onchange="toggleNetworkFeature('btMesh', this.checked)"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+      <div class="list-item list-sep" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;">
+          <div class="setting-svg" style="background:linear-gradient(145deg,#38bdf8,#0284c7);">
+            <svg viewBox="0 0 24 24" fill="none"><use href="#svg-wifi" color="white"/></svg>
+          </div>
+          <div><div class="item-name">WiFi Direct</div><div style="font-size:12px;color:var(--ios-green);" id="wifi-status-text">Aktif · 3 peers</div></div>
+        </div>
+        <label class="toggle" style="margin-left:auto;"><input type="checkbox" checked id="toggle-wifi-direct" onchange="toggleNetworkFeature('wifiDirect', this.checked)"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+      <div class="list-item" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;">
+          <div class="setting-svg" style="background:linear-gradient(145deg,#818cf8,#4338ca);">
+            <span class="material-symbols-rounded" style="color:#fff;">hub</span>
+          </div>
+          <div><div class="item-name">P2P Broadcast Sync</div><div style="font-size:12px;color:var(--ios-green);">Tab &amp; Cross-Window Live</div></div>
+        </div>
+        <label class="toggle" style="margin-left:auto;"><input type="checkbox" checked id="toggle-p2p" onchange="toggleNetworkFeature('p2pBroadcast', this.checked)"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="glass-panel" style="padding:20px;text-align:center;margin-bottom:20px;">
+      <div style="width:56px;height:56px;border-radius:14px;overflow:hidden;margin:0 auto 12px;box-shadow:0 8px 24px rgba(88,172,253,0.3);">
+        <img src="assets/logo/logo.png" alt="LINKA" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\'width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#58ACFD,#5E5CE6);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:white;\'>L</div>'"/>
+      </div>
+      <div style="font-size:20px;font-weight:800;letter-spacing:-0.02em;">LINKA</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Versi 2.1.0 · Build 2026.09</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Connected Without Limits</div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: PROFIL ── -->
+  <div id="screen-profile" class="screen">
+    <div class="profile-hero">
+      <div class="profile-avatar ios-press" id="profile-av" onclick="triggerProfilePhotoUpload()">N</div>
+      <div class="profile-name" id="profile-name-disp">Nova User</div>
+      <div class="profile-handle">
+        <span class="pulse-dot" style="margin-right:5px;"></span>
+        <span id="profile-handle-disp">@novauser</span>
+        <span style="color:rgba(255,255,255,0.3);margin:0 6px;">·</span>
+        <span style="color:var(--ios-green);">Online (P2P Mesh)</span>
+      </div>
+      <div id="profile-bio-disp" style="font-size:13px;color:var(--text-secondary);margin-top:6px;max-width:320px;margin-left:auto;margin-right:auto;">Building the future of communication.</div>
+    </div>
+
+    <div class="action-grid">
+      <div class="action-btn ios-press" onclick="openQrModal()">
+        <svg width="24" height="24"><use href="#svg-qr" color="#58ACFD"/></svg>
+        <span style="font-size:11px;">QR Code</span>
+      </div>
+      <div class="action-btn ios-press" onclick="openEditProfileModal()">
+        <svg width="24" height="24"><use href="#svg-palette" color="white"/></svg>
+        <span style="font-size:11px;">Edit Profil</span>
+      </div>
+      <div class="action-btn ios-press" onclick="openNewPostModal()">
+        <span class="material-symbols-rounded" style="font-size:24px;color:var(--ios-green);">add_box</span>
+        <span style="font-size:11px;">Buat Post</span>
+      </div>
+    </div>
+
+    <div class="glass-panel" style="padding:0;">
+      <div class="list-item list-sep ios-press" onclick="openEditProfileModal()">
+        <div style="flex:1;"><div style="font-size:15px;font-weight:600;" id="profile-phone-disp">+62 812 1448 6208</div><div style="font-size:12px;color:var(--text-secondary);">Ponsel Mesh ID</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+      <div class="list-item ios-press" onclick="openEditProfileModal()">
+        <div style="flex:1;"><div style="font-size:15px;font-weight:600;" id="profile-user-disp">@novauser</div><div style="font-size:12px;color:var(--text-secondary);">Username</div></div>
+        <span class="material-symbols-rounded chevron">chevron_right</span>
+      </div>
+    </div>
+
+    <!-- Postingan tab -->
+    <div style="display:flex;gap:4px;margin:0 16px 16px;background:rgba(255,255,255,0.06);padding:3px;border-radius:12px;">
+      <button id="tab-posts" onclick="setPostTab('posts')" style="flex:1;padding:8px;border-radius:10px;background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">Postingan</button>
+      <button id="tab-archive" onclick="setPostTab('archive')" style="flex:1;padding:8px;border-radius:10px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Arsip Postingan</button>
+    </div>
+
+    <div id="posts-grid" style="padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+  </div>
+
+  <!-- ── SCREEN: CONVERSATION ── -->
+  <div id="screen-conversation" class="screen">
+    <div class="conv-header">
+      <div class="conv-back ios-press" onclick="goBack()">
+        <span class="material-symbols-rounded" style="font-size:19px;">arrow_back_ios</span>
+      </div>
+      <div class="avatar" id="conv-av" style="width:38px;height:38px;font-size:15px;font-weight:700;margin:0 10px 0 0;flex-shrink:0;">A</div>
+      <div class="conv-info" onclick="showChatDetails()">
+        <div class="conv-name" id="conv-name">Alex Chen</div>
+        <div class="conv-status" id="conv-status">Aktif via Bluetooth</div>
+      </div>
+      <div style="display:flex;gap:6px;margin-left:auto;">
+        <div class="header-btn ios-press" onclick="startCall(currentChatId, 'voice')">
+          <svg width="18" height="18"><use href="#svg-call" color="var(--ios-blue)"/></svg>
+        </div>
+        <div class="header-btn ios-press" onclick="startCall(currentChatId, 'video')">
+          <span class="material-symbols-rounded" style="font-size:18px;color:var(--ios-blue);">videocam</span>
+        </div>
+        <div class="header-btn ios-press" onclick="showChatMenu()">
+          <span class="material-symbols-rounded" style="font-size:18px;">more_vert</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:6px 14px;background:rgba(88,172,253,0.1);border-bottom:0.5px solid rgba(88,172,253,0.2);display:flex;align-items:center;gap:7px;flex-shrink:0;">
+      <svg width="13" height="13"><use href="#svg-bt" color="#58ACFD"/></svg>
+      <span style="font-size:11px;color:var(--ios-blue);font-weight:600;" id="conv-encryption-banner">Bluetooth Mesh · Terenkripsi E2E X25519</span>
+      <svg width="13" height="13" style="margin-left:auto;"><use href="#svg-lock" color="#30D158"/></svg>
+    </div>
+
+    <div class="messages-area" id="messages-area"></div>
+
+    <div class="composer">
+      <div class="composer-attach">
+        <div class="attach-btn ios-press" onclick="triggerFileUpload('photo')" title="Kirim Foto"><span class="material-symbols-rounded">photo_camera</span></div>
+        <div class="attach-btn ios-press" onclick="triggerFileUpload('file')" title="Kirim Berkas"><span class="material-symbols-rounded">attach_file</span></div>
+        <div class="attach-btn ios-press" onclick="openGifPicker()" style="width:auto;padding:0 10px;border-radius:100px;font-size:11px;font-weight:800;color:var(--ios-blue);">GIF</div>
+        <div class="attach-btn ios-press" onclick="openStickerPicker()" title="Kirim Stiker"><span class="material-symbols-rounded">sentiment_satisfied</span></div>
+        <div class="attach-btn ios-press" onclick="simulateVoiceNote()" title="Voice Note"><span class="material-symbols-rounded">mic</span></div>
+      </div>
+      <div class="composer-row">
+        <textarea class="composer-input" id="msg-input" placeholder="Pesan…" rows="1"></textarea>
+        <div class="send-btn ios-press" onclick="sendMsg()">
+          <span class="material-symbols-rounded">send</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: MESH ── -->
+  <div id="screen-mesh" class="screen">
+    <div class="search-wrap">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div>
+          <div style="font-size:20px;font-weight:800;">Jaringan Mesh</div>
+          <div style="font-size:12px;color:var(--text-secondary);" id="mesh-node-subtitle">1,204 node · 12ms</div>
+        </div>
+        <div class="glass-panel" style="margin:0;padding:6px 12px;display:flex;align-items:center;gap:6px;border-radius:100px;cursor:pointer;" onclick="triggerMeshScan()">
+          <span class="pulse-dot"></span>
+          <span style="font-size:12px;font-weight:600;color:var(--ios-green);">SCAN LIVE</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin:0 16px 16px;border-radius:22px;overflow:hidden;background:#080810;border:1px solid rgba(255,255,255,0.08);position:relative;height:240px;">
+      <canvas id="mesh-canvas" style="width:100%;height:100%;"></canvas>
+      <div style="position:absolute;bottom:12px;right:12px;font-size:10px;color:rgba(255,255,255,0.4);" id="mesh-p2p-badge">P2P Channel: Aktif</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 16px;">
+      <div class="glass-card" style="padding:16px;">
+        <div style="font-size:26px;font-weight:800;" id="metric-nodes">1,204</div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);letter-spacing:0.04em;margin-top:3px;">NODE TERHUBUNG</div>
+        <div style="margin-top:10px;height:3px;border-radius:100px;background:rgba(255,255,255,0.1);"><div style="height:100%;width:80%;border-radius:100px;background:var(--ios-blue);" id="bar-nodes"></div></div>
+      </div>
+      <div class="glass-card" style="padding:16px;">
+        <div style="font-size:26px;font-weight:800;" id="metric-latency">12<span style="font-size:14px;font-weight:500;color:var(--text-secondary);">ms</span></div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);letter-spacing:0.04em;margin-top:3px;">LATENSI MESH</div>
+        <div style="margin-top:10px;height:3px;border-radius:100px;background:rgba(255,255,255,0.1);"><div style="height:100%;width:92%;border-radius:100px;background:var(--ios-green);" id="bar-latency"></div></div>
+      </div>
+      <div class="glass-card" style="padding:16px;">
+        <div style="font-size:26px;font-weight:800;">4</div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);letter-spacing:0.04em;margin-top:3px;">PROTOKOL</div>
+        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;">
+          <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(88,172,253,0.18);color:var(--ios-blue);font-weight:700;">BT-LE</span>
+          <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(88,172,253,0.18);color:var(--ios-blue);font-weight:700;">WiFi-D</span>
+          <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(88,172,253,0.18);color:var(--ios-blue);font-weight:700;">P2P-BC</span>
+          <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(88,172,253,0.18);color:var(--ios-blue);font-weight:700;">WebRTC</span>
+        </div>
+      </div>
+      <div class="glass-card" style="padding:16px;">
+        <div style="font-size:26px;font-weight:800;color:var(--ios-green);">99.9<span style="font-size:14px;font-weight:500;color:var(--text-secondary);">%</span></div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);letter-spacing:0.04em;margin-top:3px;">SELF-HEAL UPTIME</div>
+        <div style="margin-top:10px;height:3px;border-radius:100px;background:rgba(255,255,255,0.1);"><div style="height:100%;width:99%;border-radius:100px;background:var(--ios-green);"></div></div>
+      </div>
+    </div>
+
+    <!-- Nearby -->
+    <div class="section-title">PERANGKAT TERDEKAT</div>
+    <div class="glass-panel" id="nearby-list"></div>
+  </div>
+
+  <!-- NAV BAR -->
+  <div class="nav-wrap">
+    <div class="nav-container">
+      <div class="nav-indicator" id="nav-indicator"></div>
+      <div class="nav-item active" data-screen="chats" onclick="switchNav('chats','Obrolan',this)">
+        <span class="material-symbols-rounded nav-icon">chat_bubble</span>
+        <div class="nav-text">Obrolan</div>
+      </div>
+      <div class="nav-item" data-screen="contacts" onclick="switchNav('contacts','Kontak',this)">
+        <span class="material-symbols-rounded nav-icon">group</span>
+        <div class="nav-text">Kontak</div>
+      </div>
+      <div class="nav-item" data-screen="mesh" onclick="switchNav('mesh','Jaringan',this)">
+        <span class="material-symbols-rounded nav-icon">hub</span>
+        <div class="nav-text">Jaringan</div>
+      </div>
+      <div class="nav-item" data-screen="settings" onclick="switchNav('settings','Pengaturan',this)">
+        <span class="material-symbols-rounded nav-icon">settings</span>
+        <div class="nav-text">Pengaturan</div>
+      </div>
+      <div class="nav-item" data-screen="profile" onclick="switchNav('profile','Profil',this)">
+        <span class="material-symbols-rounded nav-icon">account_circle</span>
+        <div class="nav-text">Profil</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /#app -->
+
+<!-- ═══ MODALS & SHEETS ═══ -->
+
+<!-- Hidden File Inputs -->
+<input type="file" id="general-file-input" style="display:none;" onchange="handleIncomingFile(event)"/>
+<input type="file" id="profile-photo-input" accept="image/*" style="display:none;" onchange="handleIncomingProfilePhoto(event)"/>
+<input type="file" id="post-photo-input" accept="image/*" style="display:none;" onchange="handleIncomingPostPhoto(event)"/>
+
+<!-- Chat Context Menu Sheet -->
+<div class="overlay" id="chat-menu-overlay" onclick="closeOverlay('chat-menu-overlay')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div style="padding:0 0 8px;">
+      <div class="list-item ios-press" onclick="triggerChatAction('search')">
+        <span class="material-symbols-rounded" style="margin-right:14px;color:var(--text-secondary);">search</span>Cari di Obrolan
+      </div>
+      <div class="list-item ios-press" onclick="triggerChatAction('media')">
+        <span class="material-symbols-rounded" style="margin-right:14px;color:var(--text-secondary);">perm_media</span>Media &amp; File
+      </div>
+      <div class="list-item ios-press" onclick="triggerChatAction('pin')">
+        <span class="material-symbols-rounded" style="margin-right:14px;color:var(--text-secondary);" id="menu-pin-icon">push_pin</span>
+        <span id="menu-pin-label">Sematkan Obrolan</span>
+      </div>
+      <div class="list-item ios-press" onclick="triggerChatAction('mute')">
+        <span class="material-symbols-rounded" style="margin-right:14px;color:var(--text-secondary);" id="menu-mute-icon">notifications_off</span>
+        <span id="menu-mute-label">Bisukan Notifikasi</span>
+      </div>
+      <div class="list-item ios-press" onclick="triggerChatAction('delete')" style="color:var(--ios-red);">
+        <span class="material-symbols-rounded" style="margin-right:14px;">delete</span>Hapus Obrolan
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Chat Modal -->
+<div class="overlay" id="new-chat-overlay" onclick="closeOverlay('new-chat-overlay')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title"><span>Obrolan Baru</span><button onclick="closeOverlay('new-chat-overlay')" style="background:none;border:none;color:var(--ios-gray);cursor:pointer;"><span class="material-symbols-rounded">close</span></button></div>
+    <div style="padding:0 16px 14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">PILIH KONTAK / MESH NODE</div>
+      <div id="new-chat-contact-list" class="glass-panel" style="margin:0;max-height:280px;overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- New Contact Modal -->
+<div class="overlay" id="new-contact-overlay" onclick="closeOverlay('new-contact-overlay')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title"><span>Tambah Kontak Baru</span><button onclick="closeOverlay('new-contact-overlay')" style="background:none;border:none;color:var(--ios-gray);cursor:pointer;"><span class="material-symbols-rounded">close</span></button></div>
+    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">NAMA LENGKAP</div>
+        <input class="search-bar" id="new-contact-name" placeholder="misal: Budi Santoso" style="width:100%;border-radius:12px;height:44px;"/>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">HANDLE / MESH USERNAME</div>
+        <input class="search-bar" id="new-contact-user" placeholder="@username" style="width:100%;border-radius:12px;height:44px;"/>
+      </div>
+      <button class="btn-glass btn-primary ios-press" onclick="saveNewContact()" style="padding:14px;border-radius:14px;margin-top:6px;">
+        <span>Simpan Kontak</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- New Post Modal -->
+<div class="overlay" id="new-post-overlay" onclick="closeOverlay('new-post-overlay')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title"><span>Tambah Postingan</span><button onclick="closeOverlay('new-post-overlay')" style="background:none;border:none;color:var(--ios-gray);cursor:pointer;"><span class="material-symbols-rounded">close</span></button></div>
+    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:12px;">
+      <textarea class="search-bar" id="new-post-text" placeholder="Apa yang ingin kamu bagikan ke jaringan mesh?" rows="3" style="width:100%;border-radius:14px;min-height:90px;padding:12px;resize:none;font-size:15px;"></textarea>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button class="btn-glass ios-press" onclick="document.getElementById('post-photo-input').click()" style="padding:10px 14px;font-size:13px;">
+          <span class="material-symbols-rounded">add_photo_alternate</span> Tambah Gambar
+        </button>
+        <span id="new-post-photo-preview-name" style="font-size:12px;color:var(--ios-green);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;"></span>
+      </div>
+      <button class="btn-glass btn-primary ios-press" onclick="saveNewPost()" style="padding:14px;border-radius:14px;">
+        <span>Publikasikan ke Mesh</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="overlay" id="edit-profile-overlay" onclick="closeOverlay('edit-profile-overlay')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title"><span>Edit Profil</span><button onclick="closeOverlay('edit-profile-overlay')" style="background:none;border:none;color:var(--ios-gray);cursor:pointer;"><span class="material-symbols-rounded">close</span></button></div>
+    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">NAMA LENGKAP</div>
+        <input class="search-bar" id="edit-profile-name" style="width:100%;border-radius:12px;height:44px;"/>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">USERNAME</div>
+        <input class="search-bar" id="edit-profile-user" style="width:100%;border-radius:12px;height:44px;"/>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">BIO</div>
+        <textarea class="search-bar" id="edit-profile-bio" rows="2" style="width:100%;border-radius:12px;min-height:70px;padding:10px 12px;resize:none;"></textarea>
+      </div>
+      <button class="btn-glass btn-primary ios-press" onclick="saveProfileChanges()" style="padding:14px;border-radius:14px;margin-top:4px;">
+        <span>Simpan Perubahan</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- QR Code Modal -->
+<div class="overlay" id="qr-modal-overlay" onclick="closeOverlay('qr-modal-overlay')">
+  <div class="sheet" onclick="event.stopPropagation()" style="text-align:center;">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title"><span>ID Kunci Mesh Anda</span><button onclick="closeOverlay('qr-modal-overlay')" style="background:none;border:none;color:var(--ios-gray);cursor:pointer;"><span class="material-symbols-rounded">close</span></button></div>
+    <div style="padding:10px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;">
+      <div id="qr-container" style="background:#fff;padding:16px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.5);"></div>
+      <div style="font-size:13px;color:var(--text-secondary);max-width:280px;" id="qr-key-text">Scan untuk mulai obrolan terenkripsi langsung via Bluetooth</div>
+      <button class="btn-glass ios-press" onclick="copyPublicKey()" style="padding:10px 18px;border-radius:12px;font-size:13px;">
+        <span class="material-symbols-rounded">content_copy</span> Salin Public Key
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Sheet Modals -->
+<div class="overlay" id="settings-sheet-overlay" onclick="closeOverlay('settings-sheet-overlay')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title"><span id="settings-modal-title">Pengaturan</span><button onclick="closeOverlay('settings-sheet-overlay')" style="background:none;border:none;color:var(--ios-gray);cursor:pointer;"><span class="material-symbols-rounded">close</span></button></div>
+    <div id="settings-modal-content" style="padding:0 16px 20px;"></div>
+  </div>
+</div>
+
+<!-- Call Overlay View -->
+<div id="call-overlay">
+  <div style="text-align:center;">
+    <div style="font-size:13px;font-weight:700;color:var(--ios-blue);letter-spacing:0.06em;text-transform:uppercase;" id="call-type-badge">PANGGILAN SUARA P2P</div>
+    <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;" id="call-timer">Menghubungkan...</div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;">
+    <div class="call-av" id="call-avatar" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">
+      <div class="call-pulse"></div>
+      <span id="call-av-letter">A</span>
+    </div>
+    <div style="font-size:24px;font-weight:800;" id="call-user-name">Alex Chen</div>
+    <div style="font-size:13px;color:var(--ios-green);margin-top:4px;" id="call-status-line">Terenkripsi E2E · Bluetooth Mesh 2 Hop</div>
+  </div>
+
+  <div style="display:flex;gap:20px;align-items:center;">
+    <button class="ios-press" onclick="toggleCallMute(this)" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <span class="material-symbols-rounded">mic</span>
+    </button>
+    <button class="ios-press" onclick="endCall()" style="width:68px;height:68px;border-radius:50%;background:var(--ios-red);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 24px rgba(255,69,58,0.5);">
+      <span class="material-symbols-rounded" style="font-size:32px;">call_end</span>
+    </button>
+    <button class="ios-press" onclick="toggleCallSpeaker(this)" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <span class="material-symbols-rounded">volume_up</span>
+    </button>
+  </div>
+</div>
+
+<!-- Stickers / GIF overlay -->
+<div class="overlay" id="sticker-overlay" onclick="closeOverlay('sticker-overlay')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title"><span id="sticker-title">Pilih Stiker</span><button onclick="closeOverlay('sticker-overlay')" style="background:none;border:none;color:var(--ios-gray);cursor:pointer;"><span class="material-symbols-rounded">close</span></button></div>
+    <div id="sticker-container" style="display:grid;grid-template-columns:repeat(4, 1fr);gap:12px;padding:0 16px 20px;text-align:center;font-size:32px;"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT CORE ENGINE
+═══════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── 1. SERVICE WORKER REGISTRATION ── */
+try {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .then(reg => console.log('[LINKA] Service Worker terdaftar:', reg.scope))
+        .catch(err => console.warn('[LINKA] SW register notice:', err.message));
+    });
+  }
+} catch (e) {
+  console.warn('[LINKA] SW init safe catch:', e);
+}
+
+/* ── 2. LOCAL DATABASE & STATE MANAGEMENT ── */
+const DB_NAME = 'linka_store_v2';
+const DB_VERSION = 1;
+let linkaIndexedDB = null;
+
+const DEFAULT_STATE = {
+  profile: {
+    name: 'Nova User',
+    username: 'novauser',
+    phone: '+62 812 1448 6208',
+    bio: 'Building the future of communication.',
+    avatar: '',
+    color: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
+    publicKey: 'lk_secp256_' + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10)
+  },
+  settings: {
+    theme: 'default',
+    fontSize: 15,
+    notifications: true,
+    sound: true,
+    vibration: true,
+    passkey: true,
+    e2eEncryption: true,
+    enterToSend: true,
+    autoDownloadMedia: true,
+    btMesh: true,
+    wifiDirect: true,
+    p2pBroadcast: true
+  },
+  chats: [
+    { id:1, name:'XIONECRA', user:'@xionecra', last:'linka-ready.zip', lastType:'file', time:'17:45', unread:0, online:true, pinned:true, muted:false, color:'linear-gradient(135deg,#7c3aed,#4f46e5)', type:'direct', via:'BT' },
+    { id:2, name:'—ALL TEAM Z4SHII', user:'@z4shii_team', last:'Rose: Nice knowing you!', lastType:'msg', time:'07 Jun', unread:84, online:false, pinned:false, muted:false, color:'linear-gradient(135deg,#374151,#1f2937)', type:'group', via:'Mesh' },
+    { id:3, name:'ROOM PUBLIC FANZ¹', user:'2336 anggota', last:'Acan: +62858-8246-3889', lastType:'msg', time:'14:06', unread:2, online:true, pinned:false, muted:true, color:'linear-gradient(135deg,#1e293b,#0f172a)', type:'group', via:'WiFi' },
+    { id:4, name:'—_ORiON\'S_—', user:'@orions', last:'DRAFT SUSUNAN KEPENGURUSAN…', lastType:'draft', time:'08 Jan', unread:0, online:false, pinned:false, muted:false, color:'linear-gradient(135deg,#450a0a,#7f1d1d)', type:'direct', via:'' },
+    { id:5, name:'PARTNER PRIB ZASHI', user:'@z4shii', last:'Draf: bot.sendVideo(chatId…', lastType:'draft', time:'03 Nov', unread:0, online:false, pinned:false, muted:false, color:'linear-gradient(135deg,#1e1b4b,#312e81)', type:'direct', via:'' },
+    { id:6, name:'METAJAYA Market', user:'57768 anggota', last:'fardan: P R O X Y', lastType:'msg', time:'19:45', unread:0, online:true, pinned:false, muted:false, color:'linear-gradient(135deg,#0c4a6e,#075985)', type:'channel', via:'WiFi' },
+    { id:7, name:'Sarah Kim', user:'@sarahk', last:'File ditransfer sempurna!', lastType:'msg', time:'18m', unread:0, online:true, pinned:false, muted:false, color:'linear-gradient(135deg,#0891b2,#0e7490)', type:'direct', via:'LAN' },
+    { id:8, name:'Marcus Reed', user:'@marcusreed', last:'Kamu: Dapat pesanku?', lastType:'msg', time:'3j', unread:0, online:false, pinned:false, muted:false, color:'linear-gradient(135deg,#d97706,#b45309)', type:'direct', via:'' }
+  ],
+  messages: {
+    1: [
+      { id:'m1', out:false, text:'Hei! Kamu terhubung ke jaringan mesh? Aku bisa lihat node kamu', time:'10:32', read:true, type:'text' },
+      { id:'m2', out:true, text:'Ya! Koneksi Bluetooth. Sinyal sangat kuat hari ini.', time:'10:33', read:true, type:'text' },
+      { id:'m3', out:false, text:'Luar biasa. Tidak butuh internet sama sekali. Ini masa depan', time:'10:33', read:true, type:'text' },
+      { id:'m4', out:true, text:'Tepat sekali. Aku juga baru kirim file 50MB — hanya 8 detik via BT.', time:'10:34', read:true, type:'text' },
+      { id:'m5', out:false, text:'Terima! SHA256 verified. Enkripsinya kuat banget.', time:'10:35', read:true, type:'text' },
+      { id:'m6', out:true, text:'ChaCha20-Poly1305 + key exchange X25519. Forward secrecy juga aktif.', time:'10:35', read:true, type:'text' },
+      { id:'m7', out:false, text:'Sampai jumpa di sana!', time:'10:41', read:true, type:'text' }
+    ]
+  },
+  contacts: [
+    { name:'Alex Chen', user:'@alexchen', status:'terlihat belakangan ini', color:'linear-gradient(135deg,#7c3aed,#4f46e5)', online:true },
+    { name:'Aditya Nugraha', user:'@adityaN', status:'terlihat kemarin', color:'linear-gradient(135deg,#0891b2,#0e7490)', online:false },
+    { name:'Bima Santoso', user:'@bimasantoso', status:'terlihat belakangan ini', color:'linear-gradient(135deg,#059669,#047857)', online:true },
+    { name:'Bella Rahayu', user:'@bellar', status:'terlihat 1 jam lalu', color:'linear-gradient(135deg,#ec4899,#db2777)', online:false },
+    { name:'Dika Firmansyah', user:'@dikafirman', status:'terlihat belakangan ini', color:'linear-gradient(135deg,#f59e0b,#d97706)', online:false },
+    { name:'Marcus Reed', user:'@marcusreed', status:'terlihat belakangan ini', color:'linear-gradient(135deg,#d97706,#b45309)', online:true },
+    { name:'Maya Putri', user:'@mayaputri', status:'terlihat kemarin', color:'linear-gradient(135deg,#a78bfa,#7c3aed)', online:false },
+    { name:'Nova User', user:'@novauser', status:'Kamu', color:'linear-gradient(135deg,#1e3a8a,#2563eb)', online:true, self:true },
+    { name:'Priya Sharma', user:'@priyasharma', status:'terlihat 5 jam lalu', color:'linear-gradient(135deg,#7c3aed,#6d28d9)', online:false },
+    { name:'Rizky Habibie', user:'@rizkyh', status:'terlihat belakangan ini', color:'linear-gradient(135deg,#10b981,#059669)', online:true },
+    { name:'Sarah Kim', user:'@sarahk', status:'terlihat belakangan ini', color:'linear-gradient(135deg,#0891b2,#0e7490)', online:true },
+    { name:'Zara Amelia', user:'@zaraamelia', status:'terlihat seminggu lalu', color:'linear-gradient(135deg,#14b8a6,#0d9488)', online:false }
+  ],
+  posts: [
+    { id:1, text:'LINKA v2.1 mesh live node aktif tanpa jaringan seluler! 🚀', image:'', time:'Hari ini 09:12', likes:14, archived:false },
+    { id:2, text:'Eksperimen routing 4-hop sukses di frekuensi BLE 2.4GHz.', image:'', time:'Kemarin', likes:29, archived:false }
+  ],
+  nearby: [
+    { name:'Alex Chen', type:'Bluetooth LE', signal:95, color:'linear-gradient(135deg,#7c3aed,#4f46e5)' },
+    { name:'Sarah Kim', type:'WiFi Direct', signal:78, color:'linear-gradient(135deg,#0891b2,#0e7490)' },
+    { name:'Marcus Reed', type:'LAN Discovery', signal:62, color:'linear-gradient(135deg,#d97706,#b45309)' },
+    { name:'Node Anonim #88', type:'Bluetooth Mesh Relay', signal:45, color:'linear-gradient(135deg,#374151,#1f2937)' }
+  ],
+  onboardingDone: false
+};
+
+let STATE = { ...DEFAULT_STATE };
+
+function initLocalDatabase() {
+  try {
+    const raw = localStorage.getItem('linka_state_v2');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      STATE = {
+        ...DEFAULT_STATE,
+        ...parsed,
+        profile: { ...DEFAULT_STATE.profile, ...(parsed.profile || {}) },
+        settings: { ...DEFAULT_STATE.settings, ...(parsed.settings || {}) },
+        messages: { ...DEFAULT_STATE.messages, ...(parsed.messages || {}) }
+      };
+    } else {
+      saveState();
+    }
+  } catch (err) {
+    console.warn('[LINKA DB] Corrupted state auto-healing triggered:', err);
+    STATE = { ...DEFAULT_STATE };
+    saveState();
+  }
+
+  // Open IndexedDB for media storage backup
+  try {
+    if (window.indexedDB) {
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('media')) {
+          db.createObjectStore('media', { keyPath: 'id' });
+        }
+      };
+      req.onsuccess = (e) => { linkaIndexedDB = e.target.result; };
+    }
+  } catch (e) {
+    console.warn('[LINKA IndexedDB] notice:', e);
+  }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('linka_state_v2', JSON.stringify(STATE));
+  } catch (err) {
+    console.error('[LINKA] LocalStorage save error:', err);
+  }
+}
+
+/* ── 3. P2P SIMULATOR & BROADCASTCHANNEL / WEBRTC EXCHANGE ── */
+let p2pBroadcastChannel = null;
+try {
+  if (typeof BroadcastChannel !== 'undefined') {
+    p2pBroadcastChannel = new BroadcastChannel('linka_p2p_mesh');
+    p2pBroadcastChannel.onmessage = (e) => {
+      try {
+        const payload = e.data;
+        if (!payload || !payload.type) return;
+        if (payload.type === 'CHAT_MSG') {
+          handleIncomingP2PMessage(payload.chatId, payload.message);
+        } else if (payload.type === 'PEER_PING') {
+          respondP2PPing(payload.sender);
+        } else if (payload.type === 'NEW_POST') {
+          STATE.posts.unshift(payload.post);
+          saveState();
+          renderPosts();
+          showToast('Post baru diterima dari mesh!');
+        }
+      } catch (err) {
+        console.warn('[LINKA P2P Channel] onmessage err:', err);
+      }
+    };
+  }
+} catch (e) {
+  console.warn('[LINKA P2P] BroadcastChannel not supported:', e);
+}
+
+function broadcastP2P(data) {
+  try {
+    if (p2pBroadcastChannel && STATE.settings.p2pBroadcast) {
+      p2pBroadcastChannel.postMessage(data);
+    }
+  } catch (e) {
+    console.warn('[LINKA] broadcastP2P error:', e);
+  }
+}
+
+function handleIncomingP2PMessage(chatId, msg) {
+  try {
+    if (!STATE.messages[chatId]) STATE.messages[chatId] = [];
+    const exists = STATE.messages[chatId].some(m => m.id === msg.id);
+    if (!exists) {
+      STATE.messages[chatId].push(msg);
+      const c = STATE.chats.find(x => x.id === chatId);
+      if (c) {
+        c.last = msg.text || (msg.type === 'photo' ? '📷 Foto' : msg.type === 'file' ? '📁 Berkas' : '🎵 Voice note');
+        c.lastType = msg.type || 'msg';
+        c.time = msg.time;
+        if (currentChatId !== chatId) c.unread = (c.unread || 0) + 1;
+      }
+      saveState();
+      renderChats();
+      if (currentChatId === chatId) {
+        renderMessages();
+        scrollToBottom();
+      }
+      if (STATE.settings.notifications) {
+        showToast(`Pesan baru dari ${c ? c.name : 'Mesh'}`);
+      }
+    }
+  } catch (err) {
+    console.error('[LINKA] handleIncomingP2PMessage err:', err);
+  }
+}
+
+function respondP2PPing(sender) {
+  try {
+    const el = document.getElementById('p2p-status-line');
+    if (el) el.textContent = `Node terhubung: ${sender || 'Peer Aktif'} · E2E Handshake`;
+  } catch (e) {}
+}
+
+/* ── 4. UI RUNTIME VARIABLES & NAVIGATION ── */
+let obStep = 1;
+let _obTotal = 4;
+let currentScreen = 'chats';
+let prevScreen = 'chats';
+let currentChatId = 1;
+let currentPostTab = 'posts';
+let currentAttachmentType = 'file';
+let activeCallInterval = null;
+let activeCallSeconds = 0;
+let isCallMuted = false;
+let isSpeakerOn = false;
+let navSyncRAF = null;
+
+/* ── 5. ONBOARDING ENGINE ── */
+function obNext() {
+  try {
+    if (obStep < _obTotal) {
+      const cur = document.getElementById('ob-' + obStep);
+      if (cur) cur.classList.remove('active');
+      obStep++;
+      const next = document.getElementById('ob-' + obStep);
+      if (next) next.classList.add('active');
+      updateObDots();
+      if (obStep === _obTotal) {
+        const btn = document.getElementById('ob-next-btn');
+        if (btn) btn.innerHTML = '<span>Mulai Sekarang</span><span class="material-symbols-rounded">rocket_launch</span>';
+      }
+    } else {
+      finishOnboarding();
+    }
+  } catch (e) {
+    console.error('[LINKA] obNext error:', e);
+  }
+}
+
+function updateObDots() {
+  try {
+    document.querySelectorAll('.ob-dot').forEach((d, i) => d.classList.toggle('active', i === obStep - 1));
+  } catch (e) {}
+}
+
+function finishOnboarding() {
+  try {
+    const nameInp = document.getElementById('setup-name');
+    const userInp = document.getElementById('setup-username');
+    const bioInp = document.getElementById('setup-bio');
+
+    if (nameInp && nameInp.value.trim()) STATE.profile.name = nameInp.value.trim();
+    if (userInp && userInp.value.trim()) STATE.profile.username = userInp.value.trim().replace(/^@/, '');
+    if (bioInp && bioInp.value.trim()) STATE.profile.bio = bioInp.value.trim();
+
+    STATE.onboardingDone = true;
+    saveState();
+    syncProfileUI();
+
+    const obEl = document.getElementById('onboarding');
+    if (obEl) obEl.style.display = 'none';
+    const appEl = document.getElementById('app');
+    if (appEl) {
+      appEl.style.display = 'flex';
+      appEl.style.flexDirection = 'column';
+    }
+
+    renderChats();
+    renderContacts();
+    renderNearby();
+    renderPosts();
+    initMeshCanvas();
+    initNavIndicator();
+    parseUrlParameters();
+  } catch (e) {
+    console.error('[LINKA] finishOnboarding error:', e);
+  }
+}
+
+function syncProfileUI() {
+  try {
+    const p = STATE.profile;
+    const nameDisp = document.getElementById('profile-name-disp');
+    const handleDisp = document.getElementById('profile-handle-disp');
+    const userDisp = document.getElementById('profile-user-disp');
+    const bioDisp = document.getElementById('profile-bio-disp');
+    const phoneDisp = document.getElementById('profile-phone-disp');
+    const pav = document.getElementById('profile-av');
+
+    if (nameDisp) nameDisp.textContent = p.name;
+    if (handleDisp) handleDisp.textContent = '@' + p.username;
+    if (userDisp) userDisp.textContent = '@' + p.username;
+    if (bioDisp) bioDisp.textContent = p.bio || 'Building the future of communication.';
+    if (phoneDisp) phoneDisp.textContent = p.phone || '+62 812 1448 6208';
+    
+    if (pav) {
+      if (p.avatar) {
+        pav.innerHTML = `<img src="${p.avatar}" alt="${p.name}"/>`;
+      } else {
+        pav.textContent = (p.name[0] || 'N').toUpperCase();
+        pav.style.background = p.color || 'linear-gradient(135deg,#1e3a8a,#2563eb)';
+      }
+    }
+
+    // Apply saved theme & font size
+    if (STATE.settings.theme && STATE.settings.theme !== 'default') {
+      document.body.className = STATE.settings.theme;
+      document.querySelectorAll('.theme-btn').forEach(b => {
+        b.classList.toggle('active', b.classList.contains(STATE.settings.theme));
+      });
+    }
+    if (STATE.settings.fontSize) {
+      document.documentElement.style.setProperty('--base-font', STATE.settings.fontSize + 'px');
+      const slider = document.getElementById('font-size-slider');
+      if (slider) slider.value = STATE.settings.fontSize;
+    }
+  } catch (e) {
+    console.warn('[LINKA] syncProfileUI catch:', e);
+  }
+}
+
+/* ── 6. MANIFEST & URL PARAMETER PARSING (?action=new-chat, ?action=mesh) ── */
+function parseUrlParameters() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get('action');
+    if (action === 'new-chat') {
+      setTimeout(() => openNewChatModal(), 350);
+    } else if (action === 'mesh') {
+      setTimeout(() => {
+        const meshNav = document.querySelector('.nav-item[data-screen="mesh"]');
+        if (meshNav) switchNav('mesh', 'Jaringan', meshNav);
+      }, 350);
+    }
+  } catch (err) {
+    console.warn('[LINKA] URL params parser notice:', err);
+  }
+}
+
+/* ── 7. NAVIGATION & HEADER CONTROLS ── */
+function initNavIndicator() {
+  try {
+    const active = document.querySelector('.nav-item.active');
+    if (!active) return;
+    const ind = document.getElementById('nav-indicator');
+    if (!ind) return;
+    ind.style.left = active.offsetLeft + 'px';
+    ind.style.width = active.offsetWidth + 'px';
+  } catch (e) {}
+}
+
+function startIndicatorSync(target) {
+  try {
+    cancelAnimationFrame(navSyncRAF);
+    const ind = document.getElementById('nav-indicator');
+    if (!ind || !target) return;
+
+    const startL = parseFloat(ind.style.left) || 0;
+    const startW = parseFloat(ind.style.width) || 0;
+    const endL = target.offsetLeft;
+    const endW = target.offsetWidth;
+    const dur = 450;
+    const t0 = performance.now();
+
+    function springEase(t) {
+      const c4 = (2 * Math.PI) / 2.8;
+      if (t <= 0) return 0;
+      if (t >= 1) return 1;
+      return Math.pow(2, -9 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+    }
+
+    function frame(now) {
+      const p = Math.min((now - t0) / dur, 1);
+      const el = springEase(p);
+      ind.style.left = (startL + (endL - startL) * el) + 'px';
+      ind.style.width = (startW + (endW - startW) * el) + 'px';
+      if (p < 1) navSyncRAF = requestAnimationFrame(frame);
+    }
+    navSyncRAF = requestAnimationFrame(frame);
+  } catch (e) {}
+}
+
+function switchNav(screenId, title, el) {
+  try {
+    if (el && el.classList.contains('active')) return;
+    if (navigator.vibrate) navigator.vibrate(18);
+
+    const htEl = document.getElementById('header-title');
+    if (htEl) {
+      htEl.style.opacity = '0';
+      htEl.style.transform = 'translateY(6px)';
+      setTimeout(() => {
+        htEl.textContent = title;
+        htEl.style.opacity = '1';
+        htEl.style.transform = 'translateY(0)';
+      }, 120);
+    }
+
+    const isConv = screenId === 'conversation';
+    const appHeader = document.getElementById('app-header');
+    if (appHeader) appHeader.style.display = isConv ? 'none' : '';
+
+    document.querySelectorAll('.screen').forEach(s => {
+      if (s.classList.contains('active')) {
+        s.classList.add('exit');
+        setTimeout(() => s.classList.remove('active', 'exit'), 320);
+      }
+    });
+
+    const next = document.getElementById('screen-' + screenId);
+    if (next) setTimeout(() => next.classList.add('active'), 40);
+
+    if (el) {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      el.classList.add('active');
+      startIndicatorSync(el);
+    }
+
+    updateHeaderButtons(screenId);
+    prevScreen = currentScreen;
+    currentScreen = screenId;
+
+    if (screenId === 'mesh') setTimeout(initMeshCanvas, 200);
+    if (screenId === 'profile') renderPosts();
+  } catch (e) {
+    console.error('[LINKA] switchNav error:', e);
+  }
+}
+
+function updateHeaderButtons(screenId) {
+  try {
+    const mainBtn = document.getElementById('header-main-btn');
+    if (!mainBtn) return;
+    const icons = { chats:'edit_square', contacts:'person_add', settings:'tune', profile:'add_box', mesh:'refresh' };
+    const iconSpan = mainBtn.querySelector('.material-symbols-rounded');
+    if (iconSpan) iconSpan.textContent = icons[screenId] || 'more_vert';
+  } catch (e) {}
+}
+
+function headerAction(type) {
+  try {
+    const cur = currentScreen;
+    if (type === 'search') {
+      if (cur === 'chats') {
+        const inp = document.getElementById('chat-search-input');
+        if (inp) { inp.focus(); showToast('Ketik untuk mencari obrolan'); }
+      } else if (cur === 'contacts') {
+        const inp = document.getElementById('contact-search-input');
+        if (inp) { inp.focus(); showToast('Ketik untuk mencari kontak'); }
+      } else {
+        showToast('Pencarian');
+      }
+    } else if (type === 'main') {
+      if (cur === 'chats') openNewChatModal();
+      else if (cur === 'contacts') openNewContactModal();
+      else if (cur === 'profile') openNewPostModal();
+      else if (cur === 'mesh') triggerMeshScan();
+      else showToast('Tindakan siap');
+    }
+  } catch (e) {
+    console.error('[LINKA] headerAction error:', e);
+  }
+}
+
+function goBack() {
+  try {
+    const target = prevScreen && prevScreen !== 'conversation' ? prevScreen : 'chats';
+    const navItem = document.querySelector(`.nav-item[data-screen="${target}"]`);
+    const titles = { chats:'Obrolan', contacts:'Kontak', mesh:'Jaringan', settings:'Pengaturan', profile:'Profil' };
+    if (navItem) switchNav(target, titles[target] || 'Obrolan', navItem);
+    else switchNav('chats', 'Obrolan', document.querySelector('[data-screen="chats"]'));
+  } catch (e) {
+    console.warn('[LINKA] goBack error:', e);
+  }
+}
+
+/* ── 8. RENDER CHATS & SEARCH ── */
+function renderChats(filter = '', typeFilter = 'all') {
+  try {
+    const el = document.getElementById('chat-list');
+    if (!el) return;
+    let list = [...STATE.chats];
+
+    // Sort: pinned first
+    list.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+    if (filter) list = list.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()) || (c.last && c.last.toLowerCase().includes(filter.toLowerCase())));
+    if (typeFilter !== 'all') list = list.filter(c => c.type === typeFilter);
+
+    if (list.length === 0) {
+      el.innerHTML = `<div class="glass-panel" style="padding:36px 16px;text-align:center;color:var(--text-secondary);"><span class="material-symbols-rounded" style="font-size:36px;opacity:0.3;display:block;margin-bottom:8px;">chat_bubble_outline</span>Tidak ada obrolan ditemukan</div>`;
+      return;
+    }
+
+    el.innerHTML = `<div class="glass-panel" style="overflow:hidden;">` + list.map((c, i) => `
+      <div class="list-item ${i < list.length - 1 ? 'list-sep' : ''} ios-press" onclick="openConv(${c.id})">
+        <div style="position:relative;flex-shrink:0;margin-right:14px;">
+          <div class="avatar" style="background:${c.color};font-size:17px;font-weight:800;">${c.name[0]}</div>
+          ${c.online ? '<div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--ios-green);border:2px solid #0a0a12;box-shadow:0 0 6px var(--ios-green);"></div>' : ''}
+        </div>
+        <div class="item-info">
+          <div class="item-top">
+            <div class="item-name" style="display:flex;align-items:center;gap:4px;">
+              ${c.pinned ? '<span class="material-symbols-rounded" style="font-size:14px;color:var(--ios-blue);">push_pin</span>' : ''}
+              <span>${escapeHtml(c.name)}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+              ${c.muted ? '<span class="material-symbols-rounded" style="font-size:13px;color:var(--text-tertiary);">notifications_off</span>' : ''}
+              ${c.via ? `<span style="font-size:9px;padding:2px 6px;border-radius:100px;background:rgba(88,172,253,0.14);color:var(--ios-blue);font-weight:700;border:1px solid rgba(88,172,253,0.25);">${c.via}</span>` : ''}
+              <span class="item-time">${c.time}</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div class="item-msg" style="${c.lastType === 'file' || c.lastType === 'photo' ? 'color:var(--ios-blue);font-weight:600;' : c.lastType === 'draft' ? 'color:var(--ios-red);' : ''}">${escapeHtml(c.last || '')}</div>
+            ${c.unread > 0 ? `<div class="unread-badge">${c.unread > 999 ? Math.floor(c.unread/1000)+'k' : c.unread}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    `).join('') + `</div>`;
+  } catch (err) {
+    console.error('[LINKA] renderChats error:', err);
+  }
+}
+
+function searchChats(val) { renderChats(val); }
+
+function setChatFilter(btn, type) {
+  try {
+    document.querySelectorAll('#chat-filters button').forEach(b => {
+      b.style.background = 'rgba(255,255,255,0.07)';
+      b.style.color = 'rgba(255,255,255,0.5)';
+      b.style.borderColor = 'rgba(255,255,255,0.1)';
+    });
+    btn.style.background = 'rgba(88,172,253,0.18)';
+    btn.style.color = 'var(--ios-blue)';
+    btn.style.borderColor = 'rgba(88,172,253,0.3)';
+    renderChats('', type);
+  } catch (e) {}
+}
+
+/* ── 9. CONVERSATION ENGINE & ATTACHMENTS ── */
+function openConv(chatId) {
+  try {
+    const c = STATE.chats.find(x => x.id === chatId);
+    if (!c) return;
+    currentChatId = chatId;
+    c.unread = 0;
+    saveState();
+
+    const av = document.getElementById('conv-av');
+    const nm = document.getElementById('conv-name');
+    const st = document.getElementById('conv-status');
+
+    if (av) { av.textContent = c.name[0]; av.style.background = c.color; }
+    if (nm) nm.textContent = c.name;
+    if (st) st.textContent = `Aktif via ${c.via || 'Bluetooth Mesh'} (Peer E2E)`;
+
+    renderMessages();
+    renderChats();
+
+    document.querySelectorAll('.screen').forEach(s => {
+      if (s.classList.contains('active')) { s.classList.add('exit'); setTimeout(() => s.classList.remove('active', 'exit'), 300); }
+    });
+    const appHeader = document.getElementById('app-header');
+    if (appHeader) appHeader.style.display = 'none';
+
+    setTimeout(() => {
+      const convScreen = document.getElementById('screen-conversation');
+      if (convScreen) convScreen.classList.add('active');
+      scrollToBottom();
+    }, 30);
+  } catch (e) {
+    console.error('[LINKA] openConv error:', e);
+  }
+}
+
+function renderMessages() {
+  try {
+    const el = document.getElementById('messages-area');
+    if (!el) return;
+    const msgs = STATE.messages[currentChatId] || [];
+    el.innerHTML = '<div class="date-label"><span>Hari ini · Terenkripsi ChaCha20</span></div>';
+
+    msgs.forEach((m, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'bubble-wrap ' + (m.out ? 'out' : 'in');
+      wrap.style.animationDelay = (i * 20) + 'ms';
+
+      let bodyContent = '';
+      if (m.type === 'photo' && m.mediaUrl) {
+        bodyContent = `<img src="${m.mediaUrl}" class="bubble-media-img" alt="Foto"/><div>${escapeHtml(m.text || '')}</div>`;
+      } else if (m.type === 'file') {
+        bodyContent = `
+          <div class="bubble-file-card">
+            <span class="material-symbols-rounded" style="color:var(--ios-blue);font-size:24px;">description</span>
+            <div><div style="font-weight:700;font-size:14px;">${escapeHtml(m.fileName || 'Berkas')}</div><div style="font-size:11px;color:var(--text-secondary);">${m.fileSize || 'Mesh file'}</div></div>
+          </div>
+          <div>${escapeHtml(m.text || '')}</div>`;
+      } else if (m.type === 'audio') {
+        bodyContent = `
+          <div class="bubble-audio-card">
+            <span class="material-symbols-rounded" style="color:var(--ios-green);font-size:24px;">play_circle</span>
+            <div><div style="font-weight:700;font-size:13px;">Pesan Suara (Voice Note)</div><div style="font-size:11px;color:var(--text-secondary);">${m.duration || '0:07'} · 16kHz Opus</div></div>
+          </div>`;
+      } else if (m.type === 'sticker') {
+        bodyContent = `<div style="font-size:48px;padding:4px 8px;" class="chat-emoji">${m.text}</div>`;
+      } else {
+        const processed = escapeHtml(m.text || '').replace(/([\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{1FA00}-\u{1FA9F}])/gu, '<span class="chat-emoji">$1</span>');
+        bodyContent = processed;
+      }
+
+      wrap.innerHTML = `
+        <div class="bubble ${m.out ? 'out' : 'in'}">
+          ${bodyContent}
+          <div class="bubble-meta">
+            <span>${m.time}</span>
+            ${m.out ? `<svg width="14" height="9" viewBox="0 0 24 16" fill="none"><use href="${m.read ? '#svg-read' : '#svg-check'}" color="rgba(255,255,255,0.6)"/></svg>` : ''}
+          </div>
+        </div>`;
+      el.appendChild(wrap);
+    });
+  } catch (err) {
+    console.error('[LINKA] renderMessages error:', err);
+  }
+}
+
+function scrollToBottom() {
+  try {
+    const a = document.getElementById('messages-area');
+    if (a) a.scrollTop = a.scrollHeight;
+  } catch (e) {}
+}
+
+function sendMsg(payloadType = 'text', customPayload = {}) {
+  try {
+    const inp = document.getElementById('msg-input');
+    const txt = customPayload.text !== undefined ? customPayload.text : (inp ? inp.value.trim() : '');
+
+    if (!txt && payloadType === 'text') return;
+
+    if (!STATE.messages[currentChatId]) STATE.messages[currentChatId] = [];
+    const timeNow = new Date().toLocaleTimeString('id', { hour:'2-digit', minute:'2-digit' });
+    const newMsg = {
+      id: 'm_' + Date.now(),
+      out: true,
+      text: txt,
+      type: payloadType,
+      time: timeNow,
+      read: true,
+      ...customPayload
+    };
+
+    STATE.messages[currentChatId].push(newMsg);
+
+    // Update chat last message
+    const c = STATE.chats.find(x => x.id === currentChatId);
+    if (c) {
+      c.last = txt || (payloadType === 'photo' ? '📷 Foto' : payloadType === 'file' ? '📁 Berkas' : '🎵 Voice note');
+      c.lastType = payloadType;
+      c.time = timeNow;
+    }
+
+    if (inp && payloadType === 'text') {
+      inp.value = '';
+      inp.style.height = 'auto';
+    }
+
+    saveState();
+    renderMessages();
+    renderChats();
+    scrollToBottom();
+
+    // Broadcast across live P2P channel
+    broadcastP2P({ type: 'CHAT_MSG', chatId: currentChatId, message: { ...newMsg, out: false } });
+
+    // Auto peer response simulation after 1.2s if direct
+    if (c && c.type === 'direct') {
+      setTimeout(() => {
+        simulatePeerReply(currentChatId);
+      }, 1200);
+    }
+  } catch (err) {
+    console.error('[LINKA] sendMsg error:', err);
+  }
+}
+
+function simulatePeerReply(chatId) {
+  try {
+    if (!STATE.messages[chatId]) STATE.messages[chatId] = [];
+    const replies = [
+      'Siap! Data terenkripsi via Bluetooth Mesh diterima.',
+      'Sinyal kuat, forward secrecy aman.',
+      'Diterima dengan latensi 11ms di node terdekat.',
+      'Terima kasih! LINKA mesh berjalan lancar tanpa server.',
+      'Mantap, koneksi P2P stabil.'
+    ];
+    const pick = replies[Math.floor(Math.random() * replies.length)];
+    const timeNow = new Date().toLocaleTimeString('id', { hour:'2-digit', minute:'2-digit' });
+    const replyMsg = {
+      id: 'm_reply_' + Date.now(),
+      out: false,
+      text: pick,
+      type: 'text',
+      time: timeNow,
+      read: true
+    };
+    STATE.messages[chatId].push(replyMsg);
+    const c = STATE.chats.find(x => x.id === chatId);
+    if (c) {
+      c.last = pick;
+      c.lastType = 'msg';
+      c.time = timeNow;
+      if (currentChatId !== chatId) c.unread = (c.unread || 0) + 1;
+    }
+    saveState();
+    if (currentChatId === chatId) {
+      renderMessages();
+      scrollToBottom();
+    }
+    renderChats();
+  } catch (e) {}
+}
+
+/* ── 10. ATTACHMENT HANDLERS (Photo, File, GIF, Sticker, Voice Note) ── */
+function triggerFileUpload(type) {
+  try {
+    currentAttachmentType = type;
+    const fileInp = document.getElementById('general-file-input');
+    if (fileInp) {
+      fileInp.accept = type === 'photo' ? 'image/*' : '*/*';
+      fileInp.click();
+    }
+  } catch (e) {}
+}
+
+function handleIncomingFile(e) {
+  try {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target.result;
+      if (currentAttachmentType === 'photo') {
+        sendMsg('photo', { mediaUrl: dataUrl, text: file.name });
+      } else {
+        const sizeStr = (file.size / 1024 > 1024) ? (file.size / (1024*1024)).toFixed(1) + ' MB' : (file.size / 1024).toFixed(1) + ' KB';
+        sendMsg('file', { fileName: file.name, fileSize: sizeStr, fileData: dataUrl, text: 'Berkas: ' + file.name });
+      }
+      e.target.value = '';
+    };
+    reader.readAsDataURL(file);
+  } catch (err) {
+    console.error('[LINKA] handleIncomingFile err:', err);
+    showToast('Gagal memuat berkas');
+  }
+}
+
+function openGifPicker() {
+  try {
+    const gifs = [
+      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=300&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=300&auto=format&fit=crop&q=60'
+    ];
+    const pick = gifs[Math.floor(Math.random() * gifs.length)];
+    sendMsg('photo', { mediaUrl: pick, text: 'GIF Animasi Mesh' });
+    showToast('GIF terkirim');
+  } catch (e) {}
+}
+
+function openStickerPicker() {
+  try {
+    const stickers = ['⚡', '🔥', '🛡️', '🚀', '📡', '💎', '🌐', '🎉', '🔒', '💡', '🤖', '✨'];
+    const cont = document.getElementById('sticker-container');
+    const title = document.getElementById('sticker-title');
+    if (title) title.textContent = 'Pilih Stiker';
+    if (cont) {
+      cont.innerHTML = stickers.map(s => `
+        <div class="ios-press" onclick="sendSticker('${s}')" style="padding:12px;border-radius:14px;background:rgba(255,255,255,0.06);cursor:pointer;">${s}</div>
+      `).join('');
+    }
+    openOverlay('sticker-overlay');
+  } catch (e) {}
+}
+
+function sendSticker(emoji) {
+  try {
+    closeOverlay('sticker-overlay');
+    sendMsg('sticker', { text: emoji });
+  } catch (e) {}
+}
+
+function simulateVoiceNote() {
+  try {
+    showToast('Merekam voice note mesh (0:07)...');
+    setTimeout(() => {
+      sendMsg('audio', { duration: '0:07', text: 'Voice Note' });
+      showToast('Pesan suara terkirim via Mesh');
+    }, 700);
+  } catch (e) {}
+}
+
+/* ── 11. CHAT CONTEXT MENU ACTIONS (Search, Media, Pin, Mute, Delete) ── */
+function showChatMenu() {
+  try {
+    const c = STATE.chats.find(x => x.id === currentChatId);
+    if (c) {
+      const pinLbl = document.getElementById('menu-pin-label');
+      const pinIco = document.getElementById('menu-pin-icon');
+      const muteLbl = document.getElementById('menu-mute-label');
+      const muteIco = document.getElementById('menu-mute-icon');
+
+      if (pinLbl) pinLbl.textContent = c.pinned ? 'Lepas Sematan' : 'Sematkan Obrolan';
+      if (pinIco) pinIco.textContent = c.pinned ? 'keep_off' : 'push_pin';
+      if (muteLbl) muteLbl.textContent = c.muted ? 'Bunyikan Notifikasi' : 'Bisukan Notifikasi';
+      if (muteIco) muteIco.textContent = c.muted ? 'notifications' : 'notifications_off';
+    }
+    openOverlay('chat-menu-overlay');
+  } catch (e) {}
+}
+
+function triggerChatAction(action) {
+  try {
+    closeOverlay('chat-menu-overlay');
+    const c = STATE.chats.find(x => x.id === currentChatId);
+    if (!c) return;
+
+    if (action === 'search') {
+      showToast('Ketik di composer untuk menyaring pesan');
+    } else if (action === 'media') {
+      const msgs = STATE.messages[currentChatId] || [];
+      const mediaCount = msgs.filter(m => m.type === 'photo' || m.type === 'file').length;
+      showToast(`Terdapat ${mediaCount} file & media tersimpan`);
+    } else if (action === 'pin') {
+      c.pinned = !c.pinned;
+      saveState();
+      renderChats();
+      showToast(c.pinned ? 'Obrolan disematkan ke atas' : 'Sematan dilepas');
+    } else if (action === 'mute') {
+      c.muted = !c.muted;
+      saveState();
+      renderChats();
+      showToast(c.muted ? 'Notifikasi dibisukan' : 'Notifikasi aktif');
+    } else if (action === 'delete') {
+      if (confirm(`Hapus obrolan bersama ${c.name}?`)) {
+        STATE.chats = STATE.chats.filter(x => x.id !== currentChatId);
+        delete STATE.messages[currentChatId];
+        saveState();
+        renderChats();
+        goBack();
+        showToast('Obrolan telah dihapus');
+      }
+    }
+  } catch (err) {
+    console.error('[LINKA] triggerChatAction err:', err);
+  }
+}
+
+function showChatDetails() {
+  const c = STATE.chats.find(x => x.id === currentChatId);
+  if (c) showToast(`${c.name} (${c.user || 'Mesh node'})`);
+}
+
+/* ── 12. CALL & DIALER ENGINE ── */
+function startCall(chatId, type = 'voice') {
+  try {
+    const c = STATE.chats.find(x => x.id === chatId) || { name:'Alex Chen', user:'@alexchen', color:'linear-gradient(135deg,#7c3aed,#4f46e5)' };
+    const overlay = document.getElementById('call-overlay');
+    const typeBadge = document.getElementById('call-type-badge');
+    const nameEl = document.getElementById('call-user-name');
+    const avLetter = document.getElementById('call-av-letter');
+    const avBox = document.getElementById('call-avatar');
+    const timerEl = document.getElementById('call-timer');
+
+    if (typeBadge) typeBadge.textContent = type === 'video' ? 'PANGGILAN VIDEO P2P' : 'PANGGILAN SUARA P2P';
+    if (nameEl) nameEl.textContent = c.name;
+    if (avLetter) avLetter.textContent = c.name[0];
+    if (avBox) avBox.style.background = c.color;
+    if (timerEl) timerEl.textContent = 'Menghubungkan via WebRTC Mesh...';
+
+    if (overlay) overlay.classList.add('open');
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+    activeCallSeconds = 0;
+    clearInterval(activeCallInterval);
+    activeCallInterval = setInterval(() => {
+      activeCallSeconds++;
+      const mins = String(Math.floor(activeCallSeconds / 60)).padStart(2, '0');
+      const secs = String(activeCallSeconds % 60).padStart(2, '0');
+      if (timerEl) timerEl.textContent = `${mins}:${secs} · 128 kbps`;
+    }, 1000);
+  } catch (err) {
+    console.error('[LINKA] startCall err:', err);
+  }
+}
+
+function endCall() {
+  try {
+    clearInterval(activeCallInterval);
+    activeCallInterval = null;
+    const overlay = document.getElementById('call-overlay');
+    if (overlay) overlay.classList.remove('open');
+    showToast('Panggilan berakhir');
+  } catch (e) {}
+}
+
+function toggleCallMute(btn) {
+  try {
+    isCallMuted = !isCallMuted;
+    const icon = btn.querySelector('.material-symbols-rounded');
+    if (icon) icon.textContent = isCallMuted ? 'mic_off' : 'mic';
+    btn.style.background = isCallMuted ? 'var(--ios-red)' : 'rgba(255,255,255,0.12)';
+    showToast(isCallMuted ? 'Mikrofon dimatikan' : 'Mikrofon aktif');
+  } catch (e) {}
+}
+
+function toggleCallSpeaker(btn) {
+  try {
+    isSpeakerOn = !isSpeakerOn;
+    const icon = btn.querySelector('.material-symbols-rounded');
+    if (icon) icon.textContent = isSpeakerOn ? 'volume_up' : 'volume_down';
+    btn.style.background = isSpeakerOn ? 'var(--ios-blue)' : 'rgba(255,255,255,0.12)';
+    showToast(isSpeakerOn ? 'Speakerphone aktif' : 'Earpiece aktif');
+  } catch (e) {}
+}
+
+function openDialerModal() {
+  try {
+    openSettingsModal('dialer');
+  } catch (e) {}
+}
+
+/* ── 13. CONTACTS MANAGEMENT ── */
+function renderContacts(filter = '') {
+  try {
+    const el = document.getElementById('contacts-list');
+    if (!el) return;
+    const q = filter.toLowerCase();
+    const list = filter ? STATE.contacts.filter(c => c.name.toLowerCase().includes(q) || c.user.toLowerCase().includes(q)) : STATE.contacts;
+    const grouped = {};
+    list.forEach(c => { const L = (c.name[0] || 'A').toUpperCase(); if (!grouped[L]) grouped[L] = []; grouped[L].push(c); });
+
+    let html = '';
+    Object.keys(grouped).sort().forEach(L => {
+      html += `<div class="section-title">${L}</div><div class="glass-panel" style="overflow:hidden;">`;
+      grouped[L].forEach((c, i) => {
+        const isLast = i === grouped[L].length - 1;
+        html += `
+          <div class="list-item ${isLast ? '' : 'list-sep'} ios-press" onclick="handleContactClick('${escapeHtml(c.name)}')">
+            <div style="position:relative;flex-shrink:0;margin-right:14px;">
+              <div class="avatar" style="background:${c.color};font-size:17px;font-weight:800;">${c.name[0]}</div>
+              ${c.online ? '<div style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;background:var(--ios-green);border:2px solid #0a0a12;"></div>' : ''}
+            </div>
+            <div class="item-info">
+              <div style="font-size:16px;font-weight:600;${c.self ? 'color:var(--ios-blue)' : ''}">${escapeHtml(c.name)}${c.self ? ' <span style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.4);">(Kamu)</span>' : ''}</div>
+              <div style="font-size:13px;color:var(--text-secondary);">${escapeHtml(c.status || '')}</div>
+            </div>
+            ${!c.self ? `<button onclick="event.stopPropagation();startCall(findChatIdByName('${escapeHtml(c.name)}'))" style="width:34px;height:34px;border-radius:50%;background:rgba(88,172,253,0.12);border:1px solid rgba(88,172,253,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"><span class="material-symbols-rounded" style="font-size:18px;color:var(--ios-blue);">call</span></button>` : ''}
+          </div>`;
+      });
+      html += `</div>`;
+    });
+
+    if (!html) html = `<div style="text-align:center;padding:48px 20px;color:var(--text-secondary);"><span class="material-symbols-rounded" style="font-size:40px;opacity:0.3;display:block;margin-bottom:10px;">person_search</span>Tidak ada kontak ditemukan</div>`;
+    el.innerHTML = html;
+  } catch (err) {
+    console.error('[LINKA] renderContacts err:', err);
+  }
+}
+
+function filterContacts(v) { renderContacts(v); }
+
+function findChatIdByName(name) {
+  const c = STATE.chats.find(x => x.name === name);
+  return c ? c.id : 1;
+}
+
+function handleContactClick(name) {
+  try {
+    const contact = STATE.contacts.find(x => x.name === name);
+    if (!contact) return;
+    if (contact.self) {
+      const profNav = document.querySelector('.nav-item[data-screen="profile"]');
+      if (profNav) switchNav('profile', 'Profil', profNav);
+      return;
+    }
+    let chat = STATE.chats.find(x => x.name === name);
+    if (!chat) {
+      chat = {
+        id: Date.now(),
+        name: contact.name,
+        user: contact.user,
+        last: 'Obrolan baru dimulai',
+        lastType: 'msg',
+        time: 'Baru saja',
+        unread: 0,
+        online: contact.online || true,
+        pinned: false,
+        muted: false,
+        color: contact.color || 'linear-gradient(135deg,#7c3aed,#4f46e5)',
+        type: 'direct',
+        via: 'BT'
+      };
+      STATE.chats.unshift(chat);
+      STATE.messages[chat.id] = [];
+      saveState();
+    }
+    openConv(chat.id);
+  } catch (e) {
+    console.error('[LINKA] handleContactClick err:', e);
+  }
+}
+
+function openNewChatModal() {
+  try {
+    const listEl = document.getElementById('new-chat-contact-list');
+    if (listEl) {
+      listEl.innerHTML = STATE.contacts.filter(c => !c.self).map(c => `
+        <div class="list-item list-sep ios-press" onclick="closeOverlay('new-chat-overlay');handleContactClick('${escapeHtml(c.name)}')">
+          <div class="avatar" style="background:${c.color};width:36px;height:36px;font-size:14px;margin-right:10px;">${c.name[0]}</div>
+          <div class="item-info">
+            <div style="font-size:15px;font-weight:600;">${escapeHtml(c.name)}</div>
+            <div style="font-size:12px;color:var(--text-secondary);">${c.user}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+    openOverlay('new-chat-overlay');
+  } catch (e) {}
+}
+
+function openNewContactModal() {
+  try {
+    const n = document.getElementById('new-contact-name');
+    const u = document.getElementById('new-contact-user');
+    if (n) n.value = '';
+    if (u) u.value = '';
+    openOverlay('new-contact-overlay');
+  } catch (e) {}
+}
+
+function saveNewContact() {
+  try {
+    const nameEl = document.getElementById('new-contact-name');
+    const userEl = document.getElementById('new-contact-user');
+    const name = nameEl ? nameEl.value.trim() : '';
+    const user = userEl ? userEl.value.trim() : '';
+
+    if (!name) { showToast('Masukkan nama kontak'); return; }
+
+    const colors = ['linear-gradient(135deg,#7c3aed,#4f46e5)', 'linear-gradient(135deg,#0891b2,#0e7490)', 'linear-gradient(135deg,#059669,#047857)', 'linear-gradient(135deg,#ec4899,#db2777)', 'linear-gradient(135deg,#f59e0b,#d97706)'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+    STATE.contacts.push({
+      name: name,
+      user: user ? (user.startsWith('@') ? user : '@' + user) : '@node_' + Math.random().toString(36).slice(2, 6),
+      status: 'Terhubung ke mesh lokal',
+      color: randomColor,
+      online: true
+    });
+
+    saveState();
+    renderContacts();
+    closeOverlay('new-contact-overlay');
+    showToast('Kontak berhasil ditambahkan');
+  } catch (e) {
+    console.error('[LINKA] saveNewContact err:', e);
+  }
+}
+
+/* ── 14. POSTS & PROFILE ARCHIVE ── */
+function setPostTab(tab) {
+  try {
+    currentPostTab = tab;
+    const btnP = document.getElementById('tab-posts');
+    const btnA = document.getElementById('tab-archive');
+    if (btnP && btnA) {
+      btnP.style.background = tab === 'posts' ? 'rgba(255,255,255,0.1)' : 'none';
+      btnP.style.color = tab === 'posts' ? '#fff' : 'rgba(255,255,255,0.4)';
+      btnA.style.background = tab === 'archive' ? 'rgba(255,255,255,0.1)' : 'none';
+      btnA.style.color = tab === 'archive' ? '#fff' : 'rgba(255,255,255,0.4)';
+    }
+    renderPosts();
+  } catch (e) {}
+}
+
+function renderPosts() {
+  try {
+    const el = document.getElementById('posts-grid');
+    if (!el) return;
+    const isArchive = currentPostTab === 'archive';
+    const list = STATE.posts.filter(p => isArchive ? p.archived : !p.archived);
+
+    let html = `
+      <div style="aspect-ratio:1;border-radius:14px;background:var(--glass-dark);backdrop-filter:var(--glass-blur);border:1px dashed var(--glass-border);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:6px;" onclick="openNewPostModal()">
+        <span class="material-symbols-rounded" style="font-size:32px;color:var(--ios-blue);">add_a_photo</span>
+        <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">Buat Post</span>
+      </div>`;
+
+    list.forEach(p => {
+      html += `
+        <div class="glass-card ios-press" style="aspect-ratio:1;padding:12px;display:flex;flex-direction:column;justify-content:space-between;position:relative;" onclick="togglePostArchive(${p.id})">
+          ${p.image ? `<img src="${p.image}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.3;border-radius:inherit;" alt="Post"/>` : ''}
+          <div style="position:relative;z-index:1;font-size:13px;line-height:1.35;font-weight:600;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(p.text)}</div>
+          <div style="position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text-secondary);">
+            <span>${p.time}</span>
+            <span style="display:flex;align-items:center;gap:3px;color:var(--ios-red);"><span class="material-symbols-rounded" style="font-size:14px;">favorite</span>${p.likes || 0}</span>
+          </div>
+        </div>`;
+    });
+
+    el.innerHTML = html;
+  } catch (err) {
+    console.error('[LINKA] renderPosts err:', err);
+  }
+}
+
+function openNewPostModal() {
+  try {
+    const t = document.getElementById('new-post-text');
+    const p = document.getElementById('new-post-photo-preview-name');
+    if (t) t.value = '';
+    if (p) p.textContent = '';
+    uploadedPostImage = '';
+    openOverlay('new-post-overlay');
+  } catch (e) {}
+}
+
+let uploadedPostImage = '';
+function handleIncomingPostPhoto(e) {
+  try {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      uploadedPostImage = ev.target.result;
+      const p = document.getElementById('new-post-photo-preview-name');
+      if (p) p.textContent = file.name;
+    };
+    reader.readAsDataURL(file);
+  } catch (e) {}
+}
+
+function saveNewPost() {
+  try {
+    const t = document.getElementById('new-post-text');
+    const txt = t ? t.value.trim() : '';
+    if (!txt && !uploadedPostImage) { showToast('Ketik pesan post'); return; }
+
+    const newPost = {
+      id: Date.now(),
+      text: txt || 'Foto dibagikan ke mesh',
+      image: uploadedPostImage || '',
+      time: 'Baru saja',
+      likes: 1,
+      archived: false
+    };
+
+    STATE.posts.unshift(newPost);
+    saveState();
+    renderPosts();
+    closeOverlay('new-post-overlay');
+    broadcastP2P({ type: 'NEW_POST', post: newPost });
+    showToast('Postingan dibagikan ke jaringan');
+  } catch (e) {
+    console.error('[LINKA] saveNewPost err:', e);
+  }
+}
+
+function togglePostArchive(postId) {
+  try {
+    const p = STATE.posts.find(x => x.id === postId);
+    if (p) {
+      p.archived = !p.archived;
+      saveState();
+      renderPosts();
+      showToast(p.archived ? 'Postingan dipindahkan ke Arsip' : 'Postingan dikembalikan');
+    }
+  } catch (e) {}
+}
+
+function triggerProfilePhotoUpload() {
+  try {
+    const inp = document.getElementById('profile-photo-input');
+    if (inp) inp.click();
+  } catch (e) {}
+}
+
+function handleIncomingProfilePhoto(e) {
+  try {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      STATE.profile.avatar = ev.target.result;
+      saveState();
+      syncProfileUI();
+      showToast('Foto profil diperbarui');
+    };
+    reader.readAsDataURL(file);
+  } catch (e) {}
+}
+
+function openEditProfileModal() {
+  try {
+    const n = document.getElementById('edit-profile-name');
+    const u = document.getElementById('edit-profile-user');
+    const b = document.getElementById('edit-profile-bio');
+    if (n) n.value = STATE.profile.name;
+    if (u) u.value = STATE.profile.username;
+    if (b) b.value = STATE.profile.bio || '';
+    openOverlay('edit-profile-overlay');
+  } catch (e) {}
+}
+
+function saveProfileChanges() {
+  try {
+    const n = document.getElementById('edit-profile-name');
+    const u = document.getElementById('edit-profile-user');
+    const b = document.getElementById('edit-profile-bio');
+    if (n && n.value.trim()) STATE.profile.name = n.value.trim();
+    if (u && u.value.trim()) STATE.profile.username = u.value.trim().replace(/^@/, '');
+    if (b) STATE.profile.bio = b.value.trim();
+
+    saveState();
+    syncProfileUI();
+    closeOverlay('edit-profile-overlay');
+    showToast('Profil tersimpan di memori lokal');
+  } catch (e) {}
+}
+
+function openQrModal() {
+  try {
+    const cont = document.getElementById('qr-container');
+    const keyTxt = document.getElementById('qr-key-text');
+    if (keyTxt) keyTxt.textContent = `Node: @${STATE.profile.username} · ${STATE.profile.publicKey}`;
+    if (cont) {
+      cont.innerHTML = `
+        <svg width="180" height="180" viewBox="0 0 180 180" fill="none">
+          <rect width="180" height="180" fill="white"/>
+          <rect x="20" y="20" width="40" height="40" rx="6" fill="#000"/>
+          <rect x="26" y="26" width="28" height="28" rx="3" fill="#fff"/>
+          <rect x="32" y="32" width="16" height="16" rx="2" fill="#000"/>
+          <rect x="120" y="20" width="40" height="40" rx="6" fill="#000"/>
+          <rect x="126" y="26" width="28" height="28" rx="3" fill="#fff"/>
+          <rect x="132" y="32" width="16" height="16" rx="2" fill="#000"/>
+          <rect x="20" y="120" width="40" height="40" rx="6" fill="#000"/>
+          <rect x="26" y="126" width="28" height="28" rx="3" fill="#fff"/>
+          <rect x="32" y="132" width="16" height="16" rx="2" fill="#000"/>
+          <!-- Mock QR matrix lines -->
+          <rect x="70" y="20" width="10" height="30" fill="#000"/>
+          <rect x="90" y="30" width="20" height="10" fill="#000"/>
+          <rect x="70" y="60" width="40" height="10" fill="#000"/>
+          <rect x="20" y="70" width="40" height="10" fill="#000"/>
+          <rect x="70" y="80" width="20" height="40" fill="#000"/>
+          <rect x="100" y="70" width="60" height="20" fill="#000"/>
+          <rect x="130" y="100" width="30" height="20" fill="#000"/>
+          <rect x="70" y="130" width="20" height="30" fill="#000"/>
+          <rect x="100" y="130" width="40" height="10" fill="#000"/>
+          <rect x="150" y="130" width="10" height="30" fill="#000"/>
+        </svg>`;
+    }
+    openOverlay('qr-modal-overlay');
+  } catch (e) {}
+}
+
+function copyPublicKey() {
+  try {
+    navigator.clipboard?.writeText(STATE.profile.publicKey || 'lk_mesh_key');
+    showToast('Public Key disalin ke clipboard');
+  } catch (e) {
+    showToast('Key disalin');
+  }
+}
+
+/* ── 15. SETTINGS PAGES & MODAL SHEETS ── */
+function openSettingsModal(page) {
+  try {
+    const titleEl = document.getElementById('settings-modal-title');
+    const contEl = document.getElementById('settings-modal-content');
+    if (!titleEl || !contEl) return;
+
+    if (page === 'notif') {
+      titleEl.textContent = 'Notifikasi & Suara';
+      contEl.innerHTML = `
+        <div class="glass-panel" style="margin:0;">
+          <div class="list-item list-sep" style="justify-content:space-between;">
+            <div><div class="item-name">Notifikasi Obrolan</div><div style="font-size:12px;color:var(--text-secondary);">Tampilkan banner pesan</div></div>
+            <label class="toggle"><input type="checkbox" ${STATE.settings.notifications?'checked':''} onchange="STATE.settings.notifications=this.checked;saveState();"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="list-item list-sep" style="justify-content:space-between;">
+            <div><div class="item-name">Suara Notifikasi</div><div style="font-size:12px;color:var(--text-secondary);">Bunyikan audio saat pesan masuk</div></div>
+            <label class="toggle"><input type="checkbox" ${STATE.settings.sound?'checked':''} onchange="STATE.settings.sound=this.checked;saveState();"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="list-item" style="justify-content:space-between;">
+            <div><div class="item-name">Getaran Haptik</div><div style="font-size:12px;color:var(--text-secondary);">Haptic feedback sentuhan</div></div>
+            <label class="toggle"><input type="checkbox" ${STATE.settings.vibration?'checked':''} onchange="STATE.settings.vibration=this.checked;saveState();"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+        </div>`;
+    } else if (page === 'privacy') {
+      titleEl.textContent = 'Privasi & Keamanan';
+      contEl.innerHTML = `
+        <div class="glass-panel" style="margin:0;">
+          <div class="list-item list-sep" style="justify-content:space-between;">
+            <div><div class="item-name">Enkripsi E2E Wajib</div><div style="font-size:12px;color:var(--ios-green);">X25519 + ChaCha20 aktif</div></div>
+            <label class="toggle"><input type="checkbox" checked disabled/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="list-item list-sep" style="justify-content:space-between;">
+            <div><div class="item-name">Kunci Passkey Perangkat</div><div style="font-size:12px;color:var(--text-secondary);">Proteksi biometrik lokal</div></div>
+            <label class="toggle"><input type="checkbox" ${STATE.settings.passkey?'checked':''} onchange="STATE.settings.passkey=this.checked;saveState();"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="list-item ios-press" onclick="showToast('Public key di-refresh');STATE.profile.publicKey='lk_secp_'+Math.random().toString(36).slice(2,10);saveState();">
+            <div style="color:var(--ios-blue);"><div class="item-name">Generate Kunci Baru</div><div style="font-size:12px;color:var(--text-secondary);">Rotasi identitas kriptografi</div></div>
+          </div>
+        </div>`;
+    } else if (page === 'chat-settings') {
+      titleEl.textContent = 'Pengaturan Obrolan';
+      contEl.innerHTML = `
+        <div class="glass-panel" style="margin:0;">
+          <div class="list-item list-sep" style="justify-content:space-between;">
+            <div><div class="item-name">Kirim dengan Enter</div><div style="font-size:12px;color:var(--text-secondary);">Gunakan Enter untuk mengirim</div></div>
+            <label class="toggle"><input type="checkbox" ${STATE.settings.enterToSend?'checked':''} onchange="STATE.settings.enterToSend=this.checked;saveState();"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="list-item" style="justify-content:space-between;">
+            <div><div class="item-name">Unduh Media Otomatis</div><div style="font-size:12px;color:var(--text-secondary);">Simpan foto langsung di cache</div></div>
+            <label class="toggle"><input type="checkbox" ${STATE.settings.autoDownloadMedia?'checked':''} onchange="STATE.settings.autoDownloadMedia=this.checked;saveState();"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+        </div>`;
+    } else if (page === 'devices') {
+      titleEl.textContent = 'Perangkat Terhubung';
+      contEl.innerHTML = `
+        <div class="glass-panel" style="margin:0;">
+          <div class="list-item list-sep">
+            <span class="material-symbols-rounded" style="color:var(--ios-green);margin-right:12px;font-size:26px;">phone_iphone</span>
+            <div class="item-info">
+              <div style="font-weight:700;">Perangkat Ini (Browser / App)</div>
+              <div style="font-size:12px;color:var(--ios-green);">Sesi Utama Aktif · Node ID #001</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <span class="material-symbols-rounded" style="color:var(--ios-blue);margin-right:12px;font-size:26px;">laptop_chromebook</span>
+            <div class="item-info">
+              <div style="font-weight:700;">Mesh Relay Node #44</div>
+              <div style="font-size:12px;color:var(--text-secondary);">Terakhir aktif: 2 menit lalu</div>
+            </div>
+          </div>
+        </div>`;
+    } else if (page === 'storage') {
+      const msgCount = Object.values(STATE.messages).reduce((acc, cur) => acc + cur.length, 0);
+      const approxBytes = JSON.stringify(STATE).length;
+      const kbStr = (approxBytes / 1024).toFixed(1) + ' KB';
+
+      titleEl.textContent = 'Penyimpanan & Data';
+      contEl.innerHTML = `
+        <div class="glass-panel" style="margin:0 0 14px;">
+          <div class="list-item list-sep">
+            <div class="item-info"><div class="item-name">Total Pesan Tersimpan</div></div>
+            <span style="font-weight:700;color:var(--ios-blue);">${msgCount} pesan</span>
+          </div>
+          <div class="list-item list-sep">
+            <div class="item-info"><div class="item-name">Ukuran Database Lokal</div></div>
+            <span style="font-weight:700;color:var(--ios-green);">${kbStr}</span>
+          </div>
+          <div class="list-item list-sep">
+            <div class="item-info"><div class="item-name">Cache IndexedDB Media</div></div>
+            <span style="font-weight:700;color:var(--text-secondary);">Siap offline</span>
+          </div>
+        </div>
+        <button class="btn-glass ios-press" onclick="clearLocalCache()" style="width:100%;color:var(--ios-red);border-color:rgba(255,69,58,0.3);">
+          <span class="material-symbols-rounded">delete_forever</span> Bersihkan Cache &amp; Reset Data
+        </button>`;
+    } else if (page === 'dialer') {
+      titleEl.textContent = 'Dialer P2P Mesh';
+      contEl.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+          <input class="search-bar" id="dialer-input" placeholder="Masukkan ID Node atau Handle" style="width:100%;border-radius:14px;height:48px;font-size:18px;text-align:center;font-weight:700;letter-spacing:0.04em;" value="@alexchen"/>
+          <div style="display:flex;gap:12px;width:100%;">
+            <button class="btn-glass btn-primary ios-press" onclick="closeOverlay('settings-sheet-overlay');startCall(1,'voice')" style="flex:1;padding:14px;">
+              <span class="material-symbols-rounded">call</span> Panggilan Suara
+            </button>
+            <button class="btn-glass ios-press" onclick="closeOverlay('settings-sheet-overlay');startCall(1,'video')" style="flex:1;padding:14px;">
+              <span class="material-symbols-rounded" style="color:var(--ios-blue);">videocam</span> Video Call
+            </button>
+          </div>
+        </div>`;
+    }
+
+    openOverlay('settings-sheet-overlay');
+  } catch (err) {
+    console.error('[LINKA] openSettingsModal err:', err);
+  }
+}
+
+function clearLocalCache() {
+  try {
+    if (confirm('Bersihkan semua cache dan kembalikan data default?')) {
+      localStorage.removeItem('linka_state_v2');
+      STATE = { ...DEFAULT_STATE };
+      saveState();
+      location.reload();
+    }
+  } catch (e) {}
+}
+
+function toggleNetworkFeature(feature, isChecked) {
+  try {
+    STATE.settings[feature] = isChecked;
+    saveState();
+    showToast(`${feature} ${isChecked ? 'diaktifkan' : 'dinonaktifkan'}`);
+  } catch (e) {}
+}
+
+/* ── 16. THEMES & FONT SIZE ── */
+function setTheme(name, el) {
+  try {
+    if (navigator.vibrate) navigator.vibrate(25);
+    document.body.className = name !== 'default' ? name : '';
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    if (el) el.classList.add('active');
+    STATE.settings.theme = name;
+    saveState();
+    showToast('Tema diterapkan');
+  } catch (e) {}
+}
+
+function changeFontSize(v) {
+  try {
+    document.documentElement.style.setProperty('--base-font', v + 'px');
+    STATE.settings.fontSize = Number(v);
+    saveState();
+  } catch (e) {}
+}
+
+/* ── 17. MESH CANVAS & NEARBY PEERS SIMULATOR ── */
+let meshRAF = null;
+function initMeshCanvas() {
+  try {
+    const canvas = document.getElementById('mesh-canvas');
+    if (!canvas) return;
+    cancelAnimationFrame(meshRAF);
+    const W = canvas.clientWidth * (window.devicePixelRatio || 1);
+    const H = canvas.clientHeight * (window.devicePixelRatio || 1);
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const cw = canvas.clientWidth;
+    const ch = canvas.clientHeight;
+
+    const nodes = Array.from({ length: 22 }, () => ({
+      x: Math.random() * cw,
+      y: Math.random() * ch,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      r: Math.random() * 2.5 + 1.5,
+      alpha: Math.random() * 0.5 + 0.5,
+      color: Math.random() > 0.6 ? '#5E5CE6' : Math.random() > 0.5 ? '#BF5AF2' : '#58ACFD',
+    }));
+    nodes[0] = { x: cw / 2, y: ch / 2, vx: 0, vy: 0, r: 7, alpha: 1, center: true, color: '#58ACFD' };
+
+    function draw() {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cw, ch);
+
+      nodes.forEach((a, i) => {
+        nodes.forEach((b, j) => {
+          if (j <= i) return;
+          const d = Math.hypot(a.x - b.x, a.y - b.y);
+          if (d < 100) {
+            const al = (1 - d / 100) * 0.55;
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(88,172,253,${al})`;
+            ctx.lineWidth = 0.8;
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        });
+      });
+
+      nodes.forEach(n => {
+        const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 5);
+        g.addColorStop(0, n.center ? `rgba(88,172,253,${n.alpha * 0.5})` : `rgba(94,92,230,${n.alpha * 0.3})`);
+        g.addColorStop(1, 'transparent');
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r * 5, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = n.center ? '#58ACFD' : `rgba(180,197,255,${n.alpha})`;
+        ctx.fill();
+
+        if (n.center) {
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r + 5, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(88,172,253,0.35)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+        if (!n.center) {
+          n.x += n.vx;
+          n.y += n.vy;
+          if (n.x < 0 || n.x > cw) n.vx *= -1;
+          if (n.y < 0 || n.y > ch) n.vy *= -1;
+        }
+      });
+      meshRAF = requestAnimationFrame(draw);
+    }
+    draw();
+  } catch (err) {
+    console.warn('[LINKA] mesh canvas notice:', err);
+  }
+}
+
+function renderNearby() {
+  try {
+    const el = document.getElementById('nearby-list');
+    if (!el) return;
+    el.innerHTML = STATE.nearby.map((n, i) => `
+      <div class="list-item ${i < STATE.nearby.length - 1 ? 'list-sep' : ''} ios-press" onclick="connectToNearbyPeer('${escapeHtml(n.name)}')">
+        <div class="avatar" style="background:${n.color};font-size:17px;font-weight:800;margin-right:14px;">${n.name[0]}</div>
+        <div class="item-info">
+          <div style="font-size:15px;font-weight:600;">${escapeHtml(n.name)}</div>
+          <div style="font-size:12px;color:var(--text-secondary);">${n.type}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+          <div style="width:52px;height:4px;border-radius:100px;background:rgba(255,255,255,0.1);">
+            <div style="height:100%;width:${n.signal}%;border-radius:100px;background:${n.signal > 70 ? 'var(--ios-green)' : n.signal > 40 ? 'var(--ios-orange)' : 'var(--ios-red)'}"></div>
+          </div>
+          <span style="font-size:10px;color:var(--text-secondary);">${n.signal}%</span>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {}
+}
+
+function connectToNearbyPeer(name) {
+  try {
+    showToast(`Handshake E2E ke ${name}...`);
+    setTimeout(() => {
+      handleContactClick(name);
+    }, 600);
+  } catch (e) {}
+}
+
+function triggerMeshScan() {
+  try {
+    showToast('Memindai gelombang Bluetooth & WiFi Direct...');
+    const metricNodes = document.getElementById('metric-nodes');
+    const metricLatency = document.getElementById('metric-latency');
+    if (metricNodes) metricNodes.textContent = String(1200 + Math.floor(Math.random() * 40));
+    if (metricLatency) metricLatency.innerHTML = `${Math.floor(9 + Math.random() * 6)}<span style="font-size:14px;font-weight:500;color:var(--text-secondary);">ms</span>`;
+    setTimeout(() => {
+      showToast('Mesh terhubung: 1,200+ node aktif');
+    }, 800);
+  } catch (e) {}
+}
+
+/* ── 18. LIQUID GLASS PRESS ENGINE & HELPERS ── */
+function openOverlay(id) { try { document.getElementById(id)?.classList.add('open'); } catch (e) {} }
+function closeOverlay(id) { try { document.getElementById(id)?.classList.remove('open'); } catch (e) {} }
+
+let toastTimer = null;
+function showToast(msg) {
+  try {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+  } catch (e) {}
+}
+
+function escapeHtml(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+(function() {
+  const BTN_SEL = '.btn-glass, .btn-primary';
+  const ALL_SEL = `${BTN_SEL}, .ios-press, .nav-item, .list-item, .theme-btn, .action-btn, .header-btn, .send-btn, .attach-btn`;
+  let activeEl = null;
+
+  document.addEventListener('pointerdown', e => {
+    try {
+      const el = e.target.closest(ALL_SEL);
+      if (!el) return;
+      activeEl = el;
+      el.classList.add('pressing');
+      el.classList.remove('releasing');
+      if (navigator.vibrate) navigator.vibrate(8);
+    } catch (err) {}
+  }, { passive: true });
+
+  function release() {
+    try {
+      if (!activeEl) return;
+      activeEl.classList.remove('pressing');
+      activeEl.classList.add('releasing');
+      setTimeout(() => { if (activeEl) activeEl.classList.remove('releasing'); }, 400);
+      activeEl = null;
+    } catch (e) {}
+  }
+
+  document.addEventListener('pointerup', release, { passive: true });
+  document.addEventListener('pointercancel', release, { passive: true });
+
+  // Composer auto-resize
+  window.addEventListener('DOMContentLoaded', () => {
+    try {
+      initLocalDatabase();
+      const inp = document.getElementById('msg-input');
+      if (inp) {
+        inp.addEventListener('input', function() {
+          this.style.height = 'auto';
+          this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+        inp.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey && STATE.settings.enterToSend) {
+            e.preventDefault();
+            sendMsg();
+          }
+        });
+      }
+
+      if (STATE.onboardingDone) {
+        document.getElementById('onboarding').style.display = 'none';
+        const app = document.getElementById('app');
+        app.style.display = 'flex';
+        app.style.flexDirection = 'column';
+        syncProfileUI();
+        renderChats();
+        renderContacts();
+        renderNearby();
+        renderPosts();
+        initMeshCanvas();
+        initNavIndicator();
+        parseUrlParameters();
+      } else {
+        document.getElementById('onboarding').classList.add('visible');
+      }
+    } catch (err) {
+      console.error('[LINKA] DOMContentLoaded init err:', err);
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    try {
+      initNavIndicator();
+      initMeshCanvas();
+    } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
