@@ -4,7 +4,8 @@
   "description": "LINKA – Connected Without Limits. Decentralized offline communication.",
   "private": true,
   "scripts": {
-    "dev": "npx serve . -l 3000 --no-clipboard",
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
     "build": "echo '✅ Static build ready — no bundler needed'",
     "sync": "npx cap sync",
     "build:android": "npx cap build android",
@@ -13,7 +14,7 @@
     "open:ios": "npx cap open ios",
     "icons": "node scripts/gen-icons.js",
     "lint": "echo '✅ Lint passed'",
-    "test": "echo '✅ Tests passed'",
+    "test": "node server/test.js",
     "postinstall": "patch-package"
   },
   "dependencies": {

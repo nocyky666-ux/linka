@@ -36,6 +36,12 @@ Thumbs.db
 .env.local
 .env.production
 
+# Database & uploads
+data/
+uploads/
+*.db
+*.db-journal
+
 # Capacitor
 .capacitor/
 
